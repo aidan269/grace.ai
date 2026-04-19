@@ -358,6 +358,55 @@ h1 {
 }
 .slug-input:focus { border-color: var(--black); }
 
+.feedback-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-self: flex-end;
+  max-width: 88%;
+  width: 100%;
+}
+
+.reply-area {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+}
+
+.reply-input {
+  flex: 1;
+  font-family: inherit;
+  font-size: 0.875rem;
+  padding: 10px 14px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius);
+  outline: none;
+  color: var(--gray-900);
+  resize: none;
+  line-height: 1.5;
+  transition: border-color 0.15s;
+  max-height: 120px;
+  overflow-y: auto;
+}
+.reply-input:focus { border-color: var(--black); }
+.reply-input::placeholder { color: var(--gray-400); }
+
+.reply-btn {
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--gray-900);
+  background: var(--white);
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius);
+  padding: 10px 16px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.15s;
+  flex-shrink: 0;
+}
+.reply-btn:hover { border-color: var(--gray-400); }
+
 .push-row { align-self: flex-start; width: 100%; }
 .push-btn {
   font-family: inherit;
@@ -871,6 +920,60 @@ async function streamStep(step, extraBody = {}) {
   return raw;
 }
 
+// Show reply input + proceed button after each step.
+// Loops until user clicks proceed. Returns final raw output.
+async function waitForFeedback(step, initialRaw, proceedLabel, proceedUserText) {
+  let currentRaw = initialRaw;
+
+  while (true) {
+    const result = await new Promise(resolve => {
+      const container = document.createElement('div');
+      container.className = 'feedback-row';
+      container.innerHTML = `
+        <div class="reply-area">
+          <textarea class="reply-input" placeholder="Anything to change?" rows="1"></textarea>
+          <button class="reply-btn">Send</button>
+        </div>
+        <button class="action-btn proceed-btn">${proceedLabel}</button>
+      `;
+      addAction(container);
+
+      const textarea = container.querySelector('.reply-input');
+      textarea.addEventListener('input', () => {
+        textarea.style.height = 'auto';
+        textarea.style.height = textarea.scrollHeight + 'px';
+      });
+      textarea.addEventListener('keydown', e => {
+        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); container.querySelector('.reply-btn').click(); }
+      });
+
+      container.querySelector('.reply-btn').addEventListener('click', () => {
+        const text = textarea.value.trim();
+        if (!text) return;
+        container.remove();
+        resolve({ type: 'feedback', text });
+      });
+
+      container.querySelector('.proceed-btn').addEventListener('click', () => {
+        container.remove();
+        resolve({ type: 'proceed' });
+      });
+    });
+
+    if (result.type === 'proceed') {
+      makeUserBubble(proceedUserText);
+      return currentRaw;
+    }
+
+    makeUserBubble(result.text);
+    currentRaw = await streamStep('feedback', {
+      feedback: result.text,
+      previousOutput: currentRaw,
+      originalStep: step,
+    });
+  }
+}
+
 async function runGrace(e) {
   e.preventDefault();
   currentUrl = document.getElementById('urlInput').value.trim();
@@ -880,7 +983,6 @@ async function runGrace(e) {
   const submitBtn = document.getElementById('submitBtn');
   const streamWrap = document.getElementById('streamWrap');
 
-  // Reset
   streamWrap.innerHTML = '';
   makeUserBubble(currentUrl);
   streamWrap.classList.add('visible');
@@ -890,48 +992,76 @@ async function runGrace(e) {
   submitBtn.textContent = 'Running...';
 
   try {
-    // Step 1: Virality
-    await streamStep('virality');
+    // Step 1: Virality + feedback loop
+    const viralityRaw = await streamStep('virality');
+    await waitForFeedback('virality', viralityRaw, "Yeah, let's go →", "Yeah, let's go");
 
-    // Action: Proceed button
-    const proceedBtn = document.createElement('button');
-    proceedBtn.className = 'action-btn';
-    proceedBtn.textContent = 'Yeah, let\'s go →';
-    addAction(proceedBtn);
+    // Step 2: Slug + feedback loop
+    let slugRaw = await streamStep('slug');
+    const extractSlug = raw => { const m = raw.match(/`([a-z][a-z0-9-]{2,})`/); return m ? m[1] : null; };
+    let suggested = extractSlug(slugRaw) || 'cl-plugin';
 
-    await new Promise(resolve => proceedBtn.addEventListener('click', () => {
-      proceedBtn.remove();
-      makeUserBubble('Yeah, let\'s go');
-      resolve();
-    }, { once: true }));
+    // Slug step: feedback loop updates suggested slug; editable input confirms
+    while (true) {
+      const result = await new Promise(resolve => {
+        const container = document.createElement('div');
+        container.className = 'feedback-row';
+        container.innerHTML = `
+          <div class="reply-area">
+            <textarea class="reply-input" placeholder="Want a different name?" rows="1"></textarea>
+            <button class="reply-btn">Send</button>
+          </div>
+          <div class="slug-row">
+            <input class="slug-input" id="slugInput" value="${suggested}" spellcheck="false" />
+            <button class="action-btn" id="useSlugBtn">Write it up →</button>
+          </div>
+        `;
+        addAction(container);
 
-    // Step 2: Slug
-    const slugRaw = await streamStep('slug');
-    const slugMatch = slugRaw.match(/`([a-z][a-z0-9-]{2,})`/);
-    const suggested = slugMatch ? slugMatch[1] : 'cl-plugin';
+        const textarea = container.querySelector('.reply-input');
+        textarea.addEventListener('input', () => {
+          textarea.style.height = 'auto';
+          textarea.style.height = textarea.scrollHeight + 'px';
+        });
+        textarea.addEventListener('keydown', e => {
+          if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); container.querySelector('.reply-btn').click(); }
+        });
 
-    // Action: editable slug + confirm
-    const slugRow = document.createElement('div');
-    slugRow.className = 'slug-row';
-    slugRow.innerHTML = `
-      <input class="slug-input" id="slugInput" value="${suggested}" spellcheck="false" />
-      <button class="action-btn" id="useSlugBtn">Looks good, write it →</button>
-    `;
-    addAction(slugRow);
+        container.querySelector('.reply-btn').addEventListener('click', () => {
+          const text = textarea.value.trim();
+          if (!text) return;
+          container.remove();
+          resolve({ type: 'feedback', text });
+        });
 
-    confirmedSlug = await new Promise(resolve => {
-      document.getElementById('useSlugBtn').addEventListener('click', () => {
-        const val = document.getElementById('slugInput').value.trim() || suggested;
-        slugRow.remove();
-        makeUserBubble(`${val} — looks good, write it up`);
-        resolve(val);
-      }, { once: true });
-    });
+        container.querySelector('#useSlugBtn').addEventListener('click', () => {
+          const val = document.getElementById('slugInput').value.trim() || suggested;
+          container.remove();
+          resolve({ type: 'proceed', slug: val });
+        });
+      });
 
-    // Step 3: Plugin
-    await streamStep('plugin', { slug: confirmedSlug });
+      if (result.type === 'proceed') {
+        confirmedSlug = result.slug;
+        makeUserBubble(`${confirmedSlug} — write it up`);
+        break;
+      }
 
-    // Action: Push button
+      makeUserBubble(result.text);
+      slugRaw = await streamStep('feedback', {
+        feedback: result.text,
+        previousOutput: slugRaw,
+        originalStep: 'slug',
+      });
+      suggested = extractSlug(slugRaw) || suggested;
+      // loop shows input again with updated suggested value
+    }
+
+    // Step 3: Plugin + feedback loop
+    const pluginRaw = await streamStep('plugin', { slug: confirmedSlug });
+    await waitForFeedback('plugin', pluginRaw, 'Push to GitHub', 'Looks good — push it');
+
+    // Push
     const pushRow = document.createElement('div');
     pushRow.className = 'push-row';
     pushRow.innerHTML = `
@@ -941,6 +1071,7 @@ async function runGrace(e) {
     addAction(pushRow);
 
   } catch (err) {
+    console.error(err);
     const b = makeBubble();
     b.textContent = 'Something went wrong. Try again or run /grace locally in Claude Code.';
   }

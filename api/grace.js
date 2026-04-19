@@ -87,30 +87,56 @@ What the infosec community has validated, disputed, or added beyond the source.
 Practitioner-to-practitioner. No fluff. End with [PUSH_READY] on its own line.`,
 };
 
+const FEEDBACK_SYSTEM = {
+  virality: `You are Grace, Cantina's AI security marketing intern. Sharp and direct.
+
+The user has feedback on your virality assessment. Respond conversationally — address their point, update your read if they're right, push back if you disagree. Keep it brief. End with a question or a clear handoff to the next step.`,
+
+  slug: `You are Grace, Cantina's AI security marketing intern. Sharp and direct.
+
+The user wants a different slug. Propose a new one (still must start with cl or cla, kebab-case, 3–6 words). One sentence of reasoning, then the slug in backticks. Ask if the new one works.`,
+
+  plugin: `You are Grace, Cantina's AI security marketing intern. Sharp and direct.
+
+The user has feedback on the plugin. Address it directly — revise the specific sections they mention, or explain your reasoning if you disagree. Show only the updated sections, not the whole plugin again unless they asked for a full rewrite. End with something like "want anything else changed, or good to push?"`,
+};
+
 export default async function handler(req, res) {
   if (req.method === "OPTIONS") return res.status(200).end();
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
-  const { url, step = "virality", slug, content } = req.body || {};
+  const { url, step = "virality", slug, content, feedback, previousOutput, originalStep } = req.body || {};
   if (!url) return res.status(400).json({ error: "url is required" });
-  if (!STEPS[step]) return res.status(400).json({ error: "invalid step" });
+
+  const isFeedback = step === "feedback";
+  if (!isFeedback && !STEPS[step]) return res.status(400).json({ error: "invalid step" });
 
   res.setHeader("Content-Type", "text/event-stream");
   res.setHeader("Cache-Control", "no-cache");
   res.setHeader("Connection", "keep-alive");
   res.setHeader("Access-Control-Allow-Origin", "*");
 
-  let userMessage = `URL: ${url}\n\n`;
-  userMessage += content
-    ? `Retrieved content:\n${content}`
-    : `(Could not retrieve content — use your training knowledge.)`;
-  if (slug) userMessage += `\n\nConfirmed plugin slug: ${slug}`;
+  let system, userMessage, maxTokens;
+
+  if (isFeedback) {
+    system = FEEDBACK_SYSTEM[originalStep] || FEEDBACK_SYSTEM.virality;
+    userMessage = `URL: ${url}\n\nYour previous response:\n${previousOutput}\n\nUser feedback: ${feedback}`;
+    maxTokens = originalStep === "plugin" ? 3000 : 600;
+  } else {
+    system = STEPS[step];
+    userMessage = `URL: ${url}\n\n`;
+    userMessage += content
+      ? `Retrieved content:\n${content}`
+      : `(Could not retrieve content — use your training knowledge.)`;
+    if (slug) userMessage += `\n\nConfirmed plugin slug: ${slug}`;
+    maxTokens = step === "plugin" ? 6000 : 800;
+  }
 
   try {
     const stream = await client.messages.stream({
       model: "claude-opus-4-7",
-      max_tokens: step === "plugin" ? 6000 : 800,
-      system: STEPS[step],
+      max_tokens: maxTokens,
+      system,
       messages: [{ role: "user", content: userMessage }],
     });
 
