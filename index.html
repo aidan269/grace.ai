@@ -22,18 +22,48 @@
   --gray-900:#111827;
   --radius:  8px;
   --shadow:  0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.06);
+
+  --bg:       var(--white);
+  --surface:  var(--white);
+  --border:   var(--gray-200);
+  --text:     var(--gray-900);
+  --muted:    var(--gray-600);
+  --subtle:   var(--gray-400);
+  --code-bg:  var(--gray-100);
+  --nav-bg:   rgba(255,255,255,0.92);
+}
+
+[data-theme="dark"] {
+  --bg:       #0D0D0D;
+  --surface:  #1A1A1A;
+  --border:   #2A2A2A;
+  --text:     #ECECEC;
+  --muted:    #A0A0A0;
+  --subtle:   #666;
+  --code-bg:  #111;
+  --nav-bg:   rgba(13,13,13,0.92);
+  --gray-50:  #111;
+  --gray-100: #1A1A1A;
+  --gray-200: #2A2A2A;
+  --gray-400: #666;
+  --gray-600: #A0A0A0;
+  --gray-900: #ECECEC;
+  --white:    #1A1A1A;
+  --black:    #ECECEC;
+  --shadow:   0 1px 3px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.2);
 }
 
 html { scroll-behavior: smooth; }
 
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-  background: var(--white);
-  color: var(--gray-900);
+  background: var(--bg);
+  color: var(--text);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   font-size: 15px;
   line-height: 1.6;
+  transition: background 0.2s, color 0.2s;
 }
 
 /* ── Nav ── */
@@ -46,11 +76,26 @@ nav {
   align-items: center;
   justify-content: space-between;
   padding: 0 40px;
-  background: rgba(255,255,255,0.92);
+  background: var(--nav-bg);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--gray-200);
+  border-bottom: 1px solid var(--border);
 }
+
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px; height: 34px;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 0.95rem;
+  transition: border-color 0.15s, background 0.15s;
+}
+.theme-toggle:hover { background: var(--gray-100); border-color: var(--gray-400); }
 
 .nav-logo {
   display: flex;
@@ -653,6 +698,111 @@ footer {
 }
 .footer-link:hover { color: var(--gray-900); }
 
+/* ── Sticky bottom input bar ── */
+.bottom-bar {
+  display: none;
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  z-index: 90;
+  background: var(--nav-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid var(--border);
+  padding: 14px 24px 18px;
+}
+.bottom-bar.visible { display: block; }
+.bottom-bar-inner {
+  max-width: 680px;
+  margin: 0 auto;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.bottom-input {
+  flex: 1;
+  font-family: inherit;
+  font-size: 0.9rem;
+  color: var(--text);
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  padding: 11px 16px;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+.bottom-input:focus { border-color: var(--black); box-shadow: 0 0 0 3px rgba(10,10,10,0.08); }
+[data-theme="dark"] .bottom-input:focus { box-shadow: 0 0 0 3px rgba(255,255,255,0.08); }
+.bottom-input::placeholder { color: var(--subtle); }
+.bottom-submit {
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--bg);
+  background: var(--text);
+  border: none;
+  border-radius: 10px;
+  padding: 11px 18px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.15s;
+  flex-shrink: 0;
+}
+.bottom-submit:hover { opacity: 0.8; }
+.bottom-submit:disabled { opacity: 0.35; cursor: not-allowed; }
+
+/* When chat is active, push page content up from bottom bar */
+body.chat-active { padding-bottom: 80px; }
+
+/* ── Bubble hover actions (copy) ── */
+.bubble-wrap { position: relative; }
+.bubble-actions {
+  position: absolute;
+  bottom: -26px;
+  left: 0;
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s;
+}
+.chat-bubble.grace:hover .bubble-actions { opacity: 1; pointer-events: auto; }
+.bubble-action-btn {
+  font-family: inherit;
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--subtle);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 3px 8px;
+  cursor: pointer;
+  transition: color 0.12s, border-color 0.12s;
+  white-space: nowrap;
+}
+.bubble-action-btn:hover { color: var(--text); border-color: var(--gray-400); }
+
+/* ── Code block copy buttons ── */
+.code-block-wrap { position: relative; margin: 8px 0; }
+.code-copy-btn {
+  position: absolute;
+  top: 8px; right: 8px;
+  font-family: inherit;
+  font-size: 0.68rem;
+  font-weight: 500;
+  color: var(--gray-400);
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 5px;
+  padding: 3px 9px;
+  cursor: pointer;
+  transition: color 0.12s;
+}
+.code-copy-btn:hover { color: #e5e7eb; }
+
+/* ── Chat bubble entrance animation ── */
+.chat-bubble { animation: fadeUp 0.2s ease both; }
+
 /* ── URL Preview Card ── */
 .url-preview-card {
   display: flex;
@@ -816,6 +966,7 @@ footer {
     <a class="nav-link" href="#how-it-works">How it works</a>
     <a class="nav-link" href="#plugins">Plugins</a>
     <a class="nav-link" href="https://github.com/aidan269/grace" target="_blank">GitHub</a>
+    <button class="theme-toggle" id="themeToggle" title="Toggle dark mode" onclick="toggleTheme()">☀️</button>
     <a class="nav-cta" href="https://cantina.xyz" target="_blank">Get an audit</a>
   </div>
 </nav>
@@ -964,6 +1115,14 @@ footer {
   </div>
 </div>
 
+<!-- Sticky bottom input (appears when chat is active) -->
+<div class="bottom-bar" id="bottomBar">
+  <div class="bottom-bar-inner">
+    <input class="bottom-input" id="bottomInput" type="url" placeholder="Paste another URL to start over..." autocomplete="off" />
+    <button class="bottom-submit" id="bottomSubmit" onclick="startNewFromBottom()">Run Grace</button>
+  </div>
+</div>
+
 <!-- Footer -->
 <footer>
   <div class="footer-left">
@@ -981,6 +1140,21 @@ footer {
 let currentUrl = null;
 let confirmedSlug = null;
 let cachedContent = null;
+
+// ── Dark mode ────────────────────────────────────────────────────
+function toggleTheme() {
+  const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+  document.documentElement.setAttribute('data-theme', dark ? 'light' : 'dark');
+  document.getElementById('themeToggle').textContent = dark ? '☀️' : '🌙';
+  localStorage.setItem('grace-theme', dark ? 'light' : 'dark');
+}
+(function() {
+  const saved = localStorage.getItem('grace-theme') || 'light';
+  if (saved === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    document.getElementById('themeToggle').textContent = '🌙';
+  }
+})();
 
 // ── Plugins counter ──────────────────────────────────────────────
 (async () => {
@@ -1076,12 +1250,24 @@ function makeBubble() {
   wrap.className = 'chat-bubble grace';
   wrap.innerHTML = `
     <img class="grace-avatar" src="/grace-avatar.png" alt="Grace" />
-    <div class="bubble-inner">
+    <div class="bubble-inner bubble-wrap">
       <div class="bubble-label">Grace</div>
       <div class="bubble-body"></div>
+      <div class="bubble-actions">
+        <button class="bubble-action-btn copy-bubble-btn">Copy</button>
+      </div>
     </div>`;
   chat.appendChild(wrap);
-  return wrap.querySelector('.bubble-body');
+
+  const body = wrap.querySelector('.bubble-body');
+  wrap.querySelector('.copy-bubble-btn').addEventListener('click', function() {
+    navigator.clipboard.writeText(body._rawText || body.innerText).then(() => {
+      this.textContent = 'Copied!';
+      setTimeout(() => this.textContent = 'Copy', 1500);
+    });
+  });
+
+  return body;
 }
 
 function makeUserBubble(text) {
@@ -1093,30 +1279,68 @@ function makeUserBubble(text) {
   chat.appendChild(wrap);
 }
 
+function addCodeCopyButtons(container) {
+  container.querySelectorAll('pre').forEach(pre => {
+    if (pre.parentElement.classList.contains('code-block-wrap')) return;
+    const wrapper = document.createElement('div');
+    wrapper.className = 'code-block-wrap';
+    pre.parentNode.insertBefore(wrapper, pre);
+    wrapper.appendChild(pre);
+    const btn = document.createElement('button');
+    btn.className = 'code-copy-btn';
+    btn.textContent = 'Copy';
+    btn.addEventListener('click', () => {
+      navigator.clipboard.writeText(pre.innerText).then(() => {
+        btn.textContent = 'Copied!';
+        setTimeout(() => btn.textContent = 'Copy', 1500);
+      });
+    });
+    wrapper.appendChild(btn);
+  });
+}
+
 function sealBubble(body, rawText, { splitOnSections = false } = {}) {
   const cur = body.querySelector('.stream-cursor');
   if (cur) cur.remove();
   const cleaned = rawText.replace(/\[PUSH_READY\]/g, '').trim();
+  body._rawText = cleaned;
 
   if (!splitOnSections) {
     body.innerHTML = marked.parse(cleaned);
+    addCodeCopyButtons(body);
     return;
   }
 
   // Split at ## boundaries, render each as its own bubble
   const parts = cleaned.split(/(?=^## )/m).filter(p => p.trim());
   body.innerHTML = marked.parse(parts[0] || cleaned);
+  body._rawText = parts[0] || cleaned;
+  addCodeCopyButtons(body);
 
   const chat = document.getElementById('streamWrap');
   for (let i = 1; i < parts.length; i++) {
     const wrap = document.createElement('div');
     wrap.className = 'chat-bubble grace';
+    const partText = parts[i].trim();
     wrap.innerHTML = `
       <img class="grace-avatar" src="/grace-avatar.png" alt="Grace" />
-      <div class="bubble-inner">
+      <div class="bubble-inner bubble-wrap">
         <div class="bubble-label">Grace</div>
-        <div class="bubble-body">${marked.parse(parts[i].trim())}</div>
+        <div class="bubble-body"></div>
+        <div class="bubble-actions">
+          <button class="bubble-action-btn copy-bubble-btn">Copy</button>
+        </div>
       </div>`;
+    const sectionBody = wrap.querySelector('.bubble-body');
+    sectionBody.innerHTML = marked.parse(partText);
+    sectionBody._rawText = partText;
+    addCodeCopyButtons(sectionBody);
+    wrap.querySelector('.copy-bubble-btn').addEventListener('click', function() {
+      navigator.clipboard.writeText(partText).then(() => {
+        this.textContent = 'Copied!';
+        setTimeout(() => this.textContent = 'Copy', 1500);
+      });
+    });
     chat.appendChild(wrap);
   }
 }
@@ -1173,6 +1397,8 @@ async function streamStep(step, extraBody = {}, opts = {}) {
           body.insertBefore(document.createTextNode(buf.slice(0, safe)), cursor);
           buf = buf.slice(safe);
         }
+        // Auto-scroll to bottom during streaming
+        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
       } catch {}
     }
   }
@@ -1235,6 +1461,14 @@ async function waitForFeedback(step, initialRaw, proceedLabel, proceedUserText) 
   }
 }
 
+function startNewFromBottom() {
+  const val = document.getElementById('bottomInput').value.trim();
+  if (!val) return;
+  document.getElementById('urlInput').value = val;
+  document.getElementById('bottomInput').value = '';
+  document.getElementById('graceForm').dispatchEvent(new Event('submit', { cancelable: true }));
+}
+
 async function runGrace(e) {
   e.preventDefault();
   currentUrl = document.getElementById('urlInput').value.trim();
@@ -1253,6 +1487,10 @@ async function runGrace(e) {
   streamWrap.classList.add('visible');
   submitBtn.disabled = true;
   submitBtn.textContent = 'Fetching...';
+
+  // Activate sticky bottom bar
+  document.getElementById('bottomBar').classList.add('visible');
+  document.body.classList.add('chat-active');
 
   // Fetch preview and content in parallel
   showTypingIndicator();
@@ -1396,6 +1634,10 @@ async function runGrace(e) {
   submitBtn.disabled = false;
   submitBtn.textContent = 'Run Grace';
 }
+
+document.getElementById('bottomInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') { e.preventDefault(); startNewFromBottom(); }
+});
 
 </script>
 
