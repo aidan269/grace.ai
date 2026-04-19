@@ -805,6 +805,9 @@ function makeUserBubble(text) {
 }
 
 function sealBubble(body, rawText) {
+  // Remove cursor before overwriting innerHTML
+  const cur = body.querySelector('.stream-cursor');
+  if (cur) cur.remove();
   body.innerHTML = marked.parse(rawText.replace(/\[PUSH_READY\]/g, '').trim());
 }
 
@@ -827,10 +830,10 @@ async function fetchContent(url) {
 }
 
 async function streamStep(step, extraBody = {}) {
-  const cursor = document.getElementById('cursor');
   const body = makeBubble();
+  const cursor = document.createElement('span');
+  cursor.className = 'stream-cursor';
   body.appendChild(cursor);
-  cursor.style.display = 'inline-block';
 
   let raw = '';
   let buf = '';
@@ -864,7 +867,6 @@ async function streamStep(step, extraBody = {}) {
     }
   }
 
-  cursor.style.display = 'none';
   sealBubble(body, raw);
   return raw;
 }
@@ -879,7 +881,7 @@ async function runGrace(e) {
   const streamWrap = document.getElementById('streamWrap');
 
   // Reset
-  streamWrap.innerHTML = `<span class="stream-cursor" id="cursor" style="display:none"></span>`;
+  streamWrap.innerHTML = '';
   makeUserBubble(currentUrl);
   streamWrap.classList.add('visible');
   submitBtn.disabled = true;
