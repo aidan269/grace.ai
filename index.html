@@ -695,7 +695,7 @@ async function runGrace(e) {
   cursor.style.display = 'inline-block';
 
   try {
-    const res = await fetch('/.netlify/functions/grace', {
+    const res = await fetch('/api/grace', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ url })
@@ -750,7 +750,7 @@ async function pushPlugin() {
   pushBtn.textContent = 'Pushing...';
 
   try {
-    const res = await fetch('/.netlify/functions/push', {
+    const res = await fetch('/api/push', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ slug: lastSlug })
