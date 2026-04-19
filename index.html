@@ -758,6 +758,7 @@ footer {
 <script>
 let currentUrl = null;
 let confirmedSlug = null;
+let cachedContent = null;
 
 function makeBubble() {
   const chat = document.getElementById('streamWrap');
@@ -787,6 +788,18 @@ function addAction(el) {
   el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
+async function fetchContent(url) {
+  try {
+    const res = await fetch('/api/content', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url })
+    });
+    const { content } = await res.json();
+    return content;
+  } catch { return null; }
+}
+
 async function streamStep(step, extraBody = {}) {
   const cursor = document.getElementById('cursor');
   const body = makeBubble();
@@ -799,7 +812,7 @@ async function streamStep(step, extraBody = {}) {
   const res = await fetch('/api/grace', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ url: currentUrl, step, ...extraBody })
+    body: JSON.stringify({ url: currentUrl, step, content: cachedContent, ...extraBody })
   });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
@@ -850,6 +863,8 @@ async function runGrace(e) {
   document.getElementById('userText').textContent = currentUrl;
   streamWrap.classList.add('visible');
   submitBtn.disabled = true;
+  submitBtn.textContent = 'Fetching...';
+  cachedContent = await fetchContent(currentUrl);
   submitBtn.textContent = 'Running...';
 
   try {

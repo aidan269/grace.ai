@@ -1,8 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-const BRAVE_KEY = process.env.BRAVE_API_KEY;
-const TWITTER_RE = /^https?:\/\/(x\.com|twitter\.com)\//i;
 
 const STEPS = {
   virality: `You are Grace, Cantina's AI security marketing intern.
@@ -87,65 +85,11 @@ What the infosec community has validated, disputed, or added beyond the source.
 Practitioner-to-practitioner. No fluff. End with [PUSH_READY] on its own line.`,
 };
 
-async function braveSearch(query) {
-  if (!BRAVE_KEY) return null;
-  try {
-    const res = await fetch(
-      `https://api.search.brave.com/res/v1/web/search?q=${encodeURIComponent(query)}&count=5`,
-      {
-        headers: {
-          Accept: "application/json",
-          "Accept-Encoding": "gzip",
-          "X-Subscription-Token": BRAVE_KEY,
-        },
-        signal: AbortSignal.timeout(8000),
-      }
-    );
-    const json = await res.json();
-    return (json?.web?.results || [])
-      .map((r) => `${r.title}\n${r.url}\n${r.description || ""}`)
-      .join("\n\n")
-      .slice(0, 6000);
-  } catch {
-    return null;
-  }
-}
-
-async function fetchPage(url) {
-  try {
-    const res = await fetch(url, {
-      headers: { "User-Agent": "Mozilla/5.0 (compatible; Googlebot/2.1)" },
-      redirect: "follow",
-      signal: AbortSignal.timeout(8000),
-    });
-    const text = await res.text();
-    return text
-      .replace(/<script[\s\S]*?<\/script>/gi, "")
-      .replace(/<style[\s\S]*?<\/style>/gi, "")
-      .replace(/<[^>]+>/g, " ")
-      .replace(/\s+/g, " ")
-      .trim()
-      .slice(0, 6000);
-  } catch {
-    return null;
-  }
-}
-
-async function resolveContent(url) {
-  if (TWITTER_RE.test(url)) {
-    const searched = await braveSearch(`${url} security vulnerability site:x.com OR site:twitter.com`);
-    return searched || (await braveSearch(url));
-  }
-  const page = await fetchPage(url);
-  if (page && page.length > 200) return page;
-  return await braveSearch(url);
-}
-
 export default async function handler(req, res) {
   if (req.method === "OPTIONS") return res.status(200).end();
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
-  const { url, step = "virality", slug } = req.body || {};
+  const { url, step = "virality", slug, content } = req.body || {};
   if (!url) return res.status(400).json({ error: "url is required" });
   if (!STEPS[step]) return res.status(400).json({ error: "invalid step" });
 
@@ -154,7 +98,6 @@ export default async function handler(req, res) {
   res.setHeader("Connection", "keep-alive");
   res.setHeader("Access-Control-Allow-Origin", "*");
 
-  const content = await resolveContent(url);
   let userMessage = `URL: ${url}\n\n`;
   userMessage += content
     ? `Retrieved content:\n${content}`
