@@ -23,46 +23,45 @@
   --radius:  8px;
   --shadow:  0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.06);
 
-  --bg:       var(--white);
-  --surface:  var(--white);
-  --border:   var(--gray-200);
-  --text:     var(--gray-900);
-  --muted:    var(--gray-600);
-  --subtle:   var(--gray-400);
-  --code-bg:  var(--gray-100);
-  --nav-bg:   rgba(255,255,255,0.92);
+  --bg:      #FFFFFF;
+  --surface: #FFFFFF;
+  --border:  #E5E7EB;
+  --text:    #111827;
+  --muted:   #4B5563;
+  --subtle:  #9CA3AF;
+  --nav-bg:  rgba(255,255,255,0.92);
 }
 
 [data-theme="dark"] {
-  --bg:       #0D0D0D;
-  --surface:  #1A1A1A;
-  --border:   #2A2A2A;
-  --text:     #ECECEC;
-  --muted:    #A0A0A0;
-  --subtle:   #666;
-  --code-bg:  #111;
-  --nav-bg:   rgba(13,13,13,0.92);
-  --gray-50:  #111;
-  --gray-100: #1A1A1A;
-  --gray-200: #2A2A2A;
-  --gray-400: #666;
-  --gray-600: #A0A0A0;
-  --gray-900: #ECECEC;
-  --white:    #1A1A1A;
-  --black:    #ECECEC;
-  --shadow:   0 1px 3px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.2);
+  --bg:      #0D0D0D;
+  --surface: #1A1A1A;
+  --border:  #2A2A2A;
+  --text:    #ECECEC;
+  --muted:   #A0A0A0;
+  --subtle:  #555;
+  --nav-bg:  rgba(13,13,13,0.92);
+  --gray-50: #111;
+  --gray-100:#1A1A1A;
+  --gray-200:#2A2A2A;
+  --gray-400:#666;
+  --gray-600:#A0A0A0;
+  --gray-900:#ECECEC;
+  --white:   #1A1A1A;
+  --black:   #ECECEC;
+  --shadow:  0 1px 3px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.2);
 }
 
-html { scroll-behavior: smooth; }
+html, body { height: 100%; }
 
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   background: var(--bg);
   color: var(--text);
-  min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   font-size: 15px;
   line-height: 1.6;
+  display: flex;
+  flex-direction: column;
   transition: background 0.2s, color 0.2s;
 }
 
@@ -71,51 +70,34 @@ nav {
   position: fixed;
   top: 0; left: 0; right: 0;
   z-index: 100;
-  height: 60px;
+  height: 56px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 40px;
+  padding: 0 24px;
   background: var(--nav-bg);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border);
 }
 
-.theme-toggle {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 34px; height: 34px;
-  background: none;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  cursor: pointer;
-  color: var(--muted);
-  font-size: 0.95rem;
-  transition: border-color 0.15s, background 0.15s;
-}
-.theme-toggle:hover { background: var(--gray-100); border-color: var(--gray-400); }
-
 .nav-logo {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   text-decoration: none;
 }
-
 .nav-wordmark {
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 700;
   letter-spacing: -0.02em;
-  color: var(--black);
+  color: var(--text);
 }
-
 .nav-badge {
-  font-size: 0.68rem;
+  font-size: 0.66rem;
   font-weight: 500;
-  color: var(--gray-400);
-  padding: 2px 8px;
+  color: var(--subtle);
+  padding: 2px 7px;
   background: var(--gray-100);
   border-radius: 100px;
 }
@@ -125,151 +107,174 @@ nav {
   align-items: center;
   gap: 6px;
 }
-
 .nav-link {
-  font-size: 0.875rem;
+  font-size: 0.82rem;
   font-weight: 500;
-  color: var(--gray-600);
+  color: var(--muted);
   text-decoration: none;
-  padding: 6px 12px;
+  padding: 5px 10px;
   border-radius: 6px;
   transition: background 0.15s, color 0.15s;
 }
-.nav-link:hover { background: var(--gray-100); color: var(--gray-900); }
+.nav-link:hover { background: var(--gray-100); color: var(--text); }
 
-.nav-cta {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--white);
-  background: var(--black);
-  padding: 8px 16px;
-  border-radius: 6px;
-  text-decoration: none;
-  transition: opacity 0.15s;
-}
-.nav-cta:hover { opacity: 0.85; }
-
-/* ── Hero ── */
-.hero {
-  padding: 140px 40px 80px;
-  max-width: 760px;
-  margin: 0 auto;
-  text-align: center;
-}
-
-.hero-eyebrow {
+.plugins-live {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--orange);
-  margin-bottom: 24px;
+  gap: 5px;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--subtle);
+  background: var(--gray-100);
+  padding: 3px 9px;
+  border-radius: 99px;
 }
-
-.hero-eyebrow-dot {
-  width: 5px; height: 5px;
-  background: var(--orange);
+.plugins-live-dot {
+  width: 6px; height: 6px;
+  background: #22c55e;
   border-radius: 50%;
+  animation: pulse 2s ease-in-out infinite;
 }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
 
-h1 {
-  font-size: clamp(2.4rem, 5vw, 3.75rem);
-  font-weight: 700;
-  letter-spacing: -0.03em;
-  line-height: 1.1;
-  color: var(--black);
-  margin-bottom: 20px;
-}
-
-.hero-sub {
-  font-size: 1.05rem;
-  color: var(--gray-600);
-  line-height: 1.7;
-  max-width: 520px;
-  margin: 0 auto 48px;
-  font-weight: 400;
-}
-
-/* ── URL Input ── */
-.url-form {
+.theme-toggle {
   display: flex;
-  gap: 8px;
-  max-width: 600px;
-  margin: 0 auto 12px;
-}
-
-.url-input {
-  flex: 1;
-  font-family: inherit;
-  font-size: 0.9rem;
-  color: var(--gray-900);
-  background: var(--white);
-  border: 1.5px solid var(--gray-200);
-  border-radius: var(--radius);
-  padding: 12px 16px;
-  outline: none;
-  transition: border-color 0.15s, box-shadow 0.15s;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-}
-.url-input:focus {
-  border-color: var(--black);
-  box-shadow: 0 0 0 3px rgba(10,10,10,0.08);
-}
-.url-input::placeholder { color: var(--gray-400); }
-
-.url-submit {
-  font-family: inherit;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--white);
-  background: var(--black);
-  border: none;
-  border-radius: var(--radius);
-  padding: 12px 20px;
+  align-items: center;
+  justify-content: center;
+  width: 32px; height: 32px;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 7px;
   cursor: pointer;
-  white-space: nowrap;
-  transition: opacity 0.15s;
+  color: var(--muted);
+  font-size: 0.9rem;
+  transition: border-color 0.15s, background 0.15s;
 }
-.url-submit:hover { opacity: 0.85; }
-.url-submit:disabled { opacity: 0.4; cursor: not-allowed; }
+.theme-toggle:hover { background: var(--gray-100); }
 
-.hero-note {
-  font-size: 0.78rem;
-  color: var(--gray-400);
-  text-align: center;
-}
-
-/* ── Chat ── */
-.chat-wrap {
-  max-width: 680px;
-  margin: 32px auto 0;
-  display: none;
+/* ── Main layout: fills viewport below nav ── */
+.page {
+  flex: 1;
+  display: flex;
   flex-direction: column;
-  gap: 16px;
+  padding-top: 56px; /* nav height */
+}
+
+/* ── Empty state (before chat) ── */
+.empty-state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px 120px; /* leave room for input bar */
+  text-align: center;
+  animation: fadeUp 0.3s ease;
+}
+.empty-state.hidden { display: none; }
+
+.grace-logo {
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.12);
+}
+
+.empty-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+.empty-sub {
+  font-size: 0.88rem;
+  color: var(--muted);
+  max-width: 340px;
+  line-height: 1.65;
+  margin-bottom: 32px;
+}
+
+.example-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  max-width: 520px;
+}
+.chip {
+  font-size: 0.78rem;
+  color: var(--muted);
+  background: var(--gray-50);
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  padding: 6px 14px;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
   text-align: left;
 }
-.chat-wrap.visible { display: flex; }
+.chip:hover { border-color: var(--gray-400); color: var(--text); background: var(--gray-100); }
 
+/* ── Chat area (scrollable) ── */
+.chat-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 0 140px; /* bottom padding = input bar height */
+  display: none;
+  scroll-behavior: smooth;
+}
+.chat-area.visible { display: block; }
+
+.chat-messages {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ── URL Preview Card ── */
+.url-preview-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 14px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  animation: fadeUp 0.2s ease;
+  align-self: flex-end;
+  max-width: 88%;
+}
+.preview-favicon { width: 18px; height: 18px; border-radius: 3px; flex-shrink: 0; }
+.preview-meta { flex: 1; min-width: 0; }
+.preview-domain { font-size: 0.68rem; color: var(--subtle); font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 1px; }
+.preview-title { font-size: 0.8rem; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.preview-og { width: 48px; height: 34px; object-fit: cover; border-radius: 5px; flex-shrink: 0; display: none; }
+.preview-og.loaded { display: block; }
+
+/* ── Chat Bubbles ── */
 .chat-bubble {
   display: flex;
-  max-width: 92%;
+  animation: fadeUp 0.2s ease both;
 }
 .chat-bubble.user {
   align-self: flex-end;
   flex-direction: row-reverse;
+  max-width: 88%;
 }
 .chat-bubble.grace {
   align-self: flex-start;
   flex-direction: row;
   gap: 10px;
+  max-width: 92%;
 }
 
 .grace-avatar {
-  width: 36px;
-  height: 36px;
+  width: 34px; height: 34px;
   border-radius: 50%;
   object-fit: cover;
   flex-shrink: 0;
@@ -280,21 +285,22 @@ h1 {
 .bubble-inner {
   display: flex;
   flex-direction: column;
+  position: relative;
 }
 
 .bubble-label {
-  font-size: 0.68rem;
+  font-size: 0.66rem;
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--gray-400);
-  margin-bottom: 6px;
+  color: var(--subtle);
+  margin-bottom: 5px;
 }
 
 .bubble-body {
-  padding: 14px 18px;
+  padding: 12px 16px;
   border-radius: 14px;
-  font-size: 0.88rem;
+  font-size: 0.875rem;
   line-height: 1.7;
   word-break: break-word;
   white-space: pre-wrap;
@@ -305,13 +311,17 @@ h1 {
   border-bottom-right-radius: 4px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.18);
 }
+[data-theme="dark"] .chat-bubble.user .bubble-body {
+  background: #2A2A2A;
+  color: #ECECEC;
+}
 .chat-bubble.grace .bubble-body {
-  background: var(--white);
-  border: 1px solid var(--gray-200);
-  color: var(--gray-900);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
   border-bottom-left-radius: 4px;
-  min-width: 260px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+  min-width: 200px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
 }
 
 /* Markdown inside bubbles */
@@ -319,388 +329,171 @@ h1 {
   font-weight: 600; letter-spacing: -0.01em; margin: 14px 0 6px; line-height: 1.3;
 }
 .bubble-body h1 { font-size: 1rem; }
-.bubble-body h2 { font-size: 0.93rem; color: var(--gray-600); }
-.bubble-body h3 { font-size: 0.88rem; color: var(--gray-600); }
+.bubble-body h2 { font-size: 0.92rem; color: var(--muted); }
+.bubble-body h3 { font-size: 0.87rem; color: var(--muted); }
 .bubble-body p { margin: 6px 0; }
 .bubble-body ul,.bubble-body ol { padding-left: 18px; margin: 6px 0; }
 .bubble-body li { margin: 3px 0; }
 .bubble-body code {
   font-family: 'SF Mono', 'Fira Code', monospace;
-  font-size: 0.78rem;
+  font-size: 0.77rem;
   background: var(--gray-100);
   border-radius: 4px;
   padding: 1px 5px;
 }
 .bubble-body pre {
-  background: var(--gray-900);
+  background: #111827;
   color: #e5e7eb;
   border-radius: 8px;
   padding: 12px 14px;
   overflow-x: auto;
   margin: 8px 0;
 }
-.bubble-body pre code {
-  background: none;
-  padding: 0;
-  font-size: 0.78rem;
-  color: inherit;
-}
-.bubble-body table {
-  border-collapse: collapse;
-  width: 100%;
-  margin: 8px 0;
-  font-size: 0.82rem;
-}
-.bubble-body th,.bubble-body td {
-  border: 1px solid var(--gray-200);
-  padding: 6px 10px;
-  text-align: left;
-}
+.bubble-body pre code { background: none; padding: 0; font-size: 0.77rem; color: inherit; }
+.bubble-body table { border-collapse: collapse; width: 100%; margin: 8px 0; font-size: 0.82rem; }
+.bubble-body th,.bubble-body td { border: 1px solid var(--border); padding: 6px 10px; text-align: left; }
 .bubble-body th { background: var(--gray-50); font-weight: 600; }
 .bubble-body strong { font-weight: 600; }
 
+/* Code block copy button */
+.code-block-wrap { position: relative; margin: 8px 0; }
+.code-copy-btn {
+  position: absolute; top: 8px; right: 8px;
+  font-family: inherit; font-size: 0.67rem; font-weight: 500;
+  color: var(--gray-400);
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 4px; padding: 2px 8px; cursor: pointer;
+  transition: color 0.12s;
+}
+.code-copy-btn:hover { color: #e5e7eb; }
+
+/* Bubble hover copy */
+.bubble-actions {
+  position: absolute; bottom: -24px; left: 0;
+  display: flex; gap: 4px;
+  opacity: 0; pointer-events: none; transition: opacity 0.15s;
+}
+.chat-bubble.grace:hover .bubble-actions { opacity: 1; pointer-events: auto; }
+.bubble-action-btn {
+  font-family: inherit; font-size: 0.68rem; font-weight: 500;
+  color: var(--subtle);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px; padding: 2px 8px; cursor: pointer;
+  transition: color 0.12s, border-color 0.12s;
+  white-space: nowrap;
+}
+.bubble-action-btn:hover { color: var(--text); border-color: var(--gray-400); }
+
+/* Typing indicator */
+.typing-bubble {
+  display: flex; align-items: center; gap: 10px; align-self: flex-start;
+}
+.typing-bubble .grace-avatar { width: 34px; height: 34px; border-radius: 50%; object-fit: cover; flex-shrink: 0; box-shadow: 0 1px 4px rgba(0,0,0,0.15); }
+.typing-dots {
+  display: flex; align-items: center; gap: 5px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 14px; border-bottom-left-radius: 4px;
+  padding: 12px 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+}
+.typing-dots span {
+  width: 6px; height: 6px; background: var(--gray-400); border-radius: 50%;
+  animation: typingBounce 1.2s ease-in-out infinite;
+}
+.typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+.typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes typingBounce { 0%,60%,100%{transform:translateY(0);opacity:0.4} 30%{transform:translateY(-5px);opacity:1} }
+
+/* Stream cursor */
 .stream-cursor {
-  display: inline-block;
-  width: 2px;
-  height: 1em;
-  background: var(--orange);
-  margin-left: 2px;
-  vertical-align: text-bottom;
-  animation: blink 1s step-end infinite;
+  display: inline-block; width: 2px; height: 1em;
+  background: var(--orange); margin-left: 2px;
+  vertical-align: text-bottom; animation: blink 1s step-end infinite;
 }
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
 
+/* Action controls */
 .action-btn {
-  font-family: inherit;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--white);
-  background: var(--black);
-  border: none;
-  border-radius: var(--radius);
-  padding: 11px 20px;
-  cursor: pointer;
-  transition: opacity 0.15s;
-  align-self: flex-end;
+  font-family: inherit; font-size: 0.875rem; font-weight: 600;
+  color: var(--white); background: var(--black);
+  border: none; border-radius: var(--radius); padding: 10px 18px;
+  cursor: pointer; transition: opacity 0.15s; align-self: flex-end;
 }
+[data-theme="dark"] .action-btn { background: #2A2A2A; color: var(--text); }
 .action-btn:hover { opacity: 0.8; }
 
-.slug-row {
-  display: flex;
-  gap: 8px;
-  align-self: flex-end;
-  max-width: 88%;
-}
+.slug-row { display: flex; gap: 8px; align-self: flex-end; max-width: 88%; }
 .slug-input {
-  font-family: 'SF Mono', 'Fira Code', monospace;
-  font-size: 0.85rem;
-  padding: 10px 14px;
-  border: 1.5px solid var(--gray-200);
-  border-radius: var(--radius);
-  outline: none;
-  color: var(--gray-900);
-  min-width: 180px;
-  transition: border-color 0.15s;
+  font-family: 'SF Mono','Fira Code',monospace; font-size: 0.83rem;
+  padding: 9px 13px; border: 1.5px solid var(--border);
+  border-radius: var(--radius); outline: none; color: var(--text);
+  background: var(--surface); min-width: 180px; transition: border-color 0.15s;
 }
-.slug-input:focus { border-color: var(--black); }
+.slug-input:focus { border-color: var(--text); }
 
 .feedback-row {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  align-self: flex-end;
-  max-width: 88%;
-  width: 100%;
+  display: flex; flex-direction: column; gap: 8px;
+  align-self: flex-end; max-width: 88%; width: 100%;
 }
-
-.reply-area {
-  display: flex;
-  gap: 8px;
-  align-items: flex-end;
-}
-
+.reply-area { display: flex; gap: 8px; align-items: flex-end; }
 .reply-input {
-  flex: 1;
-  font-family: inherit;
-  font-size: 0.875rem;
-  padding: 10px 14px;
-  border: 1.5px solid var(--gray-200);
-  border-radius: var(--radius);
-  outline: none;
-  color: var(--gray-900);
-  resize: none;
-  line-height: 1.5;
-  transition: border-color 0.15s;
-  max-height: 120px;
-  overflow-y: auto;
+  flex: 1; font-family: inherit; font-size: 0.875rem;
+  padding: 9px 13px; border: 1.5px solid var(--border);
+  border-radius: var(--radius); outline: none; color: var(--text);
+  background: var(--surface); resize: none; line-height: 1.5;
+  transition: border-color 0.15s; max-height: 120px; overflow-y: auto;
 }
-.reply-input:focus { border-color: var(--black); }
-.reply-input::placeholder { color: var(--gray-400); }
-
+.reply-input:focus { border-color: var(--text); }
+.reply-input::placeholder { color: var(--subtle); }
 .reply-btn {
-  font-family: inherit;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--gray-900);
-  background: var(--white);
-  border: 1.5px solid var(--gray-200);
-  border-radius: var(--radius);
-  padding: 10px 16px;
-  cursor: pointer;
-  white-space: nowrap;
+  font-family: inherit; font-size: 0.875rem; font-weight: 600;
+  color: var(--text); background: var(--surface);
+  border: 1.5px solid var(--border); border-radius: var(--radius);
+  padding: 9px 15px; cursor: pointer; white-space: nowrap; flex-shrink: 0;
   transition: border-color 0.15s;
-  flex-shrink: 0;
 }
 .reply-btn:hover { border-color: var(--gray-400); }
 
-.push-row { align-self: flex-start; width: 100%; }
 .push-btn {
-  font-family: inherit;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--white);
-  background: var(--orange);
-  border: none;
-  border-radius: var(--radius);
-  padding: 12px 24px;
-  cursor: pointer;
-  transition: opacity 0.15s;
-  width: 100%;
+  font-family: inherit; font-size: 0.875rem; font-weight: 600;
+  color: var(--white); background: var(--orange);
+  border: none; border-radius: var(--radius); padding: 11px 22px;
+  cursor: pointer; transition: opacity 0.15s; width: 100%;
 }
 .push-btn:hover { opacity: 0.88; }
-.push-done {
-  margin-top: 10px;
-  font-size: 0.82rem;
-  color: var(--gray-600);
-  text-align: center;
-  display: none;
-}
 
-/* ── Divider ── */
-.divider {
-  border: none;
-  border-top: 1px solid var(--gray-200);
-  margin: 80px 40px;
+/* Success block */
+.success-block { align-self: flex-start; width: 100%; animation: fadeUp 0.3s ease; }
+.shipped-card {
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: 12px; padding: 18px 22px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.07); margin-bottom: 10px;
 }
+.shipped-label {
+  font-size: 0.66rem; font-weight: 600; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--orange); margin-bottom: 8px;
+}
+.shipped-name { font-size: 0.95rem; font-weight: 700; letter-spacing: -0.01em; color: var(--text); margin-bottom: 4px; }
+.shipped-desc { font-size: 0.8rem; color: var(--muted); line-height: 1.6; margin-bottom: 12px; }
+.shipped-install {
+  font-family: 'SF Mono','Fira Code',monospace; font-size: 0.7rem;
+  color: var(--muted); background: var(--gray-100);
+  padding: 5px 9px; border-radius: 4px; display: inline-block;
+}
+.shipped-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+.shipped-btn {
+  font-family: inherit; font-size: 0.78rem; font-weight: 600;
+  padding: 8px 14px; border-radius: var(--radius); cursor: pointer;
+  transition: opacity 0.15s; text-decoration: none; border: none; white-space: nowrap;
+}
+.shipped-btn.primary { background: var(--black); color: var(--white); }
+[data-theme="dark"] .shipped-btn.primary { background: #333; color: var(--text); }
+.shipped-btn.secondary { background: var(--gray-100); color: var(--text); }
+.shipped-btn:hover { opacity: 0.8; }
 
-/* ── Section ── */
-.section {
-  max-width: 960px;
-  margin: 0 auto;
-  padding: 0 40px 80px;
-}
-
-.section-eyebrow {
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--gray-400);
-  margin-bottom: 12px;
-}
-
-.section-title {
-  font-size: 1.75rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  line-height: 1.2;
-  color: var(--black);
-  margin-bottom: 40px;
-}
-
-/* ── Steps ── */
-.steps {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
-}
-
-.step {
-  padding: 28px;
-  background: var(--gray-50);
-  border: 1px solid var(--gray-200);
-  border-radius: 12px;
-}
-
-.step-num {
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--orange);
-  margin-bottom: 12px;
-}
-
-.step-title {
-  font-size: 1rem;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  color: var(--black);
-  margin-bottom: 8px;
-}
-
-.step-desc {
-  font-size: 0.85rem;
-  color: var(--gray-600);
-  line-height: 1.65;
-}
-
-/* ── Plugin Cards ── */
-.plugin-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-}
-
-.plugin-card {
-  padding: 24px;
-  border: 1px solid var(--gray-200);
-  border-radius: 12px;
-  transition: box-shadow 0.15s, border-color 0.15s;
-}
-.plugin-card:hover {
-  box-shadow: var(--shadow);
-  border-color: var(--gray-400);
-}
-
-.plugin-tag {
-  font-size: 0.68rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--orange);
-  margin-bottom: 10px;
-}
-
-.plugin-name {
-  font-size: 0.95rem;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  color: var(--black);
-  margin-bottom: 8px;
-}
-
-.plugin-desc {
-  font-size: 0.82rem;
-  color: var(--gray-600);
-  line-height: 1.6;
-  margin-bottom: 16px;
-}
-
-.plugin-install {
-  font-family: 'SF Mono','Fira Code','Consolas',monospace;
-  font-size: 0.72rem;
-  color: var(--gray-600);
-  background: var(--gray-100);
-  padding: 6px 10px;
-  border-radius: 5px;
-  display: inline-block;
-}
-
-/* ── CTA Strip ── */
-.cta-strip {
-  background: var(--black);
-  border-radius: 16px;
-  padding: 48px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 32px;
-  flex-wrap: wrap;
-  margin: 0 40px 80px;
-}
-
-.cta-strip h2 {
-  font-size: 1.5rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: var(--white);
-  margin-bottom: 6px;
-}
-
-.cta-strip p {
-  font-size: 0.875rem;
-  color: var(--gray-400);
-  line-height: 1.6;
-}
-
-.cta-actions {
-  display: flex;
-  gap: 10px;
-  flex-shrink: 0;
-  flex-wrap: wrap;
-}
-
-.btn-primary {
-  font-family: inherit;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--black);
-  background: var(--white);
-  padding: 10px 20px;
-  border-radius: 6px;
-  text-decoration: none;
-  transition: opacity 0.15s;
-  white-space: nowrap;
-}
-.btn-primary:hover { opacity: 0.88; }
-
-.btn-secondary {
-  font-family: inherit;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--gray-400);
-  background: transparent;
-  border: 1px solid rgba(255,255,255,0.15);
-  padding: 10px 20px;
-  border-radius: 6px;
-  text-decoration: none;
-  transition: color 0.15s, border-color 0.15s;
-  white-space: nowrap;
-}
-.btn-secondary:hover { color: var(--white); border-color: rgba(255,255,255,0.4); }
-
-/* ── Footer ── */
-footer {
-  border-top: 1px solid var(--gray-200);
-  padding: 28px 40px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 16px;
-}
-
-.footer-left {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.82rem;
-  color: var(--gray-400);
-}
-
-.footer-wordmark {
-  font-weight: 700;
-  color: var(--gray-900);
-  font-size: 0.88rem;
-}
-
-.footer-links {
-  display: flex;
-  gap: 20px;
-}
-
-.footer-link {
-  font-size: 0.82rem;
-  color: var(--gray-400);
-  text-decoration: none;
-  transition: color 0.15s;
-}
-.footer-link:hover { color: var(--gray-900); }
-
-/* ── Sticky bottom input bar ── */
-.bottom-bar {
-  display: none;
+/* ── Fixed bottom input bar ── */
+.input-bar {
   position: fixed;
   bottom: 0; left: 0; right: 0;
   z-index: 90;
@@ -708,249 +501,53 @@ footer {
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-top: 1px solid var(--border);
-  padding: 14px 24px 18px;
+  padding: 12px 24px 16px;
 }
-.bottom-bar.visible { display: block; }
-.bottom-bar-inner {
+.input-bar-inner {
   max-width: 680px;
   margin: 0 auto;
   display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.input-row {
+  display: flex;
   gap: 8px;
   align-items: center;
 }
-.bottom-input {
-  flex: 1;
-  font-family: inherit;
-  font-size: 0.9rem;
-  color: var(--text);
-  background: var(--surface);
-  border: 1.5px solid var(--border);
-  border-radius: 12px;
-  padding: 11px 16px;
-  outline: none;
+.url-input {
+  flex: 1; font-family: inherit; font-size: 0.9rem;
+  color: var(--text); background: var(--surface);
+  border: 1.5px solid var(--border); border-radius: 12px;
+  padding: 11px 16px; outline: none;
   transition: border-color 0.15s, box-shadow 0.15s;
   box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
-.bottom-input:focus { border-color: var(--black); box-shadow: 0 0 0 3px rgba(10,10,10,0.08); }
-[data-theme="dark"] .bottom-input:focus { box-shadow: 0 0 0 3px rgba(255,255,255,0.08); }
-.bottom-input::placeholder { color: var(--subtle); }
-.bottom-submit {
-  font-family: inherit;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--bg);
-  background: var(--text);
-  border: none;
-  border-radius: 10px;
-  padding: 11px 18px;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: opacity 0.15s;
-  flex-shrink: 0;
+.url-input:focus {
+  border-color: var(--text);
+  box-shadow: 0 0 0 3px rgba(10,10,10,0.07);
 }
-.bottom-submit:hover { opacity: 0.8; }
-.bottom-submit:disabled { opacity: 0.35; cursor: not-allowed; }
+[data-theme="dark"] .url-input:focus { box-shadow: 0 0 0 3px rgba(255,255,255,0.07); }
+.url-input::placeholder { color: var(--subtle); }
+.url-submit {
+  font-family: inherit; font-size: 0.875rem; font-weight: 600;
+  color: var(--bg); background: var(--text);
+  border: none; border-radius: 10px; padding: 11px 18px;
+  cursor: pointer; white-space: nowrap; transition: opacity 0.15s; flex-shrink: 0;
+}
+.url-submit:hover { opacity: 0.8; }
+.url-submit:disabled { opacity: 0.35; cursor: not-allowed; }
+.input-hint {
+  font-size: 0.72rem; color: var(--subtle); text-align: center;
+}
 
-/* When chat is active, push page content up from bottom bar */
-body.chat-active { padding-bottom: 80px; }
-
-/* ── Bubble hover actions (copy) ── */
-.bubble-wrap { position: relative; }
-.bubble-actions {
-  position: absolute;
-  bottom: -26px;
-  left: 0;
-  display: flex;
-  gap: 4px;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.15s;
-}
-.chat-bubble.grace:hover .bubble-actions { opacity: 1; pointer-events: auto; }
-.bubble-action-btn {
-  font-family: inherit;
-  font-size: 0.7rem;
-  font-weight: 500;
-  color: var(--subtle);
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 5px;
-  padding: 3px 8px;
-  cursor: pointer;
-  transition: color 0.12s, border-color 0.12s;
-  white-space: nowrap;
-}
-.bubble-action-btn:hover { color: var(--text); border-color: var(--gray-400); }
-
-/* ── Code block copy buttons ── */
-.code-block-wrap { position: relative; margin: 8px 0; }
-.code-copy-btn {
-  position: absolute;
-  top: 8px; right: 8px;
-  font-family: inherit;
-  font-size: 0.68rem;
-  font-weight: 500;
-  color: var(--gray-400);
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 5px;
-  padding: 3px 9px;
-  cursor: pointer;
-  transition: color 0.12s;
-}
-.code-copy-btn:hover { color: #e5e7eb; }
-
-/* ── Chat bubble entrance animation ── */
-.chat-bubble { animation: fadeUp 0.2s ease both; }
-
-/* ── URL Preview Card ── */
-.url-preview-card {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  background: var(--white);
-  border: 1px solid var(--gray-200);
-  border-radius: 10px;
-  padding: 12px 16px;
-  margin: 0 auto 16px;
-  max-width: 600px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-  animation: fadeUp 0.25s ease;
-}
-.preview-favicon { width: 20px; height: 20px; border-radius: 4px; flex-shrink: 0; }
-.preview-meta { flex: 1; min-width: 0; }
-.preview-domain { font-size: 0.7rem; color: var(--gray-400); font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 2px; }
-.preview-title { font-size: 0.82rem; font-weight: 500; color: var(--gray-900); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.preview-og { width: 56px; height: 40px; object-fit: cover; border-radius: 6px; flex-shrink: 0; display: none; }
-.preview-og.loaded { display: block; }
-
-/* ── Typing Indicator ── */
-.typing-bubble {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  align-self: flex-start;
-}
-.typing-bubble .grace-avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; flex-shrink: 0; box-shadow: 0 1px 4px rgba(0,0,0,0.15); }
-.typing-dots {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  background: var(--white);
-  border: 1px solid var(--gray-200);
-  border-radius: 14px;
-  border-bottom-left-radius: 4px;
-  padding: 14px 18px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.07);
-}
-.typing-dots span {
-  width: 7px; height: 7px;
-  background: var(--gray-400);
-  border-radius: 50%;
-  animation: typingBounce 1.2s ease-in-out infinite;
-}
-.typing-dots span:nth-child(2) { animation-delay: 0.2s; }
-.typing-dots span:nth-child(3) { animation-delay: 0.4s; }
-@keyframes typingBounce { 0%,60%,100%{transform:translateY(0);opacity:0.4} 30%{transform:translateY(-6px);opacity:1} }
 @keyframes fadeUp { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
 
-/* ── Push Success Card ── */
-.success-block {
-  align-self: flex-start;
-  width: 100%;
-  animation: fadeUp 0.3s ease;
-}
-.shipped-card {
-  background: var(--white);
-  border: 1.5px solid var(--gray-200);
-  border-radius: 12px;
-  padding: 20px 24px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.07);
-  margin-bottom: 12px;
-}
-.shipped-label {
-  font-size: 0.68rem;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--orange);
-  margin-bottom: 10px;
-}
-.shipped-name {
-  font-size: 1rem;
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  color: var(--black);
-  margin-bottom: 4px;
-}
-.shipped-desc {
-  font-size: 0.82rem;
-  color: var(--gray-600);
-  line-height: 1.6;
-  margin-bottom: 14px;
-}
-.shipped-install {
-  font-family: 'SF Mono','Fira Code',monospace;
-  font-size: 0.72rem;
-  color: var(--gray-600);
-  background: var(--gray-100);
-  padding: 6px 10px;
-  border-radius: 5px;
-  display: inline-block;
-}
-.shipped-actions {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-.shipped-btn {
-  font-family: inherit;
-  font-size: 0.8rem;
-  font-weight: 600;
-  padding: 9px 16px;
-  border-radius: var(--radius);
-  cursor: pointer;
-  transition: opacity 0.15s;
-  text-decoration: none;
-  border: none;
-  white-space: nowrap;
-}
-.shipped-btn.primary { background: var(--black); color: var(--white); }
-.shipped-btn.secondary { background: var(--gray-100); color: var(--gray-900); }
-.shipped-btn:hover { opacity: 0.8; }
-
-/* ── Plugin counter in hero ── */
-.plugins-live {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.72rem;
-  font-weight: 500;
-  color: var(--gray-400);
-  background: var(--gray-100);
-  padding: 4px 10px;
-  border-radius: 99px;
-  margin-left: 8px;
-}
-.plugins-live-dot {
-  width: 6px; height: 6px;
-  background: #22c55e;
-  border-radius: 50%;
-  animation: pulse 2s ease-in-out infinite;
-}
-@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
-
-/* Responsive */
-@media (max-width: 768px) {
-  nav { padding: 0 20px; }
+@media (max-width: 640px) {
+  nav { padding: 0 16px; }
   .nav-link { display: none; }
-  .hero { padding: 100px 24px 60px; }
-  .url-form { flex-direction: column; }
-  .steps, .plugin-grid { grid-template-columns: 1fr; }
-  .section { padding: 0 24px 60px; }
-  .cta-strip { margin: 0 24px 60px; padding: 32px; }
-  footer { padding: 24px; }
-  .divider { margin: 60px 24px; }
+  .input-bar { padding: 10px 16px 14px; }
+  .chat-messages { padding: 0 16px; }
 }
 </style>
 </head>
@@ -963,178 +560,49 @@ body.chat-active { padding-bottom: 80px; }
     <span class="nav-badge">by Cantina</span>
   </a>
   <div class="nav-right">
-    <a class="nav-link" href="#how-it-works">How it works</a>
-    <a class="nav-link" href="#plugins">Plugins</a>
+    <span class="plugins-live" id="pluginsCounter" style="display:none">
+      <span class="plugins-live-dot"></span>
+      <span id="pluginsCount">0</span> plugins
+    </span>
     <a class="nav-link" href="https://github.com/aidan269/grace" target="_blank">GitHub</a>
     <button class="theme-toggle" id="themeToggle" title="Toggle dark mode" onclick="toggleTheme()">☀️</button>
-    <a class="nav-cta" href="https://cantina.xyz" target="_blank">Get an audit</a>
   </div>
 </nav>
 
-<!-- Hero -->
-<section class="hero">
-  <div class="hero-eyebrow">
-    <span class="hero-eyebrow-dot"></span>
-    Claude Code · Security Intelligence
-    <span class="plugins-live" id="pluginsCounter" style="display:none">
-      <span class="plugins-live-dot"></span>
-      <span id="pluginsCount">0</span> plugins shipped
-    </span>
-  </div>
-
-  <h1>Your AI security intern.</h1>
-
-  <p class="hero-sub">
-    Drop any security article, CVE, or tweet. Grace researches it,
-    builds a detection plugin, and asks before it ships.
-  </p>
-
-  <form class="url-form" id="graceForm" onsubmit="runGrace(event)">
-    <input
-      class="url-input"
-      id="urlInput"
-      type="url"
-      placeholder="https://... paste any article, CVE, or tweet"
-      required
-      autocomplete="off"
-    />
-    <button class="url-submit" id="submitBtn" type="submit">Run Grace</button>
-  </form>
-
-  <p class="hero-note">Requires Claude Code · Free and open source</p>
-
-  <!-- URL Preview Card -->
-  <div class="url-preview-card" id="urlPreviewCard" style="display:none">
-    <img class="preview-favicon" id="previewFavicon" src="" alt="" />
-    <div class="preview-meta">
-      <div class="preview-domain" id="previewDomain"></div>
-      <div class="preview-title" id="previewTitle"></div>
-    </div>
-    <img class="preview-og" id="previewOg" src="" alt="" />
-  </div>
-
-  <!-- Chat output -->
-  <div class="chat-wrap" id="streamWrap"></div>
-</section>
-
-<hr class="divider">
-
-<!-- How it works -->
-<section class="section" id="how-it-works">
-  <div class="section-eyebrow">How it works</div>
-  <h2 class="section-title">One URL. Everything else is Grace.</h2>
-
-  <div class="steps">
-    <div class="step">
-      <div class="step-num">01 Research</div>
-      <div class="step-title">Reads and thinks</div>
-      <div class="step-desc">
-        Fetches the article, gathers community intelligence from X and infosec forums,
-        and scores the threat on novelty, named actors, and impact.
-      </div>
-    </div>
-    <div class="step">
-      <div class="step-num">02 Generate</div>
-      <div class="step-title">Writes the plugin</div>
-      <div class="step-desc">
-        Produces a complete cantinasec plugin with detection steps, IOCs,
-        risk classification, and remediation. All sections. No blanks.
-      </div>
-    </div>
-    <div class="step">
-      <div class="step-num">03 Ship</div>
-      <div class="step-title">Asks, then pushes</div>
-      <div class="step-desc">
-        Creates the repo, commits everything, and waits for your go-ahead
-        before pushing to GitHub. You stay in the loop.
-      </div>
+<div class="page">
+  <!-- Empty state -->
+  <div class="empty-state" id="emptyState">
+    <img class="grace-logo" src="/grace-avatar.png" alt="Grace" />
+    <div class="empty-title">Hey, I'm Grace.</div>
+    <div class="empty-sub">Drop any security article, CVE, or tweet — I'll check if it's worth a plugin and write it up.</div>
+    <div class="example-chips">
+      <div class="chip" onclick="fillInput(this)">github.com/advisories/GHSA-...</div>
+      <div class="chip" onclick="fillInput(this)">nvd.nist.gov/vuln/detail/CVE-...</div>
+      <div class="chip" onclick="fillInput(this)">x.com/...</div>
+      <div class="chip" onclick="fillInput(this)">blog.cloudflare.com/...</div>
     </div>
   </div>
-</section>
 
-<hr class="divider" style="margin-top:0">
-
-<!-- Plugins -->
-<section class="section" id="plugins">
-  <div class="section-eyebrow">Shipped plugins</div>
-  <h2 class="section-title">Built with Grace.</h2>
-
-  <div class="plugin-grid" id="pluginGrid">
-    <div class="plugin-card">
-      <div class="plugin-tag">OWASP Agentic Top 10</div>
-      <div class="plugin-name">clowasp</div>
-      <div class="plugin-desc">
-        Audits AI agent pipelines against all 10 OWASP Agentic risks.
-        Returns PASS / REVIEW / BLOCK with drop-in hardened prompts.
-      </div>
-      <span class="plugin-install">/cantinasec:tripwire</span>
-    </div>
-
-    <div class="plugin-card">
-      <div class="plugin-tag">Skill Security</div>
-      <div class="plugin-name">clawtsuite</div>
-      <div class="plugin-desc">
-        Audits installed OpenClaw skills against Cantina's 6-point security
-        standard. Catches prompt injection, supply chain risks, and secrets.
-      </div>
-      <span class="plugin-install">/cantinasec:clawtsuite</span>
-    </div>
-
-    <div class="plugin-card">
-      <div class="plugin-tag">Supply Chain</div>
-      <div class="plugin-name">clawrmes</div>
-      <div class="plugin-desc">
-        Detects malicious agent skills using Snyk ToxicSkills IOCs
-        and named threat-actor signatures from the ClawHavoc campaign.
-      </div>
-      <span class="plugin-install">/cantinasec:clawrmes</span>
-    </div>
-
-    <div class="plugin-card">
-      <div class="plugin-tag">DeFi Bridge Exploit</div>
-      <div class="plugin-name">clawzero</div>
-      <div class="plugin-desc">
-        Detects exposure to the April 2026 Kelp DAO rsETH LayerZero bridge exploit
-        ($292M drained) — rsETH collateral, OFT message validation, emergency pause latency.
-      </div>
-      <span class="plugin-install">/cantinasec:clawzero</span>
-    </div>
-  </div>
-</section>
-
-<!-- CTA -->
-<div class="cta-strip">
-  <div>
-    <h2>Built by Cantina.</h2>
-    <p>We audit smart contracts, AI agents, and agentic pipelines.<br>
-       Grace is how we stay ahead of what's shipping.</p>
-  </div>
-  <div class="cta-actions">
-    <a class="btn-primary" href="https://cantina.xyz" target="_blank">Get an audit</a>
-    <a class="btn-secondary" href="https://cantina.security/resources/security-plugins" target="_blank">Security plugins</a>
+  <!-- Chat -->
+  <div class="chat-area" id="chatArea">
+    <div class="chat-messages" id="chatMessages"></div>
   </div>
 </div>
 
-<!-- Sticky bottom input (appears when chat is active) -->
-<div class="bottom-bar" id="bottomBar">
-  <div class="bottom-bar-inner">
-    <input class="bottom-input" id="bottomInput" type="url" placeholder="Paste another URL to start over..." autocomplete="off" />
-    <button class="bottom-submit" id="bottomSubmit" onclick="startNewFromBottom()">Run Grace</button>
+<!-- URL Preview (rendered inside chat-messages by JS) -->
+
+<!-- Fixed bottom input bar -->
+<div class="input-bar">
+  <div class="input-bar-inner">
+    <div class="input-row">
+      <input class="url-input" id="urlInput" type="url"
+        placeholder="Paste any article, CVE, tweet, or GitHub link..."
+        autocomplete="off" />
+      <button class="url-submit" id="submitBtn" onclick="handleSubmit()">Run Grace</button>
+    </div>
+    <div class="input-hint" id="inputHint">Requires Claude Code · Free and open source</div>
   </div>
 </div>
-
-<!-- Footer -->
-<footer>
-  <div class="footer-left">
-    <span class="footer-wordmark">Grace</span>
-    <span>by <a href="https://cantina.xyz" target="_blank" style="color:inherit">Cantina</a></span>
-  </div>
-  <div class="footer-links">
-    <a class="footer-link" href="https://github.com/aidan269/grace" target="_blank">GitHub</a>
-    <a class="footer-link" href="https://cantina.security/resources/security-plugins" target="_blank">Plugins</a>
-    <a class="footer-link" href="https://cantina.xyz" target="_blank">cantina.xyz</a>
-  </div>
-</footer>
 
 <script>
 let currentUrl = null;
@@ -1169,88 +637,38 @@ function toggleTheme() {
   } catch {}
 })();
 
-// ── URL Preview ──────────────────────────────────────────────────
-async function fetchPreview(url) {
-  try {
-    const res = await fetch('/api/preview', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ url })
-    });
-    return await res.json();
-  } catch { return null; }
+// ── Example chips ────────────────────────────────────────────────
+function fillInput(chip) {
+  const text = chip.textContent.trim();
+  const input = document.getElementById('urlInput');
+  input.value = text;
+  input.focus();
+  input.select();
 }
 
-function showPreviewCard(data) {
-  if (!data || !data.title) return;
-  const card = document.getElementById('urlPreviewCard');
-  document.getElementById('previewFavicon').src = data.favicon || '';
-  document.getElementById('previewDomain').textContent = data.domain || '';
-  document.getElementById('previewTitle').textContent = data.title || '';
-  if (data.image) {
-    const og = document.getElementById('previewOg');
-    og.src = data.image;
-    og.onload = () => og.classList.add('loaded');
-  }
-  card.style.display = 'flex';
+// ── Auto-scroll: only if user is near the bottom ─────────────────
+function maybeScrollToBottom() {
+  const area = document.getElementById('chatArea');
+  const nearBottom = area.scrollHeight - area.scrollTop - area.clientHeight < 120;
+  if (nearBottom) area.scrollTop = area.scrollHeight;
 }
 
-// ── Typing Indicator ─────────────────────────────────────────────
-let typingEl = null;
-function showTypingIndicator() {
-  if (typingEl) return;
-  const chat = document.getElementById('streamWrap');
-  typingEl = document.createElement('div');
-  typingEl.className = 'typing-bubble';
-  typingEl.innerHTML = `
-    <img class="grace-avatar" src="/grace-avatar.png" alt="Grace" />
-    <div class="typing-dots"><span></span><span></span><span></span></div>`;
-  chat.appendChild(typingEl);
-  typingEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+function scrollToBottom() {
+  const area = document.getElementById('chatArea');
+  area.scrollTop = area.scrollHeight;
 }
 
-function hideTypingIndicator() {
-  if (typingEl) { typingEl.remove(); typingEl = null; }
-}
-
-// ── Success Block ────────────────────────────────────────────────
-function showSuccessBlock(slug, overviewText) {
-  const chat = document.getElementById('streamWrap');
-  const block = document.createElement('div');
-  block.className = 'success-block';
-  const installCmd = `/cantinasec:${slug}`;
-  const shareUrl = `${location.origin}/api/plugin?slug=${slug}`;
-  block.innerHTML = `
-    <div class="shipped-card">
-      <div class="shipped-label">Shipped</div>
-      <div class="shipped-name">${slug}</div>
-      <div class="shipped-desc">${overviewText}</div>
-      <span class="shipped-install">${installCmd}</span>
-    </div>
-    <div class="shipped-actions">
-      <button class="shipped-btn primary" id="copyInstallBtn">Copy install command</button>
-      <a class="shipped-btn secondary" href="https://github.com/aidan269/${slug}" target="_blank">GitHub →</a>
-      <a class="shipped-btn secondary" href="${shareUrl}" target="_blank">View plugin page →</a>
-    </div>`;
-  chat.appendChild(block);
-  block.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-
-  document.getElementById('copyInstallBtn').addEventListener('click', function() {
-    navigator.clipboard.writeText(installCmd).then(() => {
-      this.textContent = 'Copied!';
-      setTimeout(() => this.textContent = 'Copy install command', 1500);
-    });
-  });
-}
+// ── Chat helpers ─────────────────────────────────────────────────
+function getChat() { return document.getElementById('chatMessages'); }
 
 function makeBubble() {
   hideTypingIndicator();
-  const chat = document.getElementById('streamWrap');
+  const chat = getChat();
   const wrap = document.createElement('div');
   wrap.className = 'chat-bubble grace';
   wrap.innerHTML = `
     <img class="grace-avatar" src="/grace-avatar.png" alt="Grace" />
-    <div class="bubble-inner bubble-wrap">
+    <div class="bubble-inner">
       <div class="bubble-label">Grace</div>
       <div class="bubble-body"></div>
       <div class="bubble-actions">
@@ -1267,18 +685,43 @@ function makeBubble() {
     });
   });
 
+  scrollToBottom();
   return body;
 }
 
 function makeUserBubble(text) {
-  const chat = document.getElementById('streamWrap');
+  const chat = getChat();
   const wrap = document.createElement('div');
   wrap.className = 'chat-bubble user';
   wrap.innerHTML = `<div class="bubble-inner"><div class="bubble-label" style="text-align:right">You</div><div class="bubble-body"></div></div>`;
   wrap.querySelector('.bubble-body').textContent = text;
   chat.appendChild(wrap);
+  scrollToBottom();
 }
 
+function addAction(el) {
+  getChat().appendChild(el);
+  scrollToBottom();
+}
+
+// ── Typing indicator ─────────────────────────────────────────────
+let typingEl = null;
+function showTypingIndicator() {
+  if (typingEl) return;
+  const chat = getChat();
+  typingEl = document.createElement('div');
+  typingEl.className = 'typing-bubble';
+  typingEl.innerHTML = `
+    <img class="grace-avatar" src="/grace-avatar.png" alt="Grace" />
+    <div class="typing-dots"><span></span><span></span><span></span></div>`;
+  chat.appendChild(typingEl);
+  scrollToBottom();
+}
+function hideTypingIndicator() {
+  if (typingEl) { typingEl.remove(); typingEl = null; }
+}
+
+// ── Code copy buttons ─────────────────────────────────────────────
 function addCodeCopyButtons(container) {
   container.querySelectorAll('pre').forEach(pre => {
     if (pre.parentElement.classList.contains('code-block-wrap')) return;
@@ -1299,6 +742,7 @@ function addCodeCopyButtons(container) {
   });
 }
 
+// ── sealBubble ───────────────────────────────────────────────────
 function sealBubble(body, rawText, { splitOnSections = false } = {}) {
   const cur = body.querySelector('.stream-cursor');
   if (cur) cur.remove();
@@ -1308,23 +752,23 @@ function sealBubble(body, rawText, { splitOnSections = false } = {}) {
   if (!splitOnSections) {
     body.innerHTML = marked.parse(cleaned);
     addCodeCopyButtons(body);
+    scrollToBottom();
     return;
   }
 
-  // Split at ## boundaries, render each as its own bubble
   const parts = cleaned.split(/(?=^## )/m).filter(p => p.trim());
   body.innerHTML = marked.parse(parts[0] || cleaned);
   body._rawText = parts[0] || cleaned;
   addCodeCopyButtons(body);
 
-  const chat = document.getElementById('streamWrap');
+  const chat = getChat();
   for (let i = 1; i < parts.length; i++) {
     const wrap = document.createElement('div');
     wrap.className = 'chat-bubble grace';
     const partText = parts[i].trim();
     wrap.innerHTML = `
       <img class="grace-avatar" src="/grace-avatar.png" alt="Grace" />
-      <div class="bubble-inner bubble-wrap">
+      <div class="bubble-inner">
         <div class="bubble-label">Grace</div>
         <div class="bubble-body"></div>
         <div class="bubble-actions">
@@ -1343,19 +787,41 @@ function sealBubble(body, rawText, { splitOnSections = false } = {}) {
     });
     chat.appendChild(wrap);
   }
+  scrollToBottom();
 }
 
-function addAction(el) {
-  const chat = document.getElementById('streamWrap');
-  chat.appendChild(el);
-  el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+// ── URL Preview ───────────────────────────────────────────────────
+async function fetchPreview(url) {
+  try {
+    const res = await fetch('/api/preview', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url })
+    });
+    return await res.json();
+  } catch { return null; }
 }
 
+function showPreviewCard(data) {
+  if (!data || !data.title) return;
+  const chat = getChat();
+  const card = document.createElement('div');
+  card.className = 'url-preview-card';
+  card.innerHTML = `
+    <img class="preview-favicon" src="${data.favicon || ''}" alt="" />
+    <div class="preview-meta">
+      <div class="preview-domain">${data.domain || ''}</div>
+      <div class="preview-title">${data.title || ''}</div>
+    </div>
+    ${data.image ? `<img class="preview-og" src="${data.image}" alt="" onload="this.classList.add('loaded')" />` : ''}`;
+  chat.appendChild(card);
+  scrollToBottom();
+}
+
+// ── Content fetch ─────────────────────────────────────────────────
 async function fetchContent(url) {
   try {
     const res = await fetch('/api/content', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ url })
     });
     const { content } = await res.json();
@@ -1363,18 +829,17 @@ async function fetchContent(url) {
   } catch { return null; }
 }
 
+// ── streamStep ───────────────────────────────────────────────────
 async function streamStep(step, extraBody = {}, opts = {}) {
   const body = makeBubble();
   const cursor = document.createElement('span');
   cursor.className = 'stream-cursor';
   body.appendChild(cursor);
 
-  let raw = '';
-  let buf = '';
+  let raw = '', buf = '';
 
   const res = await fetch('/api/grace', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ url: currentUrl, step, content: cachedContent, ...extraBody })
   });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -1390,15 +855,13 @@ async function streamStep(step, extraBody = {}, opts = {}) {
       try {
         const { text, done: d } = JSON.parse(line.slice(6));
         if (d || !text) continue;
-        buf += text;
-        raw += text;
+        buf += text; raw += text;
         const safe = buf.lastIndexOf('\n') + 1 || Math.max(0, buf.length - 20);
         if (safe > 0) {
           body.insertBefore(document.createTextNode(buf.slice(0, safe)), cursor);
           buf = buf.slice(safe);
         }
-        // Auto-scroll to bottom during streaming
-        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        maybeScrollToBottom();
       } catch {}
     }
   }
@@ -1407,11 +870,9 @@ async function streamStep(step, extraBody = {}, opts = {}) {
   return raw;
 }
 
-// Show reply input + proceed button after each step.
-// Loops until user clicks proceed. Returns final raw output.
+// ── waitForFeedback ───────────────────────────────────────────────
 async function waitForFeedback(step, initialRaw, proceedLabel, proceedUserText) {
   let currentRaw = initialRaw;
-
   while (true) {
     const result = await new Promise(resolve => {
       const container = document.createElement('div');
@@ -1421,80 +882,94 @@ async function waitForFeedback(step, initialRaw, proceedLabel, proceedUserText) 
           <textarea class="reply-input" placeholder="Anything to change?" rows="1"></textarea>
           <button class="reply-btn">Send</button>
         </div>
-        <button class="action-btn proceed-btn">${proceedLabel}</button>
-      `;
+        <button class="action-btn proceed-btn">${proceedLabel}</button>`;
       addAction(container);
 
       const textarea = container.querySelector('.reply-input');
-      textarea.addEventListener('input', () => {
-        textarea.style.height = 'auto';
-        textarea.style.height = textarea.scrollHeight + 'px';
-      });
-      textarea.addEventListener('keydown', e => {
-        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); container.querySelector('.reply-btn').click(); }
-      });
-
+      textarea.addEventListener('input', () => { textarea.style.height = 'auto'; textarea.style.height = textarea.scrollHeight + 'px'; });
+      textarea.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); container.querySelector('.reply-btn').click(); } });
       container.querySelector('.reply-btn').addEventListener('click', () => {
         const text = textarea.value.trim();
         if (!text) return;
         container.remove();
         resolve({ type: 'feedback', text });
       });
-
       container.querySelector('.proceed-btn').addEventListener('click', () => {
         container.remove();
         resolve({ type: 'proceed' });
       });
     });
 
-    if (result.type === 'proceed') {
-      makeUserBubble(proceedUserText);
-      return currentRaw;
-    }
-
+    if (result.type === 'proceed') { makeUserBubble(proceedUserText); return currentRaw; }
     makeUserBubble(result.text);
-    currentRaw = await streamStep('feedback', {
-      feedback: result.text,
-      previousOutput: currentRaw,
-      originalStep: step,
-    });
+    currentRaw = await streamStep('feedback', { feedback: result.text, previousOutput: currentRaw, originalStep: step });
   }
 }
 
-function startNewFromBottom() {
-  const val = document.getElementById('bottomInput').value.trim();
-  if (!val) return;
-  document.getElementById('urlInput').value = val;
-  document.getElementById('bottomInput').value = '';
-  document.getElementById('graceForm').dispatchEvent(new Event('submit', { cancelable: true }));
+// ── Success block ─────────────────────────────────────────────────
+function showSuccessBlock(slug, overviewText) {
+  const chat = getChat();
+  const block = document.createElement('div');
+  block.className = 'success-block';
+  const installCmd = `/cantinasec:${slug}`;
+  const shareUrl = `${location.origin}/api/plugin?slug=${slug}`;
+  block.innerHTML = `
+    <div class="shipped-card">
+      <div class="shipped-label">Shipped</div>
+      <div class="shipped-name">${slug}</div>
+      <div class="shipped-desc">${overviewText}</div>
+      <span class="shipped-install">${installCmd}</span>
+    </div>
+    <div class="shipped-actions">
+      <button class="shipped-btn primary" id="copyInstallBtn">Copy install command</button>
+      <a class="shipped-btn secondary" href="https://github.com/aidan269/${slug}" target="_blank">GitHub →</a>
+      <a class="shipped-btn secondary" href="${shareUrl}" target="_blank">Plugin page →</a>
+    </div>`;
+  chat.appendChild(block);
+  scrollToBottom();
+
+  document.getElementById('copyInstallBtn').addEventListener('click', function() {
+    navigator.clipboard.writeText(installCmd).then(() => {
+      this.textContent = 'Copied!';
+      setTimeout(() => this.textContent = 'Copy install command', 1500);
+    });
+  });
 }
 
-async function runGrace(e) {
-  e.preventDefault();
-  currentUrl = document.getElementById('urlInput').value.trim();
+// ── handleSubmit ──────────────────────────────────────────────────
+function handleSubmit() {
+  const input = document.getElementById('urlInput');
+  const url = input.value.trim();
+  if (!url) return;
+  runGrace(url);
+}
+
+document.getElementById('urlInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') { e.preventDefault(); handleSubmit(); }
+});
+
+async function runGrace(url) {
+  currentUrl = url;
   confirmedSlug = null;
-  if (!currentUrl) return;
 
   const submitBtn = document.getElementById('submitBtn');
-  const streamWrap = document.getElementById('streamWrap');
+  const urlInput = document.getElementById('urlInput');
 
-  // Reset preview card
-  document.getElementById('urlPreviewCard').style.display = 'none';
-  document.getElementById('previewOg').classList.remove('loaded');
+  // Switch to chat view
+  document.getElementById('emptyState').classList.add('hidden');
+  document.getElementById('chatArea').classList.add('visible');
+  document.getElementById('chatMessages').innerHTML = '';
 
-  streamWrap.innerHTML = '';
-  makeUserBubble(currentUrl);
-  streamWrap.classList.add('visible');
   submitBtn.disabled = true;
   submitBtn.textContent = 'Fetching...';
+  urlInput.value = '';
+  document.getElementById('inputHint').textContent = 'Grace is working…';
 
-  // Activate sticky bottom bar
-  document.getElementById('bottomBar').classList.add('visible');
-  document.body.classList.add('chat-active');
+  makeUserBubble(url);
 
-  // Fetch preview and content in parallel
+  // Fetch preview + content in parallel
   showTypingIndicator();
-  const [preview, content] = await Promise.all([fetchPreview(currentUrl), fetchContent(currentUrl)]);
+  const [preview, content] = await Promise.all([fetchPreview(url), fetchContent(url)]);
   hideTypingIndicator();
   cachedContent = content;
   showPreviewCard(preview);
@@ -1502,18 +977,17 @@ async function runGrace(e) {
   submitBtn.textContent = 'Running...';
 
   try {
-    // Step 1: Virality + feedback loop
+    // Step 1: Virality
     showTypingIndicator();
     const viralityRaw = await streamStep('virality');
     await waitForFeedback('virality', viralityRaw, "Yeah, let's go →", "Yeah, let's go");
 
-    // Step 2: Slug + feedback loop
+    // Step 2: Slug
     showTypingIndicator();
     let slugRaw = await streamStep('slug');
     const extractSlug = raw => { const m = raw.match(/`([a-z][a-z0-9-]{2,})`/); return m ? m[1] : null; };
     let suggested = extractSlug(slugRaw) || 'cl-plugin';
 
-    // Slug step: feedback loop updates suggested slug; editable input confirms
     while (true) {
       const result = await new Promise(resolve => {
         const container = document.createElement('div');
@@ -1526,26 +1000,18 @@ async function runGrace(e) {
           <div class="slug-row">
             <input class="slug-input" id="slugInput" value="${suggested}" spellcheck="false" />
             <button class="action-btn" id="useSlugBtn">Write it up →</button>
-          </div>
-        `;
+          </div>`;
         addAction(container);
 
         const textarea = container.querySelector('.reply-input');
-        textarea.addEventListener('input', () => {
-          textarea.style.height = 'auto';
-          textarea.style.height = textarea.scrollHeight + 'px';
-        });
-        textarea.addEventListener('keydown', e => {
-          if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); container.querySelector('.reply-btn').click(); }
-        });
-
+        textarea.addEventListener('input', () => { textarea.style.height = 'auto'; textarea.style.height = textarea.scrollHeight + 'px'; });
+        textarea.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); container.querySelector('.reply-btn').click(); } });
         container.querySelector('.reply-btn').addEventListener('click', () => {
           const text = textarea.value.trim();
           if (!text) return;
           container.remove();
           resolve({ type: 'feedback', text });
         });
-
         container.querySelector('#useSlugBtn').addEventListener('click', () => {
           const val = document.getElementById('slugInput').value.trim() || suggested;
           container.remove();
@@ -1558,18 +1024,12 @@ async function runGrace(e) {
         makeUserBubble(`${confirmedSlug} — write it up`);
         break;
       }
-
       makeUserBubble(result.text);
-      slugRaw = await streamStep('feedback', {
-        feedback: result.text,
-        previousOutput: slugRaw,
-        originalStep: 'slug',
-      });
+      slugRaw = await streamStep('feedback', { feedback: result.text, previousOutput: slugRaw, originalStep: 'slug' });
       suggested = extractSlug(slugRaw) || suggested;
-      // loop shows input again with updated suggested value
     }
 
-    // Step 3: Plugin + feedback/push
+    // Step 3: Plugin
     showTypingIndicator();
     let pluginRaw = await streamStep('plugin', { slug: confirmedSlug }, { splitOnSections: true });
 
@@ -1582,9 +1042,7 @@ async function runGrace(e) {
             <textarea class="reply-input" placeholder="Any revisions before we push?" rows="1"></textarea>
             <button class="reply-btn">Send</button>
           </div>
-          <button class="push-btn visible" id="pushBtn">Push to GitHub</button>
-          <p class="push-done" id="pushDone" style="display:none"></p>
-        `;
+          <button class="push-btn" id="pushBtn">Push to GitHub</button>`;
         addAction(container);
 
         const ta = container.querySelector('.reply-input');
@@ -1596,16 +1054,14 @@ async function runGrace(e) {
           if (!text) return;
           container.remove();
           makeUserBubble(text);
-          pluginRaw = await streamStep('feedback', {
-            feedback: text, previousOutput: pluginRaw, originalStep: 'plugin',
-          }, { splitOnSections: true });
+          showTypingIndicator();
+          pluginRaw = await streamStep('feedback', { feedback: text, previousOutput: pluginRaw, originalStep: 'plugin' }, { splitOnSections: true });
           showPluginControls();
         });
 
         container.querySelector('#pushBtn').addEventListener('click', async () => {
           const btn = container.querySelector('#pushBtn');
-          btn.disabled = true;
-          btn.textContent = 'Pushing...';
+          btn.disabled = true; btn.textContent = 'Pushing...';
           try {
             const res = await fetch('/api/push', {
               method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -1617,8 +1073,7 @@ async function runGrace(e) {
             showSuccessBlock(confirmedSlug, overview);
             resolve();
           } catch {
-            btn.disabled = false;
-            btn.textContent = 'Push to GitHub';
+            btn.disabled = false; btn.textContent = 'Push to GitHub';
           }
         });
       }
@@ -1633,12 +1088,9 @@ async function runGrace(e) {
 
   submitBtn.disabled = false;
   submitBtn.textContent = 'Run Grace';
+  urlInput.placeholder = 'Paste another URL to start over...';
+  document.getElementById('inputHint').textContent = '';
 }
-
-document.getElementById('bottomInput').addEventListener('keydown', e => {
-  if (e.key === 'Enter') { e.preventDefault(); startNewFromBottom(); }
-});
-
 </script>
 
 </body>
