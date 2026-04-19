@@ -303,9 +303,42 @@ h1 {
 }
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
 
+.action-btn {
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--white);
+  background: var(--black);
+  border: none;
+  border-radius: var(--radius);
+  padding: 11px 20px;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  align-self: flex-end;
+}
+.action-btn:hover { opacity: 0.8; }
+
+.slug-row {
+  display: flex;
+  gap: 8px;
+  align-self: flex-end;
+  max-width: 88%;
+}
+.slug-input {
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 0.85rem;
+  padding: 10px 14px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius);
+  outline: none;
+  color: var(--gray-900);
+  min-width: 180px;
+  transition: border-color 0.15s;
+}
+.slug-input:focus { border-color: var(--black); }
+
+.push-row { align-self: flex-start; width: 100%; }
 .push-btn {
-  display: none;
-  margin-top: 4px;
   font-family: inherit;
   font-size: 0.875rem;
   font-weight: 600;
@@ -319,16 +352,13 @@ h1 {
   width: 100%;
 }
 .push-btn:hover { opacity: 0.88; }
-.push-btn.visible { display: block; }
-
 .push-done {
-  margin-top: 12px;
+  margin-top: 10px;
   font-size: 0.82rem;
   color: var(--gray-600);
   text-align: center;
   display: none;
 }
-.push-done.visible { display: block; }
 
 /* ── Divider ── */
 .divider {
@@ -611,18 +641,7 @@ footer {
   <p class="hero-note">Requires Claude Code · Free and open source</p>
 
   <!-- Chat output -->
-  <div class="chat-wrap" id="streamWrap">
-    <div class="chat-bubble user" id="userBubble" style="display:none">
-      <div class="bubble-label">You</div>
-      <div class="bubble-body" id="userText"></div>
-    </div>
-    <div class="chat-bubble grace" id="graceBubble" style="display:none">
-      <div class="bubble-label">Grace</div>
-      <div class="bubble-body"><span id="streamText"></span><span class="stream-cursor" id="cursor"></span></div>
-    </div>
-    <button class="push-btn" id="pushBtn" onclick="pushPlugin()">Push to GitHub</button>
-    <p class="push-done" id="pushDone"></p>
-  </div>
+  <div class="chat-wrap" id="streamWrap"></div>
 </section>
 
 <hr class="divider">
@@ -737,129 +756,156 @@ footer {
 </footer>
 
 <script>
-let lastSlug = null;
+let currentUrl = null;
+let confirmedSlug = null;
 
-function makeBubble(chat) {
+function makeBubble() {
+  const chat = document.getElementById('streamWrap');
   const wrap = document.createElement('div');
   wrap.className = 'chat-bubble grace';
   wrap.innerHTML = '<div class="bubble-label">Grace</div><div class="bubble-body"></div>';
-  chat.insertBefore(wrap, document.getElementById('pushBtn'));
+  chat.appendChild(wrap);
   return wrap.querySelector('.bubble-body');
 }
 
+function makeUserBubble(text) {
+  const chat = document.getElementById('streamWrap');
+  const wrap = document.createElement('div');
+  wrap.className = 'chat-bubble user';
+  wrap.innerHTML = `<div class="bubble-label">You</div><div class="bubble-body"></div>`;
+  wrap.querySelector('.bubble-body').textContent = text;
+  chat.appendChild(wrap);
+}
+
 function sealBubble(body, rawText) {
-  body.innerHTML = marked.parse(rawText.trim());
+  body.innerHTML = marked.parse(rawText.replace(/\[PUSH_READY\]/g, '').trim());
+}
+
+function addAction(el) {
+  const chat = document.getElementById('streamWrap');
+  chat.appendChild(el);
+  el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+async function streamStep(step, extraBody = {}) {
+  const cursor = document.getElementById('cursor');
+  const body = makeBubble();
+  body.appendChild(cursor);
+  cursor.style.display = 'inline-block';
+
+  let raw = '';
+  let buf = '';
+
+  const res = await fetch('/api/grace', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ url: currentUrl, step, ...extraBody })
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+  const reader = res.body.getReader();
+  const dec = new TextDecoder();
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    for (const line of dec.decode(value, { stream: true }).split('\n')) {
+      if (!line.startsWith('data: ')) continue;
+      try {
+        const { text, done: d } = JSON.parse(line.slice(6));
+        if (d || !text) continue;
+        buf += text;
+        raw += text;
+        const safe = buf.lastIndexOf('\n') + 1 || Math.max(0, buf.length - 20);
+        if (safe > 0) {
+          body.insertBefore(document.createTextNode(buf.slice(0, safe)), cursor);
+          buf = buf.slice(safe);
+        }
+      } catch {}
+    }
+  }
+
+  cursor.style.display = 'none';
+  sealBubble(body, raw);
+  return raw;
 }
 
 async function runGrace(e) {
   e.preventDefault();
-  const url = document.getElementById('urlInput').value.trim();
-  if (!url) return;
+  currentUrl = document.getElementById('urlInput').value.trim();
+  confirmedSlug = null;
+  if (!currentUrl) return;
 
   const submitBtn = document.getElementById('submitBtn');
   const streamWrap = document.getElementById('streamWrap');
-  const cursor = document.getElementById('cursor');
-  const pushBtn = document.getElementById('pushBtn');
-  const pushDone = document.getElementById('pushDone');
-  const userBubble = document.getElementById('userBubble');
-  const userText = document.getElementById('userText');
 
-  // Clear previous grace bubbles
-  streamWrap.querySelectorAll('.chat-bubble.grace').forEach(b => b.remove());
-
+  // Reset
+  streamWrap.innerHTML = `
+    <div class="chat-bubble user" id="userBubble">
+      <div class="bubble-label">You</div>
+      <div class="bubble-body" id="userText"></div>
+    </div>
+    <span class="stream-cursor" id="cursor" style="display:none"></span>
+  `;
+  document.getElementById('userText').textContent = currentUrl;
+  streamWrap.classList.add('visible');
   submitBtn.disabled = true;
   submitBtn.textContent = 'Running...';
-  streamWrap.classList.add('visible');
-  pushBtn.classList.remove('visible');
-  pushDone.classList.remove('visible');
-  pushDone.textContent = '';
-  userText.textContent = url;
-  userBubble.style.display = 'flex';
-
-  let currentBody = makeBubble(streamWrap);
-  currentBody.appendChild(cursor);
-  cursor.style.display = 'inline-block';
-  let buffer = '';
-  let currentRaw = '';
-
-  function flushTextNode(text) {
-    if (!text) return;
-    currentBody.insertBefore(document.createTextNode(text), cursor);
-  }
 
   try {
-    const res = await fetch('/api/grace', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ url })
+    // Step 1: Virality
+    await streamStep('virality');
+
+    // Action: Proceed button
+    const proceedBtn = document.createElement('button');
+    proceedBtn.className = 'action-btn';
+    proceedBtn.textContent = 'Looks good — get the slug →';
+    addAction(proceedBtn);
+
+    await new Promise(resolve => proceedBtn.addEventListener('click', () => {
+      proceedBtn.remove();
+      makeUserBubble('Looks good — get the slug');
+      resolve();
+    }, { once: true }));
+
+    // Step 2: Slug
+    const slugRaw = await streamStep('slug');
+    const slugMatch = slugRaw.match(/`([a-z][a-z0-9-]{2,})`/);
+    const suggested = slugMatch ? slugMatch[1] : 'cl-plugin';
+
+    // Action: editable slug + confirm
+    const slugRow = document.createElement('div');
+    slugRow.className = 'slug-row';
+    slugRow.innerHTML = `
+      <input class="slug-input" id="slugInput" value="${suggested}" spellcheck="false" />
+      <button class="action-btn" id="useSlugBtn">Use this slug →</button>
+    `;
+    addAction(slugRow);
+
+    confirmedSlug = await new Promise(resolve => {
+      document.getElementById('useSlugBtn').addEventListener('click', () => {
+        const val = document.getElementById('slugInput').value.trim() || suggested;
+        slugRow.remove();
+        makeUserBubble(`Slug: ${val}`);
+        resolve(val);
+      }, { once: true });
     });
 
-    if (!res.ok) throw new Error(`Error: ${res.status}`);
+    // Step 3: Plugin
+    await streamStep('plugin', { slug: confirmedSlug });
 
-    const reader = res.body.getReader();
-    const decoder = new TextDecoder();
+    // Action: Push button
+    const pushRow = document.createElement('div');
+    pushRow.className = 'push-row';
+    pushRow.innerHTML = `
+      <button class="push-btn visible" id="pushBtn" onclick="pushPlugin()">Push to GitHub</button>
+      <p class="push-done" id="pushDone"></p>
+    `;
+    addAction(pushRow);
 
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-
-      const chunk = decoder.decode(value, { stream: true });
-      for (const line of chunk.split('\n')) {
-        if (!line.startsWith('data: ')) continue;
-        try {
-          const parsed = JSON.parse(line.slice(6));
-          if (parsed.done || !parsed.text) continue;
-
-          buffer += parsed.text;
-          currentRaw += parsed.text;
-
-          // [STEP:] — seal current bubble, open new one
-          const stepMatch = buffer.match(/\[STEP:([^\]]+)\]/);
-          if (stepMatch) {
-            const idx = buffer.indexOf(stepMatch[0]);
-            const before = buffer.slice(0, idx);
-            currentRaw = currentRaw.slice(0, currentRaw.length - buffer.length + idx);
-            sealBubble(currentBody, currentRaw);
-            buffer = buffer.slice(idx + stepMatch[0].length);
-            currentRaw = '';
-            currentBody = makeBubble(streamWrap);
-            currentBody.appendChild(cursor);
-            continue;
-          }
-
-          // [SLUG:] extract
-          const slugMatch = buffer.match(/\[SLUG:([^\]]+)\]/);
-          if (slugMatch) {
-            lastSlug = slugMatch[1];
-            buffer = buffer.replace(slugMatch[0], '');
-            currentRaw = currentRaw.replace(slugMatch[0], '');
-          }
-
-          // [PUSH_READY]
-          if (buffer.includes('[PUSH_READY]')) {
-            buffer = buffer.replace('[PUSH_READY]', '');
-            currentRaw = currentRaw.replace('[PUSH_READY]', '');
-            sealBubble(currentBody, currentRaw);
-            cursor.style.display = 'none';
-            pushBtn.classList.add('visible');
-            continue;
-          }
-
-          // Stream raw text into bubble while typing
-          const safeLen = buffer.lastIndexOf('\n') + 1 || Math.max(0, buffer.length - 20);
-          if (safeLen > 0) {
-            flushTextNode(buffer.slice(0, safeLen));
-            buffer = buffer.slice(safeLen);
-          }
-        } catch {}
-      }
-    }
-
-    // Seal final bubble
-    if (currentRaw.trim()) sealBubble(currentBody, currentRaw);
   } catch (err) {
-    currentBody.textContent = 'Something went wrong. Try again or run /grace locally in Claude Code.';
-    cursor.style.display = 'none';
+    const b = makeBubble();
+    b.textContent = 'Something went wrong. Try again or run /grace locally in Claude Code.';
   }
 
   submitBtn.disabled = false;
@@ -869,22 +915,18 @@ async function runGrace(e) {
 async function pushPlugin() {
   const pushBtn = document.getElementById('pushBtn');
   const pushDone = document.getElementById('pushDone');
-
   pushBtn.disabled = true;
   pushBtn.textContent = 'Pushing...';
-
   try {
     const res = await fetch('/api/push', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ slug: lastSlug })
+      body: JSON.stringify({ slug: confirmedSlug })
     });
     const data = await res.json();
-    pushBtn.classList.remove('visible');
-    pushDone.textContent = data.url
-      ? `Shipped. github.com/aidan269/${lastSlug}`
-      : 'Pushed successfully.';
-    pushDone.classList.add('visible');
+    pushBtn.style.display = 'none';
+    pushDone.textContent = data.url ? `Shipped → github.com/aidan269/${confirmedSlug}` : 'Pushed.';
+    pushDone.style.display = 'block';
   } catch {
     pushBtn.disabled = false;
     pushBtn.textContent = 'Push to GitHub';
