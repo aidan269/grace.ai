@@ -853,11 +853,32 @@ function makeUserBubble(text) {
   chat.appendChild(wrap);
 }
 
-function sealBubble(body, rawText) {
-  // Remove cursor before overwriting innerHTML
+function sealBubble(body, rawText, { splitOnSections = false } = {}) {
   const cur = body.querySelector('.stream-cursor');
   if (cur) cur.remove();
-  body.innerHTML = marked.parse(rawText.replace(/\[PUSH_READY\]/g, '').trim());
+  const cleaned = rawText.replace(/\[PUSH_READY\]/g, '').trim();
+
+  if (!splitOnSections) {
+    body.innerHTML = marked.parse(cleaned);
+    return;
+  }
+
+  // Split at ## boundaries, render each as its own bubble
+  const parts = cleaned.split(/(?=^## )/m).filter(p => p.trim());
+  body.innerHTML = marked.parse(parts[0] || cleaned);
+
+  const chat = document.getElementById('streamWrap');
+  for (let i = 1; i < parts.length; i++) {
+    const wrap = document.createElement('div');
+    wrap.className = 'chat-bubble grace';
+    wrap.innerHTML = `
+      <img class="grace-avatar" src="/grace-avatar.png" alt="Grace" />
+      <div class="bubble-inner">
+        <div class="bubble-label">Grace</div>
+        <div class="bubble-body">${marked.parse(parts[i].trim())}</div>
+      </div>`;
+    chat.appendChild(wrap);
+  }
 }
 
 function addAction(el) {
@@ -878,7 +899,7 @@ async function fetchContent(url) {
   } catch { return null; }
 }
 
-async function streamStep(step, extraBody = {}) {
+async function streamStep(step, extraBody = {}, opts = {}) {
   const body = makeBubble();
   const cursor = document.createElement('span');
   cursor.className = 'stream-cursor';
@@ -916,7 +937,7 @@ async function streamStep(step, extraBody = {}) {
     }
   }
 
-  sealBubble(body, raw);
+  sealBubble(body, raw, opts);
   return raw;
 }
 
@@ -1058,7 +1079,7 @@ async function runGrace(e) {
     }
 
     // Step 3: Plugin + feedback loop
-    const pluginRaw = await streamStep('plugin', { slug: confirmedSlug });
+    const pluginRaw = await streamStep('plugin', { slug: confirmedSlug }, { splitOnSections: true });
     await waitForFeedback('plugin', pluginRaw, 'Push to GitHub', 'Looks good — push it');
 
     // Push
