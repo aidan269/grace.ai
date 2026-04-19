@@ -5,43 +5,34 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Grace — Cantina Security Plugin Generator</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --black:  #000000;
-  --white:  #FFFFFF;
-  --yellow: #FFE600;
-  --red:    #E8253D;
-  --blue:   #0047AB;
-  --mono:   'SF Mono','Fira Code','Consolas',monospace;
-  --stroke: 3px;
+  --black:   #0A0A0A;
+  --white:   #FFFFFF;
+  --orange:  #FA5E06;
+  --gray-50: #F9FAFB;
+  --gray-100:#F3F4F6;
+  --gray-200:#E5E7EB;
+  --gray-400:#9CA3AF;
+  --gray-600:#4B5563;
+  --gray-900:#111827;
+  --radius:  8px;
+  --shadow:  0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.06);
 }
 
 html { scroll-behavior: smooth; }
 
 body {
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   background: var(--white);
-  color: var(--black);
+  color: var(--gray-900);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
-  overflow-x: hidden;
-}
-
-/* Ben-Day dot pattern */
-.dots {
-  background-image: radial-gradient(circle, var(--black) 1.2px, transparent 1.2px);
-  background-size: 10px 10px;
-}
-.dots-blue {
-  background-image: radial-gradient(circle, var(--blue) 1.2px, transparent 1.2px);
-  background-size: 10px 10px;
-}
-.dots-red {
-  background-image: radial-gradient(circle, var(--red) 1.2px, transparent 1.2px);
-  background-size: 10px 10px;
+  font-size: 15px;
+  line-height: 1.6;
 }
 
 /* ── Nav ── */
@@ -54,488 +45,417 @@ nav {
   align-items: center;
   justify-content: space-between;
   padding: 0 40px;
-  background: var(--yellow);
-  border-bottom: var(--stroke) solid var(--black);
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--gray-200);
 }
 
 .nav-logo {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   text-decoration: none;
 }
 
 .nav-wordmark {
-  font-family: 'Bangers', cursive;
-  font-size: 1.9rem;
-  letter-spacing: 0.04em;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
   color: var(--black);
-  line-height: 1;
 }
 
 .nav-badge {
-  font-size: 0.65rem;
-  font-weight: 900;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--white);
-  background: var(--black);
-  padding: 4px 9px;
-  border: 2px solid var(--black);
+  font-size: 0.68rem;
+  font-weight: 500;
+  color: var(--gray-400);
+  padding: 2px 8px;
+  background: var(--gray-100);
+  border-radius: 100px;
 }
 
 .nav-right {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 
 .nav-link {
-  font-size: 0.78rem;
-  font-weight: 700;
-  color: var(--black);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--gray-600);
   text-decoration: none;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
   padding: 6px 12px;
-  transition: background 0.1s;
+  border-radius: 6px;
+  transition: background 0.15s, color 0.15s;
 }
-.nav-link:hover { background: rgba(0,0,0,0.08); }
+.nav-link:hover { background: var(--gray-100); color: var(--gray-900); }
 
 .nav-cta {
-  font-size: 0.78rem;
-  font-weight: 900;
+  font-size: 0.875rem;
+  font-weight: 600;
   color: var(--white);
-  background: var(--red);
+  background: var(--black);
   padding: 8px 16px;
-  border: 2px solid var(--black);
+  border-radius: 6px;
   text-decoration: none;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  box-shadow: 3px 3px 0 var(--black);
-  transition: box-shadow 0.1s, transform 0.1s;
+  transition: opacity 0.15s;
 }
-.nav-cta:hover { box-shadow: 1px 1px 0 var(--black); transform: translate(2px,2px); }
+.nav-cta:hover { opacity: 0.85; }
 
 /* ── Hero ── */
 .hero {
-  min-height: 100vh;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  border-bottom: var(--stroke) solid var(--black);
-}
-
-.hero-left {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 120px 60px 80px;
-  border-right: var(--stroke) solid var(--black);
-  position: relative;
-  background: var(--white);
-}
-
-.hero-left::after {
-  content: '';
-  position: absolute;
-  bottom: 0; right: -3px;
-  width: 40%; height: 40%;
-  background: var(--yellow);
-  border-top: var(--stroke) solid var(--black);
-  border-right: var(--stroke) solid var(--black);
-  z-index: 0;
-}
-
-.hero-left > * { position: relative; z-index: 1; }
-
-.hero-label {
-  font-size: 0.7rem;
-  font-weight: 900;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--black);
-  background: var(--yellow);
-  border: 2px solid var(--black);
-  padding: 5px 12px;
-  display: inline-block;
-  margin-bottom: 28px;
-  width: fit-content;
-}
-
-h1 {
-  font-family: 'Bangers', cursive;
-  font-size: clamp(4rem, 8vw, 7.5rem);
-  letter-spacing: 0.03em;
-  line-height: 0.9;
-  color: var(--black);
-  margin-bottom: 28px;
-  -webkit-text-stroke: 1px var(--black);
-}
-
-h1 .red { color: var(--red); }
-h1 .blue { color: var(--blue); }
-
-.hero-sub {
-  font-size: 1rem;
-  font-weight: 500;
-  color: var(--black);
-  line-height: 1.6;
-  max-width: 380px;
-  margin-bottom: 44px;
-  border-left: 4px solid var(--black);
-  padding-left: 16px;
-}
-
-/* Speech bubble install */
-.install-bubble {
-  position: relative;
-  background: var(--white);
-  border: var(--stroke) solid var(--black);
-  padding: 18px 20px;
-  max-width: 460px;
-  box-shadow: 5px 5px 0 var(--black);
-  margin-bottom: 16px;
-}
-
-.install-bubble::before {
-  content: '';
-  position: absolute;
-  top: -18px; left: 32px;
-  width: 0; height: 0;
-  border-left: 12px solid transparent;
-  border-right: 12px solid transparent;
-  border-bottom: 18px solid var(--black);
-}
-
-.install-bubble::after {
-  content: '';
-  position: absolute;
-  top: -13px; left: 35px;
-  width: 0; height: 0;
-  border-left: 9px solid transparent;
-  border-right: 9px solid transparent;
-  border-bottom: 14px solid var(--white);
-}
-
-.install-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.install-code {
-  flex: 1;
-  font-family: var(--mono);
-  font-size: 0.82rem;
-  color: var(--black);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.install-code .cmd { color: var(--red); font-weight: 700; }
-.install-code .arg { color: var(--blue); }
-
-.copy-btn {
-  font-family: 'Inter', sans-serif;
-  font-size: 0.7rem;
-  font-weight: 900;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--white);
-  background: var(--black);
-  border: 2px solid var(--black);
-  padding: 6px 12px;
-  cursor: pointer;
-  transition: background 0.1s;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-.copy-btn:hover { background: var(--blue); }
-.copy-btn.copied { background: #006400; }
-
-.hero-note {
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--black);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-/* Hero right panel */
-.hero-right {
-  position: relative;
-  overflow: hidden;
-}
-
-.hero-right-top {
-  height: 55%;
-  background: var(--blue);
-  border-bottom: var(--stroke) solid var(--black);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 40px;
-}
-
-.hero-right-bottom {
-  height: 45%;
-  position: relative;
-}
-
-.dots-panel {
-  width: 100%; height: 100%;
-  background-image: radial-gradient(circle, var(--black) 1.4px, transparent 1.4px);
-  background-size: 12px 12px;
-  background-color: var(--yellow);
-}
-
-/* Big stat in hero right */
-.big-stat {
+  padding: 140px 40px 80px;
+  max-width: 760px;
+  margin: 0 auto;
   text-align: center;
 }
 
-.big-stat-num {
-  font-family: 'Bangers', cursive;
-  font-size: clamp(4rem, 7vw, 6rem);
-  color: var(--yellow);
-  letter-spacing: 0.02em;
-  line-height: 1;
-  -webkit-text-stroke: 2px var(--white);
-  display: block;
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--orange);
+  margin-bottom: 24px;
 }
 
-.big-stat-label {
-  font-size: 0.85rem;
+.hero-eyebrow-dot {
+  width: 5px; height: 5px;
+  background: var(--orange);
+  border-radius: 50%;
+}
+
+h1 {
+  font-size: clamp(2.4rem, 5vw, 3.75rem);
   font-weight: 700;
-  color: rgba(255,255,255,0.85);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  margin-top: 10px;
-}
-
-/* ── How it works ── */
-.section {
-  padding: 80px 60px;
-  max-width: 1100px;
-  margin: 0 auto;
-}
-
-.section-label {
-  font-size: 0.7rem;
-  font-weight: 900;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--white);
-  background: var(--black);
-  padding: 5px 12px;
-  display: inline-block;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  color: var(--black);
   margin-bottom: 20px;
 }
 
-.section-title {
-  font-family: 'Bangers', cursive;
-  font-size: clamp(2.5rem, 5vw, 4rem);
-  letter-spacing: 0.03em;
-  line-height: 1;
-  margin-bottom: 48px;
-  color: var(--black);
+.hero-sub {
+  font-size: 1.05rem;
+  color: var(--gray-600);
+  line-height: 1.7;
+  max-width: 520px;
+  margin: 0 auto 48px;
+  font-weight: 400;
 }
 
+/* ── URL Input ── */
+.url-form {
+  display: flex;
+  gap: 8px;
+  max-width: 600px;
+  margin: 0 auto 12px;
+}
+
+.url-input {
+  flex: 1;
+  font-family: inherit;
+  font-size: 0.9rem;
+  color: var(--gray-900);
+  background: var(--white);
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+.url-input:focus {
+  border-color: var(--black);
+  box-shadow: 0 0 0 3px rgba(10,10,10,0.08);
+}
+.url-input::placeholder { color: var(--gray-400); }
+
+.url-submit {
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--white);
+  background: var(--black);
+  border: none;
+  border-radius: var(--radius);
+  padding: 12px 20px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.15s;
+}
+.url-submit:hover { opacity: 0.85; }
+.url-submit:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.hero-note {
+  font-size: 0.78rem;
+  color: var(--gray-400);
+  text-align: center;
+}
+
+/* ── Stream Panel ── */
+.stream-wrap {
+  max-width: 680px;
+  margin: 32px auto 0;
+  display: none;
+}
+.stream-wrap.visible { display: block; }
+
+.stream-panel {
+  background: var(--gray-50);
+  border: 1px solid var(--gray-200);
+  border-radius: 12px;
+  padding: 28px 32px;
+  font-size: 0.9rem;
+  line-height: 1.75;
+  color: var(--gray-900);
+  min-height: 80px;
+  position: relative;
+}
+
+.stream-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gray-400);
+  margin-bottom: 12px;
+}
+
+.stream-text {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.stream-cursor {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  background: var(--orange);
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  animation: blink 1s step-end infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+.push-btn {
+  display: none;
+  margin-top: 20px;
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--white);
+  background: var(--orange);
+  border: none;
+  border-radius: var(--radius);
+  padding: 12px 24px;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  width: 100%;
+}
+.push-btn:hover { opacity: 0.88; }
+.push-btn.visible { display: block; }
+
+.push-done {
+  margin-top: 12px;
+  font-size: 0.82rem;
+  color: var(--gray-600);
+  text-align: center;
+  display: none;
+}
+.push-done.visible { display: block; }
+
+/* ── Divider ── */
+.divider {
+  border: none;
+  border-top: 1px solid var(--gray-200);
+  margin: 80px 40px;
+}
+
+/* ── Section ── */
+.section {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 40px 80px;
+}
+
+.section-eyebrow {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gray-400);
+  margin-bottom: 12px;
+}
+
+.section-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  color: var(--black);
+  margin-bottom: 40px;
+}
+
+/* ── Steps ── */
 .steps {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  border: var(--stroke) solid var(--black);
+  gap: 24px;
 }
 
 .step {
-  padding: 36px 32px;
-  border-right: var(--stroke) solid var(--black);
-  position: relative;
-}
-.step:last-child { border-right: none; }
-
-.step:nth-child(1) { background: var(--yellow); }
-.step:nth-child(2) { background: var(--white); }
-.step:nth-child(3) {
-  background-image: radial-gradient(circle, rgba(0,71,171,0.15) 1.2px, transparent 1.2px);
-  background-size: 10px 10px;
-  background-color: var(--white);
+  padding: 28px;
+  background: var(--gray-50);
+  border: 1px solid var(--gray-200);
+  border-radius: 12px;
 }
 
 .step-num {
-  font-family: 'Bangers', cursive;
-  font-size: 3rem;
-  color: var(--black);
-  opacity: 0.12;
-  line-height: 1;
-  margin-bottom: 16px;
-  letter-spacing: 0.02em;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--orange);
+  margin-bottom: 12px;
 }
 
 .step-title {
-  font-family: 'Bangers', cursive;
-  font-size: 1.8rem;
-  letter-spacing: 0.04em;
-  margin-bottom: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
   color: var(--black);
+  margin-bottom: 8px;
 }
 
 .step-desc {
   font-size: 0.85rem;
-  font-weight: 500;
-  color: var(--black);
+  color: var(--gray-600);
   line-height: 1.65;
 }
 
-/* ── Plugins ── */
-.plugins-section {
-  background: var(--black);
-  padding: 80px 60px;
-  border-top: var(--stroke) solid var(--black);
-  border-bottom: var(--stroke) solid var(--black);
-}
-
-.plugins-section .section-label {
-  background: var(--yellow);
-  color: var(--black);
-}
-
-.plugins-section .section-title {
-  color: var(--white);
-}
-
+/* ── Plugin Cards ── */
 .plugin-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 0;
-  border: var(--stroke) solid var(--white);
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
 }
 
 .plugin-card {
-  padding: 32px;
-  border-right: var(--stroke) solid var(--white);
-  position: relative;
-  overflow: hidden;
+  padding: 24px;
+  border: 1px solid var(--gray-200);
+  border-radius: 12px;
+  transition: box-shadow 0.15s, border-color 0.15s;
 }
-.plugin-card:last-child { border-right: none; }
-
-.plugin-card:nth-child(1) { background: var(--red); }
-.plugin-card:nth-child(2) { background: var(--blue); }
-.plugin-card:nth-child(3) {
-  background-color: var(--black);
-  background-image: radial-gradient(circle, rgba(255,230,0,0.25) 1.4px, transparent 1.4px);
-  background-size: 10px 10px;
+.plugin-card:hover {
+  box-shadow: var(--shadow);
+  border-color: var(--gray-400);
 }
 
 .plugin-tag {
-  font-size: 0.62rem;
-  font-weight: 900;
-  letter-spacing: 0.12em;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: rgba(255,255,255,0.7);
-  margin-bottom: 12px;
+  color: var(--orange);
+  margin-bottom: 10px;
 }
 
 .plugin-name {
-  font-family: 'Bangers', cursive;
-  font-size: 1.5rem;
-  letter-spacing: 0.04em;
-  color: var(--white);
-  margin-bottom: 10px;
-  line-height: 1.1;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--black);
+  margin-bottom: 8px;
 }
 
 .plugin-desc {
-  font-size: 0.8rem;
-  font-weight: 500;
-  color: rgba(255,255,255,0.8);
+  font-size: 0.82rem;
+  color: var(--gray-600);
   line-height: 1.6;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 }
 
 .plugin-install {
-  font-family: var(--mono);
+  font-family: 'SF Mono','Fira Code','Consolas',monospace;
   font-size: 0.72rem;
-  color: var(--black);
-  background: var(--yellow);
-  padding: 8px 12px;
-  border: 2px solid rgba(255,255,255,0.3);
+  color: var(--gray-600);
+  background: var(--gray-100);
+  padding: 6px 10px;
+  border-radius: 5px;
   display: inline-block;
-  font-weight: 700;
 }
 
-/* ── CTA ── */
-.cta-section {
-  padding: 80px 60px;
-  max-width: 1100px;
-  margin: 0 auto;
+/* ── CTA Strip ── */
+.cta-strip {
+  background: var(--black);
+  border-radius: 16px;
+  padding: 48px;
   display: flex;
   align-items: center;
-  gap: 60px;
+  justify-content: space-between;
+  gap: 32px;
   flex-wrap: wrap;
+  margin: 0 40px 80px;
 }
 
-.cta-text h2 {
-  font-family: 'Bangers', cursive;
-  font-size: clamp(2.4rem, 5vw, 3.5rem);
-  letter-spacing: 0.03em;
-  line-height: 1;
-  margin-bottom: 12px;
+.cta-strip h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--white);
+  margin-bottom: 6px;
 }
 
-.cta-text p {
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: #333;
+.cta-strip p {
+  font-size: 0.875rem;
+  color: var(--gray-400);
   line-height: 1.6;
-  max-width: 380px;
 }
 
 .cta-actions {
   display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
+  gap: 10px;
   flex-shrink: 0;
+  flex-wrap: wrap;
 }
 
 .btn-primary {
-  font-size: 0.85rem;
-  font-weight: 900;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--white);
-  background: var(--red);
-  padding: 14px 24px;
-  border: var(--stroke) solid var(--black);
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--black);
+  background: var(--white);
+  padding: 10px 20px;
+  border-radius: 6px;
   text-decoration: none;
-  box-shadow: 5px 5px 0 var(--black);
-  transition: box-shadow 0.1s, transform 0.1s;
-  display: inline-block;
+  transition: opacity 0.15s;
+  white-space: nowrap;
 }
-.btn-primary:hover { box-shadow: 2px 2px 0 var(--black); transform: translate(3px,3px); }
+.btn-primary:hover { opacity: 0.88; }
 
 .btn-secondary {
-  font-size: 0.85rem;
-  font-weight: 900;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--black);
-  background: var(--yellow);
-  padding: 14px 24px;
-  border: var(--stroke) solid var(--black);
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--gray-400);
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.15);
+  padding: 10px 20px;
+  border-radius: 6px;
   text-decoration: none;
-  box-shadow: 5px 5px 0 var(--black);
-  transition: box-shadow 0.1s, transform 0.1s;
-  display: inline-block;
+  transition: color 0.15s, border-color 0.15s;
+  white-space: nowrap;
 }
-.btn-secondary:hover { box-shadow: 2px 2px 0 var(--black); transform: translate(3px,3px); }
+.btn-secondary:hover { color: var(--white); border-color: rgba(255,255,255,0.4); }
 
 /* ── Footer ── */
 footer {
-  border-top: var(--stroke) solid var(--black);
-  background: var(--yellow);
-  padding: 24px 40px;
+  border-top: 1px solid var(--gray-200);
+  padding: 28px 40px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -543,55 +463,44 @@ footer {
   gap: 16px;
 }
 
-.footer-wordmark {
-  font-family: 'Bangers', cursive;
-  font-size: 1.4rem;
-  letter-spacing: 0.04em;
-  color: var(--black);
+.footer-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  color: var(--gray-400);
 }
 
-.footer-by {
-  font-size: 0.78rem;
+.footer-wordmark {
   font-weight: 700;
-  color: var(--black);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
+  color: var(--gray-900);
+  font-size: 0.88rem;
 }
-.footer-by a { color: var(--black); }
 
 .footer-links {
   display: flex;
-  gap: 4px;
+  gap: 20px;
 }
 
 .footer-link {
-  font-size: 0.75rem;
-  font-weight: 900;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--black);
+  font-size: 0.82rem;
+  color: var(--gray-400);
   text-decoration: none;
-  padding: 5px 10px;
-  border: 2px solid transparent;
-  transition: border-color 0.1s;
+  transition: color 0.15s;
 }
-.footer-link:hover { border-color: var(--black); }
+.footer-link:hover { color: var(--gray-900); }
 
 /* Responsive */
 @media (max-width: 768px) {
-  .hero { grid-template-columns: 1fr; }
-  .hero-right { display: none; }
-  .hero-left { padding: 100px 32px 60px; }
-  .steps { grid-template-columns: 1fr; }
-  .step { border-right: none; border-bottom: var(--stroke) solid var(--black); }
-  .step:last-child { border-bottom: none; }
-  .section { padding: 60px 32px; }
-  .plugins-section { padding: 60px 32px; }
-  .plugin-grid { grid-template-columns: 1fr; }
-  .plugin-card { border-right: none; border-bottom: var(--stroke) solid var(--white); }
-  .plugin-card:last-child { border-bottom: none; }
   nav { padding: 0 20px; }
   .nav-link { display: none; }
+  .hero { padding: 100px 24px 60px; }
+  .url-form { flex-direction: column; }
+  .steps, .plugin-grid { grid-template-columns: 1fr; }
+  .section { padding: 0 24px 60px; }
+  .cta-strip { margin: 0 24px 60px; padding: 32px; }
+  footer { padding: 24px; }
+  .divider { margin: 60px 24px; }
 }
 </style>
 </head>
@@ -606,162 +515,246 @@ footer {
   <div class="nav-right">
     <a class="nav-link" href="#how-it-works">How it works</a>
     <a class="nav-link" href="#plugins">Plugins</a>
-    <a class="nav-link" href="https://github.com/aidan269" target="_blank">GitHub</a>
+    <a class="nav-link" href="https://github.com/aidan269/grace" target="_blank">GitHub</a>
     <a class="nav-cta" href="https://cantina.xyz" target="_blank">Get an audit</a>
   </div>
 </nav>
 
 <!-- Hero -->
 <section class="hero">
-  <div class="hero-left">
-    <div class="hero-label">Claude Code · Security Intelligence</div>
-
-    <h1>Your AI<br><span class="red">security</span><br><span class="blue">intern.</span></h1>
-
-    <p class="hero-sub">
-      Drop any security article, CVE, or tweet. Grace researches it,
-      builds a cantinasec detection plugin, and commits it. Ready to ship.
-    </p>
-
-    <div class="install-bubble">
-      <div class="install-row">
-        <div class="install-code">
-          <span class="cmd">/grace</span>
-          <span class="arg"> https://your-url.com</span>
-        </div>
-        <button class="copy-btn" onclick="copyInstall(this)"
-                data-value="/grace https://your-url.com">Copy</button>
-      </div>
-    </div>
-
-    <p class="hero-note">Requires Claude Code · Free and open source</p>
+  <div class="hero-eyebrow">
+    <span class="hero-eyebrow-dot"></span>
+    Claude Code · Security Intelligence
   </div>
 
-  <div class="hero-right">
-    <div class="hero-right-top">
-      <div class="big-stat">
-        <span class="big-stat-num">13.4%</span>
-        <div class="big-stat-label">of ClawHub skills<br>contain critical flaws</div>
-      </div>
+  <h1>Your AI security intern.</h1>
+
+  <p class="hero-sub">
+    Drop any security article, CVE, or tweet. Grace researches it,
+    builds a detection plugin, and asks before it ships.
+  </p>
+
+  <form class="url-form" id="graceForm" onsubmit="runGrace(event)">
+    <input
+      class="url-input"
+      id="urlInput"
+      type="url"
+      placeholder="https://... paste any article, CVE, or tweet"
+      required
+      autocomplete="off"
+    />
+    <button class="url-submit" id="submitBtn" type="submit">Run Grace</button>
+  </form>
+
+  <p class="hero-note">Requires Claude Code · Free and open source</p>
+
+  <!-- Stream output -->
+  <div class="stream-wrap" id="streamWrap">
+    <div class="stream-panel">
+      <div class="stream-label">Grace</div>
+      <div class="stream-text" id="streamText"></div><span class="stream-cursor" id="cursor"></span>
     </div>
-    <div class="hero-right-bottom">
-      <div class="dots-panel"></div>
-    </div>
+    <button class="push-btn" id="pushBtn" onclick="pushPlugin()">Push to GitHub</button>
+    <p class="push-done" id="pushDone"></p>
   </div>
 </section>
+
+<hr class="divider">
 
 <!-- How it works -->
-<section id="how-it-works">
-  <div class="section">
-    <div class="section-label">How it works</div>
-    <h2 class="section-title">One URL. Everything else is Grace.</h2>
-  </div>
-  <div style="padding: 0 60px 80px; max-width: 1100px; margin: 0 auto;">
-    <div class="steps">
-      <div class="step">
-        <div class="step-num">01</div>
-        <div class="step-title">Research</div>
-        <div class="step-desc">
-          Grace fetches the article, gathers community intelligence,
-          and scores the threat on novelty, named actors, and impact before writing a word.
-        </div>
+<section class="section" id="how-it-works">
+  <div class="section-eyebrow">How it works</div>
+  <h2 class="section-title">One URL. Everything else is Grace.</h2>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">01 Research</div>
+      <div class="step-title">Reads and thinks</div>
+      <div class="step-desc">
+        Fetches the article, gathers community intelligence from X and infosec forums,
+        and scores the threat on novelty, named actors, and impact.
       </div>
-      <div class="step">
-        <div class="step-num">02</div>
-        <div class="step-title">Generate</div>
-        <div class="step-desc">
-          Produces a complete cantinasec plugin with detection steps,
-          IOCs, risk classification, and remediation. All sections. No blanks.
-        </div>
+    </div>
+    <div class="step">
+      <div class="step-num">02 Generate</div>
+      <div class="step-title">Writes the plugin</div>
+      <div class="step-desc">
+        Produces a complete cantinasec plugin with detection steps, IOCs,
+        risk classification, and remediation. All sections. No blanks.
       </div>
-      <div class="step">
-        <div class="step-num">03</div>
-        <div class="step-title">Ship</div>
-        <div class="step-desc">
-          Creates the project folder, initializes a git repo, commits everything,
-          and hands you a one-line push command. Done.
-        </div>
+    </div>
+    <div class="step">
+      <div class="step-num">03 Ship</div>
+      <div class="step-title">Asks, then pushes</div>
+      <div class="step-desc">
+        Creates the repo, commits everything, and waits for your go-ahead
+        before pushing to GitHub. You stay in the loop.
       </div>
     </div>
   </div>
 </section>
 
+<hr class="divider" style="margin-top:0">
+
 <!-- Plugins -->
-<section class="plugins-section" id="plugins">
-  <div style="max-width: 1100px; margin: 0 auto;">
-    <div class="section-label">Shipped plugins</div>
-    <h2 class="section-title">Built with Grace.</h2>
+<section class="section" id="plugins">
+  <div class="section-eyebrow">Shipped plugins</div>
+  <h2 class="section-title">Built with Grace.</h2>
 
-    <div class="plugin-grid">
-      <div class="plugin-card">
-        <div class="plugin-tag">OWASP Agentic Top 10</div>
-        <div class="plugin-name">clowasp</div>
-        <div class="plugin-desc">
-          Audits AI agent pipelines against all 10 OWASP Agentic risks.
-          Returns PASS / REVIEW / BLOCK with drop-in hardened prompts.
-        </div>
-        <div class="plugin-install">/cantinasec:tripwire</div>
+  <div class="plugin-grid" id="pluginGrid">
+    <div class="plugin-card">
+      <div class="plugin-tag">OWASP Agentic Top 10</div>
+      <div class="plugin-name">clowasp</div>
+      <div class="plugin-desc">
+        Audits AI agent pipelines against all 10 OWASP Agentic risks.
+        Returns PASS / REVIEW / BLOCK with drop-in hardened prompts.
       </div>
+      <span class="plugin-install">/cantinasec:tripwire</span>
+    </div>
 
-      <div class="plugin-card">
-        <div class="plugin-tag">Skill Security</div>
-        <div class="plugin-name">clawtsuite</div>
-        <div class="plugin-desc">
-          Audits installed OpenClaw skills against Cantina's 6-point security
-          standard. Catches prompt injection, supply chain risks, and hardcoded secrets.
-        </div>
-        <div class="plugin-install">/cantinasec:clawtsuite</div>
+    <div class="plugin-card">
+      <div class="plugin-tag">Skill Security</div>
+      <div class="plugin-name">clawtsuite</div>
+      <div class="plugin-desc">
+        Audits installed OpenClaw skills against Cantina's 6-point security
+        standard. Catches prompt injection, supply chain risks, and secrets.
       </div>
+      <span class="plugin-install">/cantinasec:clawtsuite</span>
+    </div>
 
-      <div class="plugin-card">
-        <div class="plugin-tag">Supply Chain</div>
-        <div class="plugin-name">clawrmes</div>
-        <div class="plugin-desc">
-          Detects malicious agent skills using Snyk ToxicSkills IOCs
-          and named threat-actor signatures from the ClawHavoc campaign.
-        </div>
-        <div class="plugin-install">/cantinasec:clawrmes</div>
+    <div class="plugin-card">
+      <div class="plugin-tag">Supply Chain</div>
+      <div class="plugin-name">clawrmes</div>
+      <div class="plugin-desc">
+        Detects malicious agent skills using Snyk ToxicSkills IOCs
+        and named threat-actor signatures from the ClawHavoc campaign.
       </div>
+      <span class="plugin-install">/cantinasec:clawrmes</span>
     </div>
   </div>
 </section>
 
 <!-- CTA -->
-<section style="border-bottom: 3px solid var(--black);">
-  <div class="cta-section">
-    <div class="cta-text">
-      <h2>Built by Cantina.</h2>
-      <p>We audit smart contracts, AI agents, and agentic pipelines.
-         Grace is how we stay ahead of what's shipping.</p>
-    </div>
-    <div class="cta-actions">
-      <a class="btn-primary" href="https://cantina.xyz" target="_blank">Get an audit</a>
-      <a class="btn-secondary" href="https://cantina.security/resources/security-plugins" target="_blank">Security plugins</a>
-    </div>
+<div class="cta-strip">
+  <div>
+    <h2>Built by Cantina.</h2>
+    <p>We audit smart contracts, AI agents, and agentic pipelines.<br>
+       Grace is how we stay ahead of what's shipping.</p>
   </div>
-</section>
+  <div class="cta-actions">
+    <a class="btn-primary" href="https://cantina.xyz" target="_blank">Get an audit</a>
+    <a class="btn-secondary" href="https://cantina.security/resources/security-plugins" target="_blank">Security plugins</a>
+  </div>
+</div>
 
 <!-- Footer -->
 <footer>
-  <div style="display:flex;align-items:center;gap:12px;">
+  <div class="footer-left">
     <span class="footer-wordmark">Grace</span>
-    <span class="footer-by">by <a href="https://cantina.xyz" target="_blank">Cantina</a></span>
+    <span>by <a href="https://cantina.xyz" target="_blank" style="color:inherit">Cantina</a></span>
   </div>
   <div class="footer-links">
-    <a class="footer-link" href="https://github.com/aidan269" target="_blank">GitHub</a>
+    <a class="footer-link" href="https://github.com/aidan269/grace" target="_blank">GitHub</a>
     <a class="footer-link" href="https://cantina.security/resources/security-plugins" target="_blank">Plugins</a>
     <a class="footer-link" href="https://cantina.xyz" target="_blank">cantina.xyz</a>
   </div>
 </footer>
 
 <script>
-function copyInstall(btn) {
-  navigator.clipboard.writeText(btn.getAttribute('data-value')).then(() => {
-    const orig = btn.textContent;
-    btn.textContent = 'Copied!';
-    btn.classList.add('copied');
-    setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 1800);
-  });
+let lastSlug = null;
+
+async function runGrace(e) {
+  e.preventDefault();
+  const url = document.getElementById('urlInput').value.trim();
+  if (!url) return;
+
+  const submitBtn = document.getElementById('submitBtn');
+  const streamWrap = document.getElementById('streamWrap');
+  const streamText = document.getElementById('streamText');
+  const cursor = document.getElementById('cursor');
+  const pushBtn = document.getElementById('pushBtn');
+  const pushDone = document.getElementById('pushDone');
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Running...';
+  streamWrap.classList.add('visible');
+  streamText.textContent = '';
+  pushBtn.classList.remove('visible');
+  pushDone.classList.remove('visible');
+  pushDone.textContent = '';
+  cursor.style.display = 'inline-block';
+
+  try {
+    const res = await fetch('/.netlify/functions/grace', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url })
+    });
+
+    if (!res.ok) throw new Error(`Error: ${res.status}`);
+
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      const chunk = decoder.decode(value, { stream: true });
+      const lines = chunk.split('\n');
+
+      for (const line of lines) {
+        if (line.startsWith('data: ')) {
+          const data = line.slice(6);
+          if (data === '[DONE]') break;
+          if (data.startsWith('[SLUG:')) {
+            lastSlug = data.slice(6, -1);
+            continue;
+          }
+          if (data === '[PUSH_READY]') {
+            pushBtn.classList.add('visible');
+            cursor.style.display = 'none';
+            continue;
+          }
+          try {
+            const parsed = JSON.parse(data);
+            if (parsed.text) streamText.textContent += parsed.text;
+          } catch {}
+        }
+      }
+    }
+  } catch (err) {
+    streamText.textContent = 'Something went wrong. Try again or run /grace locally in Claude Code.';
+    cursor.style.display = 'none';
+  }
+
+  submitBtn.disabled = false;
+  submitBtn.textContent = 'Run Grace';
+}
+
+async function pushPlugin() {
+  const pushBtn = document.getElementById('pushBtn');
+  const pushDone = document.getElementById('pushDone');
+
+  pushBtn.disabled = true;
+  pushBtn.textContent = 'Pushing...';
+
+  try {
+    const res = await fetch('/.netlify/functions/push', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ slug: lastSlug })
+    });
+    const data = await res.json();
+    pushBtn.classList.remove('visible');
+    pushDone.textContent = data.url
+      ? `Shipped. github.com/aidan269/${lastSlug}`
+      : 'Pushed successfully.';
+    pushDone.classList.add('visible');
+  } catch {
+    pushBtn.disabled = false;
+    pushBtn.textContent = 'Push to GitHub';
+  }
 }
 </script>
 
