@@ -896,12 +896,12 @@ async function runGrace(e) {
     // Action: Proceed button
     const proceedBtn = document.createElement('button');
     proceedBtn.className = 'action-btn';
-    proceedBtn.textContent = 'Looks good — get the slug →';
+    proceedBtn.textContent = 'Yeah, let\'s go →';
     addAction(proceedBtn);
 
     await new Promise(resolve => proceedBtn.addEventListener('click', () => {
       proceedBtn.remove();
-      makeUserBubble('Looks good — get the slug');
+      makeUserBubble('Yeah, let\'s go');
       resolve();
     }, { once: true }));
 
@@ -915,7 +915,7 @@ async function runGrace(e) {
     slugRow.className = 'slug-row';
     slugRow.innerHTML = `
       <input class="slug-input" id="slugInput" value="${suggested}" spellcheck="false" />
-      <button class="action-btn" id="useSlugBtn">Use this slug →</button>
+      <button class="action-btn" id="useSlugBtn">Looks good, write it →</button>
     `;
     addAction(slugRow);
 
@@ -923,7 +923,7 @@ async function runGrace(e) {
       document.getElementById('useSlugBtn').addEventListener('click', () => {
         const val = document.getElementById('slugInput').value.trim() || suggested;
         slugRow.remove();
-        makeUserBubble(`Slug: ${val}`);
+        makeUserBubble(`${val} — looks good, write it up`);
         resolve(val);
       }, { once: true });
     });
