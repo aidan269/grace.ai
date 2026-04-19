@@ -209,11 +209,32 @@ h1 {
 
 .chat-bubble {
   display: flex;
-  flex-direction: column;
-  max-width: 88%;
+  max-width: 92%;
 }
-.chat-bubble.user { align-self: flex-end; align-items: flex-end; }
-.chat-bubble.grace { align-self: flex-start; align-items: flex-start; }
+.chat-bubble.user {
+  align-self: flex-end;
+  flex-direction: row-reverse;
+}
+.chat-bubble.grace {
+  align-self: flex-start;
+  flex-direction: row;
+  gap: 10px;
+}
+
+.grace-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  margin-top: 2px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+}
+
+.bubble-inner {
+  display: flex;
+  flex-direction: column;
+}
 
 .bubble-label {
   font-size: 0.68rem;
@@ -764,7 +785,12 @@ function makeBubble() {
   const chat = document.getElementById('streamWrap');
   const wrap = document.createElement('div');
   wrap.className = 'chat-bubble grace';
-  wrap.innerHTML = '<div class="bubble-label">Grace</div><div class="bubble-body"></div>';
+  wrap.innerHTML = `
+    <img class="grace-avatar" src="/grace-avatar.png" alt="Grace" />
+    <div class="bubble-inner">
+      <div class="bubble-label">Grace</div>
+      <div class="bubble-body"></div>
+    </div>`;
   chat.appendChild(wrap);
   return wrap.querySelector('.bubble-body');
 }
@@ -773,7 +799,7 @@ function makeUserBubble(text) {
   const chat = document.getElementById('streamWrap');
   const wrap = document.createElement('div');
   wrap.className = 'chat-bubble user';
-  wrap.innerHTML = `<div class="bubble-label">You</div><div class="bubble-body"></div>`;
+  wrap.innerHTML = `<div class="bubble-inner"><div class="bubble-label" style="text-align:right">You</div><div class="bubble-body"></div></div>`;
   wrap.querySelector('.bubble-body').textContent = text;
   chat.appendChild(wrap);
 }
@@ -853,14 +879,8 @@ async function runGrace(e) {
   const streamWrap = document.getElementById('streamWrap');
 
   // Reset
-  streamWrap.innerHTML = `
-    <div class="chat-bubble user" id="userBubble">
-      <div class="bubble-label">You</div>
-      <div class="bubble-body" id="userText"></div>
-    </div>
-    <span class="stream-cursor" id="cursor" style="display:none"></span>
-  `;
-  document.getElementById('userText').textContent = currentUrl;
+  streamWrap.innerHTML = `<span class="stream-cursor" id="cursor" style="display:none"></span>`;
+  makeUserBubble(currentUrl);
   streamWrap.classList.add('visible');
   submitBtn.disabled = true;
   submitBtn.textContent = 'Fetching...';
