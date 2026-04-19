@@ -1,8 +1,9 @@
 import Anthropic from "@anthropic-ai/sdk";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+const BRAVE_KEY = process.env.BRAVE_API_KEY;
 
-const SYSTEM_PROMPT = `You are Grace, Cantina's AI security marketing intern. You receive a URL and optional fetched content, then produce a cantinasec plugin — step by step, conversationally.
+const SYSTEM_PROMPT = `You are Grace, Cantina's AI security marketing intern. You receive a URL and fetched/searched content, then produce a cantinasec plugin — step by step, conversationally.
 
 Structure your response in exactly these steps, each preceded by a [STEP] marker on its own line:
 
@@ -34,7 +35,34 @@ Be technically precise — practitioner-to-practitioner. No fluff.
 
 At the very end emit [PUSH_READY] on its own line.`;
 
-async function fetchUrlContent(url) {
+const TWITTER_RE = /^https?:\/\/(x\.com|twitter\.com)\//i;
+
+async function braveSearch(query) {
+  if (!BRAVE_KEY) return null;
+  try {
+    const res = await fetch(
+      `https://api.search.brave.com/res/v1/web/search?q=${encodeURIComponent(query)}&count=5`,
+      {
+        headers: {
+          "Accept": "application/json",
+          "Accept-Encoding": "gzip",
+          "X-Subscription-Token": BRAVE_KEY,
+        },
+        signal: AbortSignal.timeout(8000),
+      }
+    );
+    const json = await res.json();
+    const results = json?.web?.results || [];
+    return results
+      .map((r) => `${r.title}\n${r.url}\n${r.description || ""}`)
+      .join("\n\n")
+      .slice(0, 6000);
+  } catch {
+    return null;
+  }
+}
+
+async function fetchPage(url) {
   try {
     const res = await fetch(url, {
       headers: {
@@ -45,7 +73,6 @@ async function fetchUrlContent(url) {
       signal: AbortSignal.timeout(8000),
     });
     const text = await res.text();
-    // Strip tags, collapse whitespace, truncate
     return text
       .replace(/<script[\s\S]*?<\/script>/gi, "")
       .replace(/<style[\s\S]*?<\/style>/gi, "")
@@ -56,6 +83,28 @@ async function fetchUrlContent(url) {
   } catch {
     return null;
   }
+}
+
+async function resolveContent(url) {
+  if (TWITTER_RE.test(url)) {
+    // Twitter blocks direct fetch — search for the tweet content instead
+    const query = `${url} site:x.com OR site:twitter.com security vulnerability`;
+    const searched = await braveSearch(query);
+    if (searched) return { source: "search", content: searched };
+    // Fallback: search by topic from URL path
+    const fallback = await braveSearch(url);
+    return { source: "search", content: fallback };
+  }
+
+  // Try direct fetch first
+  const page = await fetchPage(url);
+  if (page && page.length > 200) return { source: "fetch", content: page };
+
+  // Fetch failed — try Brave search as fallback
+  const searched = await braveSearch(url);
+  if (searched) return { source: "search", content: searched };
+
+  return { source: "none", content: null };
 }
 
 export default async function handler(req, res) {
@@ -76,10 +125,16 @@ export default async function handler(req, res) {
   res.setHeader("Connection", "keep-alive");
   res.setHeader("Access-Control-Allow-Origin", "*");
 
-  const pageContent = await fetchUrlContent(url);
-  const userMessage = pageContent
-    ? `URL: ${url}\n\nFetched content:\n${pageContent}`
-    : `URL: ${url}\n\n(Could not fetch page content — use your training knowledge of this source.)`;
+  const { source, content } = await resolveContent(url);
+
+  let userMessage = `URL: ${url}\n\n`;
+  if (content) {
+    userMessage += source === "search"
+      ? `Web search results for this URL:\n${content}`
+      : `Fetched page content:\n${content}`;
+  } else {
+    userMessage += `(Could not retrieve content — use your training knowledge of this source.)`;
+  }
 
   try {
     const stream = await client.messages.stream({
