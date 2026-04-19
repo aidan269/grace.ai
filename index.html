@@ -5,31 +5,43 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Grace — Cantina Security Plugin Generator</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --orange:  #FA5E06;
-  --bg:      #0A0C0F;
-  --surface: #111318;
-  --surface2:#181C22;
-  --border:  #1E2329;
-  --text:    #E8EDF3;
-  --text-2:  #7D8894;
-  --text-3:  #3A4149;
-  --mono:    'SF Mono','Fira Code','Consolas',monospace;
+  --black:  #000000;
+  --white:  #FFFFFF;
+  --yellow: #FFE600;
+  --red:    #E8253D;
+  --blue:   #0047AB;
+  --mono:   'SF Mono','Fira Code','Consolas',monospace;
+  --stroke: 3px;
 }
 
 html { scroll-behavior: smooth; }
 
 body {
   font-family: 'Inter', system-ui, sans-serif;
-  background: var(--bg);
-  color: var(--text);
+  background: var(--white);
+  color: var(--black);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
+}
+
+/* Ben-Day dot pattern */
+.dots {
+  background-image: radial-gradient(circle, var(--black) 1.2px, transparent 1.2px);
+  background-size: 10px 10px;
+}
+.dots-blue {
+  background-image: radial-gradient(circle, var(--blue) 1.2px, transparent 1.2px);
+  background-size: 10px 10px;
+}
+.dots-red {
+  background-image: radial-gradient(circle, var(--red) 1.2px, transparent 1.2px);
+  background-size: 10px 10px;
 }
 
 /* ── Nav ── */
@@ -37,335 +49,447 @@ nav {
   position: fixed;
   top: 0; left: 0; right: 0;
   z-index: 100;
-  height: 56px;
+  height: 60px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 40px;
-  background: rgba(10,12,15,0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--border);
+  background: var(--yellow);
+  border-bottom: var(--stroke) solid var(--black);
 }
 
 .nav-logo {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   text-decoration: none;
 }
 
 .nav-wordmark {
-  font-size: 1.05rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: var(--text);
+  font-family: 'Bangers', cursive;
+  font-size: 1.9rem;
+  letter-spacing: 0.04em;
+  color: var(--black);
+  line-height: 1;
 }
 
 .nav-badge {
   font-size: 0.65rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
+  font-weight: 900;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--text-2);
-  padding: 3px 8px;
-  border: 1px solid var(--border);
-  border-radius: 3px;
+  color: var(--white);
+  background: var(--black);
+  padding: 4px 9px;
+  border: 2px solid var(--black);
 }
 
 .nav-right {
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: 8px;
 }
 
 .nav-link {
-  font-size: 0.82rem;
-  color: var(--text-2);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--black);
   text-decoration: none;
-  transition: color 0.15s;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 6px 12px;
+  transition: background 0.1s;
 }
-.nav-link:hover { color: var(--text); }
+.nav-link:hover { background: rgba(0,0,0,0.08); }
 
 .nav-cta {
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: var(--bg);
-  background: var(--orange);
-  padding: 7px 16px;
-  border-radius: 4px;
+  font-size: 0.78rem;
+  font-weight: 900;
+  color: var(--white);
+  background: var(--red);
+  padding: 8px 16px;
+  border: 2px solid var(--black);
   text-decoration: none;
-  transition: opacity 0.15s;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  box-shadow: 3px 3px 0 var(--black);
+  transition: box-shadow 0.1s, transform 0.1s;
 }
-.nav-cta:hover { opacity: 0.88; }
+.nav-cta:hover { box-shadow: 1px 1px 0 var(--black); transform: translate(2px,2px); }
 
 /* ── Hero ── */
 .hero {
   min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-bottom: var(--stroke) solid var(--black);
+}
+
+.hero-left {
   display: flex;
   flex-direction: column;
-  align-items: center;
   justify-content: center;
-  text-align: center;
-  padding: 120px 24px 80px;
+  padding: 120px 60px 80px;
+  border-right: var(--stroke) solid var(--black);
   position: relative;
+  background: var(--white);
 }
 
-.hero::before {
+.hero-left::after {
   content: '';
   position: absolute;
-  top: 0; left: 50%; transform: translateX(-50%);
-  width: 600px; height: 600px;
-  background: radial-gradient(circle, rgba(250,94,6,0.07) 0%, transparent 70%);
-  pointer-events: none;
+  bottom: 0; right: -3px;
+  width: 40%; height: 40%;
+  background: var(--yellow);
+  border-top: var(--stroke) solid var(--black);
+  border-right: var(--stroke) solid var(--black);
+  z-index: 0;
 }
+
+.hero-left > * { position: relative; z-index: 1; }
 
 .hero-label {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.1em;
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--orange);
+  color: var(--black);
+  background: var(--yellow);
+  border: 2px solid var(--black);
+  padding: 5px 12px;
+  display: inline-block;
   margin-bottom: 28px;
-  padding: 6px 14px;
-  border: 1px solid rgba(250,94,6,0.25);
-  border-radius: 100px;
-}
-
-.hero-label-dot {
-  width: 5px; height: 5px;
-  background: var(--orange);
-  border-radius: 50%;
-  animation: pulse 2s ease-in-out infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.3; }
+  width: fit-content;
 }
 
 h1 {
-  font-size: clamp(3.5rem, 10vw, 7rem);
-  font-weight: 700;
-  letter-spacing: -0.04em;
-  line-height: 0.92;
-  color: var(--text);
+  font-family: 'Bangers', cursive;
+  font-size: clamp(4rem, 8vw, 7.5rem);
+  letter-spacing: 0.03em;
+  line-height: 0.9;
+  color: var(--black);
   margin-bottom: 28px;
+  -webkit-text-stroke: 1px var(--black);
 }
 
-h1 span { color: var(--orange); }
+h1 .red { color: var(--red); }
+h1 .blue { color: var(--blue); }
 
 .hero-sub {
-  font-size: clamp(1rem, 2.5vw, 1.25rem);
-  font-weight: 400;
-  color: var(--text-2);
-  max-width: 520px;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--black);
   line-height: 1.6;
-  margin-bottom: 52px;
+  max-width: 380px;
+  margin-bottom: 44px;
+  border-left: 4px solid var(--black);
+  padding-left: 16px;
 }
 
-/* ── Install block ── */
-.install-block {
-  display: flex;
-  align-items: stretch;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  overflow: hidden;
-  max-width: 560px;
-  width: 100%;
+/* Speech bubble install */
+.install-bubble {
+  position: relative;
+  background: var(--white);
+  border: var(--stroke) solid var(--black);
+  padding: 18px 20px;
+  max-width: 460px;
+  box-shadow: 5px 5px 0 var(--black);
   margin-bottom: 16px;
+}
+
+.install-bubble::before {
+  content: '';
+  position: absolute;
+  top: -18px; left: 32px;
+  width: 0; height: 0;
+  border-left: 12px solid transparent;
+  border-right: 12px solid transparent;
+  border-bottom: 18px solid var(--black);
+}
+
+.install-bubble::after {
+  content: '';
+  position: absolute;
+  top: -13px; left: 35px;
+  width: 0; height: 0;
+  border-left: 9px solid transparent;
+  border-right: 9px solid transparent;
+  border-bottom: 14px solid var(--white);
+}
+
+.install-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .install-code {
   flex: 1;
   font-family: var(--mono);
-  font-size: 0.88rem;
-  color: var(--text);
-  padding: 16px 20px;
-  text-align: left;
+  font-size: 0.82rem;
+  color: var(--black);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.install-code .prompt { color: var(--text-3); user-select: none; }
-.install-code .cmd { color: var(--orange); }
-.install-code .arg { color: var(--text-2); }
+.install-code .cmd { color: var(--red); font-weight: 700; }
+.install-code .arg { color: var(--blue); }
 
 .copy-btn {
-  font-family: 'Inter', system-ui, sans-serif;
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--text-2);
-  background: var(--surface2);
-  border: none;
-  border-left: 1px solid var(--border);
-  padding: 0 20px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--white);
+  background: var(--black);
+  border: 2px solid var(--black);
+  padding: 6px 12px;
   cursor: pointer;
-  transition: color 0.15s, background 0.15s;
+  transition: background 0.1s;
   white-space: nowrap;
+  flex-shrink: 0;
 }
-.copy-btn:hover { color: var(--text); background: var(--border); }
-.copy-btn.copied { color: #0F9960; }
+.copy-btn:hover { background: var(--blue); }
+.copy-btn.copied { background: #006400; }
 
 .hero-note {
-  font-size: 0.78rem;
-  color: var(--text-3);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--black);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* Hero right panel */
+.hero-right {
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-right-top {
+  height: 55%;
+  background: var(--blue);
+  border-bottom: var(--stroke) solid var(--black);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+
+.hero-right-bottom {
+  height: 45%;
+  position: relative;
+}
+
+.dots-panel {
+  width: 100%; height: 100%;
+  background-image: radial-gradient(circle, var(--black) 1.4px, transparent 1.4px);
+  background-size: 12px 12px;
+  background-color: var(--yellow);
+}
+
+/* Big stat in hero right */
+.big-stat {
+  text-align: center;
+}
+
+.big-stat-num {
+  font-family: 'Bangers', cursive;
+  font-size: clamp(4rem, 7vw, 6rem);
+  color: var(--yellow);
+  letter-spacing: 0.02em;
+  line-height: 1;
+  -webkit-text-stroke: 2px var(--white);
+  display: block;
+}
+
+.big-stat-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.85);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-top: 10px;
 }
 
 /* ── How it works ── */
 .section {
-  padding: 100px 24px;
-  max-width: 960px;
+  padding: 80px 60px;
+  max-width: 1100px;
   margin: 0 auto;
 }
 
 .section-label {
   font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.12em;
+  font-weight: 900;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--orange);
-  margin-bottom: 16px;
+  color: var(--white);
+  background: var(--black);
+  padding: 5px 12px;
+  display: inline-block;
+  margin-bottom: 20px;
 }
 
 .section-title {
-  font-size: clamp(1.6rem, 4vw, 2.4rem);
-  font-weight: 700;
-  letter-spacing: -0.03em;
-  line-height: 1.1;
-  margin-bottom: 64px;
+  font-family: 'Bangers', cursive;
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  letter-spacing: 0.03em;
+  line-height: 1;
+  margin-bottom: 48px;
+  color: var(--black);
 }
 
 .steps {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 1px;
-  background: var(--border);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  overflow: hidden;
+  grid-template-columns: repeat(3, 1fr);
+  border: var(--stroke) solid var(--black);
 }
 
 .step {
-  background: var(--surface);
   padding: 36px 32px;
-  transition: background 0.15s;
+  border-right: var(--stroke) solid var(--black);
+  position: relative;
 }
-.step:hover { background: var(--surface2); }
+.step:last-child { border-right: none; }
+
+.step:nth-child(1) { background: var(--yellow); }
+.step:nth-child(2) { background: var(--white); }
+.step:nth-child(3) {
+  background-image: radial-gradient(circle, rgba(0,71,171,0.15) 1.2px, transparent 1.2px);
+  background-size: 10px 10px;
+  background-color: var(--white);
+}
 
 .step-num {
-  font-family: var(--mono);
-  font-size: 0.7rem;
-  color: var(--orange);
-  margin-bottom: 20px;
-  letter-spacing: 0.05em;
+  font-family: 'Bangers', cursive;
+  font-size: 3rem;
+  color: var(--black);
+  opacity: 0.12;
+  line-height: 1;
+  margin-bottom: 16px;
+  letter-spacing: 0.02em;
 }
 
 .step-title {
-  font-size: 1rem;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  margin-bottom: 10px;
+  font-family: 'Bangers', cursive;
+  font-size: 1.8rem;
+  letter-spacing: 0.04em;
+  margin-bottom: 12px;
+  color: var(--black);
 }
 
 .step-desc {
   font-size: 0.85rem;
-  color: var(--text-2);
-  line-height: 1.6;
+  font-weight: 500;
+  color: var(--black);
+  line-height: 1.65;
 }
 
-/* ── Plugins section ── */
+/* ── Plugins ── */
 .plugins-section {
-  padding: 0 24px 100px;
-  max-width: 960px;
-  margin: 0 auto;
+  background: var(--black);
+  padding: 80px 60px;
+  border-top: var(--stroke) solid var(--black);
+  border-bottom: var(--stroke) solid var(--black);
+}
+
+.plugins-section .section-label {
+  background: var(--yellow);
+  color: var(--black);
+}
+
+.plugins-section .section-title {
+  color: var(--white);
 }
 
 .plugin-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 12px;
-  margin-top: 0;
+  gap: 0;
+  border: var(--stroke) solid var(--white);
 }
 
 .plugin-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 24px;
-  transition: border-color 0.15s;
+  padding: 32px;
+  border-right: var(--stroke) solid var(--white);
+  position: relative;
+  overflow: hidden;
 }
-.plugin-card:hover { border-color: var(--text-3); }
+.plugin-card:last-child { border-right: none; }
+
+.plugin-card:nth-child(1) { background: var(--red); }
+.plugin-card:nth-child(2) { background: var(--blue); }
+.plugin-card:nth-child(3) {
+  background-color: var(--black);
+  background-image: radial-gradient(circle, rgba(255,230,0,0.25) 1.4px, transparent 1.4px);
+  background-size: 10px 10px;
+}
 
 .plugin-tag {
-  font-size: 0.65rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
+  font-size: 0.62rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--orange);
-  margin-bottom: 10px;
+  color: rgba(255,255,255,0.7);
+  margin-bottom: 12px;
 }
 
 .plugin-name {
-  font-size: 0.9rem;
-  font-weight: 600;
-  margin-bottom: 6px;
-  letter-spacing: -0.01em;
+  font-family: 'Bangers', cursive;
+  font-size: 1.5rem;
+  letter-spacing: 0.04em;
+  color: var(--white);
+  margin-bottom: 10px;
+  line-height: 1.1;
 }
 
 .plugin-desc {
-  font-size: 0.78rem;
-  color: var(--text-2);
-  line-height: 1.55;
-  margin-bottom: 16px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: rgba(255,255,255,0.8);
+  line-height: 1.6;
+  margin-bottom: 20px;
 }
 
 .plugin-install {
   font-family: var(--mono);
   font-size: 0.72rem;
-  color: var(--text-3);
-  background: var(--bg);
+  color: var(--black);
+  background: var(--yellow);
   padding: 8px 12px;
-  border-radius: 4px;
-  border: 1px solid var(--border);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  border: 2px solid rgba(255,255,255,0.3);
+  display: inline-block;
+  font-weight: 700;
 }
 
-/* ── CTA strip ── */
-.cta-strip {
-  margin: 0 24px 100px;
-  max-width: 960px;
-  margin-left: auto;
-  margin-right: auto;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 52px 48px;
+/* ── CTA ── */
+.cta-section {
+  padding: 80px 60px;
+  max-width: 1100px;
+  margin: 0 auto;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 40px;
+  gap: 60px;
   flex-wrap: wrap;
 }
 
 .cta-text h2 {
-  font-size: 1.5rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  margin-bottom: 8px;
+  font-family: 'Bangers', cursive;
+  font-size: clamp(2.4rem, 5vw, 3.5rem);
+  letter-spacing: 0.03em;
+  line-height: 1;
+  margin-bottom: 12px;
 }
 
 .cta-text p {
-  font-size: 0.88rem;
-  color: var(--text-2);
-  line-height: 1.5;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #333;
+  line-height: 1.6;
+  max-width: 380px;
 }
 
 .cta-actions {
@@ -377,35 +501,41 @@ h1 span { color: var(--orange); }
 
 .btn-primary {
   font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--bg);
-  background: var(--orange);
-  padding: 11px 22px;
-  border-radius: 5px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--white);
+  background: var(--red);
+  padding: 14px 24px;
+  border: var(--stroke) solid var(--black);
   text-decoration: none;
-  transition: opacity 0.15s;
-  white-space: nowrap;
+  box-shadow: 5px 5px 0 var(--black);
+  transition: box-shadow 0.1s, transform 0.1s;
+  display: inline-block;
 }
-.btn-primary:hover { opacity: 0.88; }
+.btn-primary:hover { box-shadow: 2px 2px 0 var(--black); transform: translate(3px,3px); }
 
 .btn-secondary {
   font-size: 0.85rem;
-  font-weight: 500;
-  color: var(--text-2);
-  background: transparent;
-  border: 1px solid var(--border);
-  padding: 11px 22px;
-  border-radius: 5px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--black);
+  background: var(--yellow);
+  padding: 14px 24px;
+  border: var(--stroke) solid var(--black);
   text-decoration: none;
-  transition: color 0.15s, border-color 0.15s;
-  white-space: nowrap;
+  box-shadow: 5px 5px 0 var(--black);
+  transition: box-shadow 0.1s, transform 0.1s;
+  display: inline-block;
 }
-.btn-secondary:hover { color: var(--text); border-color: var(--text-3); }
+.btn-secondary:hover { box-shadow: 2px 2px 0 var(--black); transform: translate(3px,3px); }
 
 /* ── Footer ── */
 footer {
-  border-top: 1px solid var(--border);
-  padding: 32px 40px;
+  border-top: var(--stroke) solid var(--black);
+  background: var(--yellow);
+  padding: 24px 40px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -413,47 +543,56 @@ footer {
   gap: 16px;
 }
 
-.footer-left {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
 .footer-wordmark {
-  font-size: 0.88rem;
-  font-weight: 700;
-  color: var(--text-2);
-  letter-spacing: -0.01em;
-}
-
-.footer-sep {
-  color: var(--text-3);
-  font-size: 0.8rem;
+  font-family: 'Bangers', cursive;
+  font-size: 1.4rem;
+  letter-spacing: 0.04em;
+  color: var(--black);
 }
 
 .footer-by {
-  font-size: 0.8rem;
-  color: var(--text-3);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--black);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
-
-.footer-by a {
-  color: var(--text-2);
-  text-decoration: none;
-}
-.footer-by a:hover { color: var(--orange); }
+.footer-by a { color: var(--black); }
 
 .footer-links {
   display: flex;
-  gap: 20px;
+  gap: 4px;
 }
 
 .footer-link {
-  font-size: 0.78rem;
-  color: var(--text-3);
+  font-size: 0.75rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--black);
   text-decoration: none;
-  transition: color 0.15s;
+  padding: 5px 10px;
+  border: 2px solid transparent;
+  transition: border-color 0.1s;
 }
-.footer-link:hover { color: var(--text-2); }
+.footer-link:hover { border-color: var(--black); }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .hero { grid-template-columns: 1fr; }
+  .hero-right { display: none; }
+  .hero-left { padding: 100px 32px 60px; }
+  .steps { grid-template-columns: 1fr; }
+  .step { border-right: none; border-bottom: var(--stroke) solid var(--black); }
+  .step:last-child { border-bottom: none; }
+  .section { padding: 60px 32px; }
+  .plugins-section { padding: 60px 32px; }
+  .plugin-grid { grid-template-columns: 1fr; }
+  .plugin-card { border-right: none; border-bottom: var(--stroke) solid var(--white); }
+  .plugin-card:last-child { border-bottom: none; }
+  nav { padding: 0 20px; }
+  .nav-link { display: none; }
+}
 </style>
 </head>
 <body>
@@ -461,73 +600,87 @@ footer {
 <!-- Nav -->
 <nav>
   <a class="nav-logo" href="#">
-    <span class="nav-wordmark">grace</span>
+    <span class="nav-wordmark">Grace</span>
     <span class="nav-badge">by Cantina</span>
   </a>
   <div class="nav-right">
     <a class="nav-link" href="#how-it-works">How it works</a>
     <a class="nav-link" href="#plugins">Plugins</a>
     <a class="nav-link" href="https://github.com/aidan269" target="_blank">GitHub</a>
-    <a class="nav-cta" href="https://cantina.xyz" target="_blank">Get an audit →</a>
+    <a class="nav-cta" href="https://cantina.xyz" target="_blank">Get an audit</a>
   </div>
 </nav>
 
 <!-- Hero -->
 <section class="hero">
-  <div class="hero-label">
-    <span class="hero-label-dot"></span>
-    Claude Code · Security Intelligence
-  </div>
+  <div class="hero-left">
+    <div class="hero-label">Claude Code · Security Intelligence</div>
 
-  <h1>Your AI<br>security<br><span>intern.</span></h1>
+    <h1>Your AI<br><span class="red">security</span><br><span class="blue">intern.</span></h1>
 
-  <p class="hero-sub">
-    Drop any security article, CVE, or tweet. Grace researches it,
-    builds a cantinasec detection plugin, and commits it — ready to ship.
-  </p>
+    <p class="hero-sub">
+      Drop any security article, CVE, or tweet. Grace researches it,
+      builds a cantinasec detection plugin, and commits it. Ready to ship.
+    </p>
 
-  <div class="install-block">
-    <div class="install-code">
-      <span class="prompt">$ </span><span class="cmd">/cantinasec:grace</span>
-      <span class="arg"> https://your-article-url.com</span>
+    <div class="install-bubble">
+      <div class="install-row">
+        <div class="install-code">
+          <span class="cmd">/cantinasec:grace</span>
+          <span class="arg"> https://your-url.com</span>
+        </div>
+        <button class="copy-btn" onclick="copyInstall(this)"
+                data-value="/cantinasec:grace https://your-url.com">Copy</button>
+      </div>
     </div>
-    <button class="copy-btn" onclick="copyInstall(this)"
-            data-value="/cantinasec:grace https://your-article-url.com">
-      Copy
-    </button>
+
+    <p class="hero-note">Requires Claude Code · Free and open source</p>
   </div>
 
-  <p class="hero-note">Requires Claude Code · Free &amp; open source</p>
+  <div class="hero-right">
+    <div class="hero-right-top">
+      <div class="big-stat">
+        <span class="big-stat-num">13.4%</span>
+        <div class="big-stat-label">of ClawHub skills<br>contain critical flaws</div>
+      </div>
+    </div>
+    <div class="hero-right-bottom">
+      <div class="dots-panel"></div>
+    </div>
+  </div>
 </section>
 
 <!-- How it works -->
-<section class="section" id="how-it-works">
-  <div class="section-label">How it works</div>
-  <h2 class="section-title">One URL.<br>Everything else is Grace.</h2>
-
-  <div class="steps">
-    <div class="step">
-      <div class="step-num">01 —</div>
-      <div class="step-title">Research</div>
-      <div class="step-desc">
-        Grace fetches the article, gathers community intelligence from X/Twitter,
-        and scores the threat on novelty, named actors, and impact before writing a word.
+<section id="how-it-works">
+  <div class="section">
+    <div class="section-label">How it works</div>
+    <h2 class="section-title">One URL. Everything else is Grace.</h2>
+  </div>
+  <div style="padding: 0 60px 80px; max-width: 1100px; margin: 0 auto;">
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div class="step-title">Research</div>
+        <div class="step-desc">
+          Grace fetches the article, gathers community intelligence,
+          and scores the threat on novelty, named actors, and impact before writing a word.
+        </div>
       </div>
-    </div>
-    <div class="step">
-      <div class="step-num">02 —</div>
-      <div class="step-title">Generate</div>
-      <div class="step-desc">
-        Produces a complete cantinasec plugin — a command shim and a full SKILL.md
-        with detection steps, IOCs, risk classification, and remediation.
+      <div class="step">
+        <div class="step-num">02</div>
+        <div class="step-title">Generate</div>
+        <div class="step-desc">
+          Produces a complete cantinasec plugin with detection steps,
+          IOCs, risk classification, and remediation. All sections. No blanks.
+        </div>
       </div>
-    </div>
-    <div class="step">
-      <div class="step-num">03 —</div>
-      <div class="step-title">Ship</div>
-      <div class="step-desc">
-        Creates a project folder, initializes a git repo, commits everything,
-        and outputs a one-line push command. Done.
+      <div class="step">
+        <div class="step-num">03</div>
+        <div class="step-title">Ship</div>
+        <div class="step-desc">
+          Creates the project folder, initializes a git repo, commits everything,
+          and hands you a one-line push command. Done.
+        </div>
       </div>
     </div>
   </div>
@@ -535,60 +688,63 @@ footer {
 
 <!-- Plugins -->
 <section class="plugins-section" id="plugins">
-  <div class="section-label">Shipped plugins</div>
-  <h2 class="section-title" style="margin-bottom:32px">Built with Grace.</h2>
+  <div style="max-width: 1100px; margin: 0 auto;">
+    <div class="section-label">Shipped plugins</div>
+    <h2 class="section-title">Built with Grace.</h2>
 
-  <div class="plugin-grid">
-    <div class="plugin-card">
-      <div class="plugin-tag">OWASP Agentic Top 10</div>
-      <div class="plugin-name">clowasp — Pipeline Auditor</div>
-      <div class="plugin-desc">
-        Audits AI agent pipelines (CrewAI, n8n, LangGraph) against all 10 OWASP
-        Agentic risks. Returns PASS / REVIEW / BLOCK with drop-in hardened prompts.
+    <div class="plugin-grid">
+      <div class="plugin-card">
+        <div class="plugin-tag">OWASP Agentic Top 10</div>
+        <div class="plugin-name">clowasp</div>
+        <div class="plugin-desc">
+          Audits AI agent pipelines against all 10 OWASP Agentic risks.
+          Returns PASS / REVIEW / BLOCK with drop-in hardened prompts.
+        </div>
+        <div class="plugin-install">/cantinasec:tripwire</div>
       </div>
-      <div class="plugin-install">/cantinasec:tripwire &lt;pipeline&gt;</div>
-    </div>
 
-    <div class="plugin-card">
-      <div class="plugin-tag">Skill Security</div>
-      <div class="plugin-name">clawtsuite — Skill Auditor</div>
-      <div class="plugin-desc">
-        Audits installed OpenClaw skills against Cantina's 6-point security
-        standard. Detects prompt injection, supply chain risks, and hardcoded secrets.
+      <div class="plugin-card">
+        <div class="plugin-tag">Skill Security</div>
+        <div class="plugin-name">clawtsuite</div>
+        <div class="plugin-desc">
+          Audits installed OpenClaw skills against Cantina's 6-point security
+          standard. Catches prompt injection, supply chain risks, and hardcoded secrets.
+        </div>
+        <div class="plugin-install">/cantinasec:clawtsuite</div>
       </div>
-      <div class="plugin-install">/cantinasec:clawtsuite [path]</div>
-    </div>
 
-    <div class="plugin-card">
-      <div class="plugin-tag">Supply Chain</div>
-      <div class="plugin-name">clawrmes — ToxicSkills Detector</div>
-      <div class="plugin-desc">
-        Detects malicious agent skills from ClawHub using Snyk ToxicSkills IOCs
-        and named threat-actor signatures from the ClawHavoc campaign.
+      <div class="plugin-card">
+        <div class="plugin-tag">Supply Chain</div>
+        <div class="plugin-name">clawrmes</div>
+        <div class="plugin-desc">
+          Detects malicious agent skills using Snyk ToxicSkills IOCs
+          and named threat-actor signatures from the ClawHavoc campaign.
+        </div>
+        <div class="plugin-install">/cantinasec:clawrmes</div>
       </div>
-      <div class="plugin-install">/cantinasec:clawrmes [path]</div>
     </div>
   </div>
 </section>
 
 <!-- CTA -->
-<div class="cta-strip">
-  <div class="cta-text">
-    <h2>Built by Cantina.</h2>
-    <p>We audit smart contracts, AI agents, and agentic pipelines.<br>
-       Grace is how we stay ahead of what's shipping.</p>
+<section style="border-bottom: 3px solid var(--black);">
+  <div class="cta-section">
+    <div class="cta-text">
+      <h2>Built by Cantina.</h2>
+      <p>We audit smart contracts, AI agents, and agentic pipelines.
+         Grace is how we stay ahead of what's shipping.</p>
+    </div>
+    <div class="cta-actions">
+      <a class="btn-primary" href="https://cantina.xyz" target="_blank">Get an audit</a>
+      <a class="btn-secondary" href="https://cantina.security/resources/security-plugins" target="_blank">Security plugins</a>
+    </div>
   </div>
-  <div class="cta-actions">
-    <a class="btn-primary" href="https://cantina.xyz" target="_blank">Get an audit →</a>
-    <a class="btn-secondary" href="https://cantina.security/resources/security-plugins" target="_blank">Security plugins</a>
-  </div>
-</div>
+</section>
 
 <!-- Footer -->
 <footer>
-  <div class="footer-left">
-    <span class="footer-wordmark">grace</span>
-    <span class="footer-sep">·</span>
+  <div style="display:flex;align-items:center;gap:12px;">
+    <span class="footer-wordmark">Grace</span>
     <span class="footer-by">by <a href="https://cantina.xyz" target="_blank">Cantina</a></span>
   </div>
   <div class="footer-links">
@@ -600,15 +756,11 @@ footer {
 
 <script>
 function copyInstall(btn) {
-  const val = btn.getAttribute('data-value');
-  navigator.clipboard.writeText(val).then(() => {
+  navigator.clipboard.writeText(btn.getAttribute('data-value')).then(() => {
     const orig = btn.textContent;
     btn.textContent = 'Copied!';
     btn.classList.add('copied');
-    setTimeout(() => {
-      btn.textContent = orig;
-      btn.classList.remove('copied');
-    }, 1800);
+    setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 1800);
   });
 }
 </script>
