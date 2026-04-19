@@ -235,13 +235,15 @@ h1 {
   background: var(--black);
   color: var(--white);
   border-bottom-right-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.18);
 }
 .chat-bubble.grace .bubble-body {
-  background: var(--gray-50);
+  background: var(--white);
   border: 1px solid var(--gray-200);
   color: var(--gray-900);
   border-bottom-left-radius: 4px;
   min-width: 260px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.07);
 }
 
 .stream-cursor {
@@ -691,6 +693,14 @@ footer {
 <script>
 let lastSlug = null;
 
+function makeBubble(chat) {
+  const wrap = document.createElement('div');
+  wrap.className = 'chat-bubble grace';
+  wrap.innerHTML = '<div class="bubble-label">Grace</div><div class="bubble-body"></div>';
+  chat.insertBefore(wrap, document.getElementById('pushBtn'));
+  return wrap.querySelector('.bubble-body');
+}
+
 async function runGrace(e) {
   e.preventDefault();
   const url = document.getElementById('urlInput').value.trim();
@@ -698,25 +708,28 @@ async function runGrace(e) {
 
   const submitBtn = document.getElementById('submitBtn');
   const streamWrap = document.getElementById('streamWrap');
-  const streamText = document.getElementById('streamText');
   const cursor = document.getElementById('cursor');
   const pushBtn = document.getElementById('pushBtn');
   const pushDone = document.getElementById('pushDone');
   const userBubble = document.getElementById('userBubble');
-  const graceBubble = document.getElementById('graceBubble');
   const userText = document.getElementById('userText');
+
+  // Clear previous grace bubbles
+  streamWrap.querySelectorAll('.chat-bubble.grace').forEach(b => b.remove());
 
   submitBtn.disabled = true;
   submitBtn.textContent = 'Running...';
   streamWrap.classList.add('visible');
-  streamText.textContent = '';
   pushBtn.classList.remove('visible');
   pushDone.classList.remove('visible');
   pushDone.textContent = '';
-  cursor.style.display = 'inline-block';
   userText.textContent = url;
   userBubble.style.display = 'flex';
-  graceBubble.style.display = 'flex';
+
+  let currentBody = makeBubble(streamWrap);
+  currentBody.appendChild(cursor);
+  cursor.style.display = 'inline-block';
+  let buffer = '';
 
   try {
     const res = await fetch('/api/grace', {
@@ -735,30 +748,57 @@ async function runGrace(e) {
       if (done) break;
 
       const chunk = decoder.decode(value, { stream: true });
-      const lines = chunk.split('\n');
+      for (const line of chunk.split('\n')) {
+        if (!line.startsWith('data: ')) continue;
+        try {
+          const parsed = JSON.parse(line.slice(6));
+          if (parsed.done) break;
+          if (!parsed.text) continue;
 
-      for (const line of lines) {
-        if (line.startsWith('data: ')) {
-          const data = line.slice(6);
-          if (data === '[DONE]') break;
-          if (data.startsWith('[SLUG:')) {
-            lastSlug = data.slice(6, -1);
+          buffer += parsed.text;
+
+          // Check for [STEP:...] markers in buffer
+          const stepMatch = buffer.match(/\[STEP:([^\]]+)\]/);
+          if (stepMatch) {
+            const before = buffer.slice(0, buffer.indexOf(stepMatch[0])).trim();
+            if (before) {
+              const textNode = document.createTextNode(before);
+              currentBody.insertBefore(textNode, cursor);
+            }
+            buffer = buffer.slice(buffer.indexOf(stepMatch[0]) + stepMatch[0].length);
+            currentBody = makeBubble(streamWrap);
+            currentBody.appendChild(cursor);
             continue;
           }
-          if (data === '[PUSH_READY]') {
+
+          // Check for [SLUG:...] or [PUSH_READY]
+          if (buffer.includes('[SLUG:')) {
+            const m = buffer.match(/\[SLUG:([^\]]+)\]/);
+            if (m) { lastSlug = m[1]; buffer = buffer.replace(m[0], ''); }
+          }
+          if (buffer.includes('[PUSH_READY]')) {
+            buffer = buffer.replace('[PUSH_READY]', '');
             pushBtn.classList.add('visible');
             cursor.style.display = 'none';
-            continue;
           }
-          try {
-            const parsed = JSON.parse(data);
-            if (parsed.text) streamText.textContent += parsed.text;
-          } catch {}
-        }
+
+          // Flush safe text (hold back potential partial markers)
+          const safeLen = buffer.lastIndexOf('\n') + 1 || Math.max(0, buffer.length - 20);
+          if (safeLen > 0) {
+            const textNode = document.createTextNode(buffer.slice(0, safeLen));
+            currentBody.insertBefore(textNode, cursor);
+            buffer = buffer.slice(safeLen);
+          }
+        } catch {}
       }
     }
+
+    // Flush remaining
+    if (buffer.trim()) {
+      currentBody.insertBefore(document.createTextNode(buffer), cursor);
+    }
   } catch (err) {
-    streamText.textContent = 'Something went wrong. Try again or run /grace locally in Claude Code.';
+    currentBody.insertBefore(document.createTextNode('Something went wrong. Try again or run /grace locally in Claude Code.'), cursor);
     cursor.style.display = 'none';
   }
 

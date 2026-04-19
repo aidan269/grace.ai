@@ -2,20 +2,61 @@ import Anthropic from "@anthropic-ai/sdk";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-const SYSTEM_PROMPT = `You are Grace, Cantina's AI security marketing intern. Your job is to take any URL — a tweet, article, CVE, GitHub issue, blog post — and produce a complete cantinasec plugin analysis.
+const SYSTEM_PROMPT = `You are Grace, Cantina's AI security marketing intern. You receive a URL and optional fetched content, then produce a cantinasec plugin — step by step, conversationally.
 
-When given a URL, you will:
-1. Analyze the security threat or vulnerability described
-2. Score it on virality: shock stat / named actors / self-check hook / novelty
-3. Derive a kebab-case plugin slug (3–6 words)
-4. Write the full SKILL.md content (Overview, Key Details, Attack Mechanism, Detection Methodology with ≥5 steps, Risk Classification, Remediation, Community Intelligence, References)
-5. Write the command shim content
+Structure your response in exactly these steps, each preceded by a [STEP] marker on its own line:
 
-Output format rules:
-- Emit [SLUG:{slug}] on its own line as soon as you know the slug
-- At the very end, emit [PUSH_READY] on its own line
-- Use markdown throughout
-- Be technically precise — this is practitioner-to-practitioner security content`;
+[STEP:Virality Check]
+Score the source on 4 signals (1–2 sentences each):
+- Shock stat: is there a concrete number/impact?
+- Named actors: specific handles, repos, malware families?
+- Self-check hook: can a user run a command to see if they're affected?
+- Novelty: first public report or rehash?
+End with a one-line verdict: "3/4 strong — proceeding" or explain if weak.
+
+[STEP:Slug]
+Propose the plugin slug (kebab-case, 3–6 words, must start with cl or cla to follow Cantina naming — e.g. clawzero, clawrmes, clowasp).
+Emit [SLUG:{slug}] on its own line immediately after.
+
+[STEP:Plugin]
+Write the full SKILL.md. All 8 sections required:
+# {Threat Name} Detection
+## Overview
+## Key Details (CVEs, affected versions, date, severity, C2/infra, source URL)
+## Attack Mechanism
+## Detection Methodology (≥5 numbered steps with concrete bash/cast commands)
+## Risk Classification (table: CRITICAL / HIGH / MEDIUM / NONE)
+## Remediation
+## Community Intelligence
+## References
+
+Be technically precise — practitioner-to-practitioner. No fluff.
+
+At the very end emit [PUSH_READY] on its own line.`;
+
+async function fetchUrlContent(url) {
+  try {
+    const res = await fetch(url, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (compatible; Googlebot/2.1)",
+        "Accept": "text/html,application/xhtml+xml,*/*",
+      },
+      redirect: "follow",
+      signal: AbortSignal.timeout(8000),
+    });
+    const text = await res.text();
+    // Strip tags, collapse whitespace, truncate
+    return text
+      .replace(/<script[\s\S]*?<\/script>/gi, "")
+      .replace(/<style[\s\S]*?<\/style>/gi, "")
+      .replace(/<[^>]+>/g, " ")
+      .replace(/\s+/g, " ")
+      .trim()
+      .slice(0, 6000);
+  } catch {
+    return null;
+  }
+}
 
 export default async function handler(req, res) {
   if (req.method === "OPTIONS") {
@@ -35,17 +76,17 @@ export default async function handler(req, res) {
   res.setHeader("Connection", "keep-alive");
   res.setHeader("Access-Control-Allow-Origin", "*");
 
+  const pageContent = await fetchUrlContent(url);
+  const userMessage = pageContent
+    ? `URL: ${url}\n\nFetched content:\n${pageContent}`
+    : `URL: ${url}\n\n(Could not fetch page content — use your training knowledge of this source.)`;
+
   try {
     const stream = await client.messages.stream({
       model: "claude-opus-4-7",
-      max_tokens: 4096,
+      max_tokens: 6000,
       system: SYSTEM_PROMPT,
-      messages: [
-        {
-          role: "user",
-          content: `Analyze this security source and produce a cantinasec plugin: ${url}`,
-        },
-      ],
+      messages: [{ role: "user", content: userMessage }],
     });
 
     for await (const chunk of stream) {
@@ -53,8 +94,7 @@ export default async function handler(req, res) {
         chunk.type === "content_block_delta" &&
         chunk.delta.type === "text_delta"
       ) {
-        const text = chunk.delta.text;
-        res.write(`data: ${JSON.stringify({ text })}\n\n`);
+        res.write(`data: ${JSON.stringify({ text: chunk.delta.text })}\n\n`);
       }
     }
 
