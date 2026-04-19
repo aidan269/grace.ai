@@ -1078,18 +1078,61 @@ async function runGrace(e) {
       // loop shows input again with updated suggested value
     }
 
-    // Step 3: Plugin + feedback loop
-    const pluginRaw = await streamStep('plugin', { slug: confirmedSlug }, { splitOnSections: true });
-    await waitForFeedback('plugin', pluginRaw, 'Push to GitHub', 'Looks good — push it');
+    // Step 3: Plugin + feedback/push
+    let pluginRaw = await streamStep('plugin', { slug: confirmedSlug }, { splitOnSections: true });
 
-    // Push
-    const pushRow = document.createElement('div');
-    pushRow.className = 'push-row';
-    pushRow.innerHTML = `
-      <button class="push-btn visible" id="pushBtn" onclick="pushPlugin()">Push to GitHub</button>
-      <p class="push-done" id="pushDone"></p>
-    `;
-    addAction(pushRow);
+    await new Promise(resolve => {
+      function showPluginControls() {
+        const container = document.createElement('div');
+        container.className = 'feedback-row';
+        container.innerHTML = `
+          <div class="reply-area">
+            <textarea class="reply-input" placeholder="Any revisions before we push?" rows="1"></textarea>
+            <button class="reply-btn">Send</button>
+          </div>
+          <button class="push-btn visible" id="pushBtn">Push to GitHub</button>
+          <p class="push-done" id="pushDone" style="display:none"></p>
+        `;
+        addAction(container);
+
+        const ta = container.querySelector('.reply-input');
+        ta.addEventListener('input', () => { ta.style.height = 'auto'; ta.style.height = ta.scrollHeight + 'px'; });
+        ta.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); container.querySelector('.reply-btn').click(); } });
+
+        container.querySelector('.reply-btn').addEventListener('click', async () => {
+          const text = ta.value.trim();
+          if (!text) return;
+          container.remove();
+          makeUserBubble(text);
+          pluginRaw = await streamStep('feedback', {
+            feedback: text, previousOutput: pluginRaw, originalStep: 'plugin',
+          }, { splitOnSections: true });
+          showPluginControls();
+        });
+
+        container.querySelector('#pushBtn').addEventListener('click', async () => {
+          const btn = container.querySelector('#pushBtn');
+          const done = container.querySelector('#pushDone');
+          btn.disabled = true;
+          btn.textContent = 'Pushing...';
+          try {
+            const res = await fetch('/api/push', {
+              method: 'POST', headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ slug: confirmedSlug })
+            });
+            const data = await res.json();
+            btn.style.display = 'none';
+            done.textContent = data.url ? `Shipped → github.com/aidan269/${confirmedSlug}` : 'Pushed.';
+            done.style.display = 'block';
+            resolve();
+          } catch {
+            btn.disabled = false;
+            btn.textContent = 'Push to GitHub';
+          }
+        });
+      }
+      showPluginControls();
+    });
 
   } catch (err) {
     console.error(err);
@@ -1101,26 +1144,6 @@ async function runGrace(e) {
   submitBtn.textContent = 'Run Grace';
 }
 
-async function pushPlugin() {
-  const pushBtn = document.getElementById('pushBtn');
-  const pushDone = document.getElementById('pushDone');
-  pushBtn.disabled = true;
-  pushBtn.textContent = 'Pushing...';
-  try {
-    const res = await fetch('/api/push', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ slug: confirmedSlug })
-    });
-    const data = await res.json();
-    pushBtn.style.display = 'none';
-    pushDone.textContent = data.url ? `Shipped → github.com/aidan269/${confirmedSlug}` : 'Pushed.';
-    pushDone.style.display = 'block';
-  } catch {
-    pushBtn.disabled = false;
-    pushBtn.textContent = 'Push to GitHub';
-  }
-}
 </script>
 
 </body>

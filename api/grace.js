@@ -57,7 +57,7 @@ All 8 sections required:
 Technical: delivery vector, payload, persistence, exfiltration. Be specific.
 
 ## Detection Methodology
-≥5 numbered steps, each with a concrete bash/cast command.
+≥5 numbered steps. Each step: one sentence of context, then the command in a code block. No multi-paragraph explanations.
 
 ## Risk Classification
 | Finding | Risk Level |
