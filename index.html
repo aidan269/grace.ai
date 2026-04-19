@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.46.0/min/vs/loader.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.46.0/min/vs/loader.js"></script>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -763,6 +763,9 @@ nav {
         <div class="ide-editor-area">
           <div class="ide-tabs" id="ideTabs"></div>
           <div class="monaco-wrap">
+            <div id="monacoLoading" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#555;font-size:0.8rem;font-family:monospace;background:#1e1e1e;">
+              loading editor…
+            </div>
             <div id="monacoContainer"></div>
           </div>
         </div>
@@ -1126,12 +1129,23 @@ function showSuccessBlock(slug, overviewText) {
 // ── Monaco IDE ───────────────────────────────────────────────────
 let monacoEditor = null;
 let monacoLoaded = false;
+const MONACO_CDN = 'https://cdn.jsdelivr.net/npm/monaco-editor@0.46.0/min/vs';
 
 function loadMonaco() {
   if (monacoLoaded) return Promise.resolve();
-  return new Promise(resolve => {
-    require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.46.0/min/vs' } });
-    require(['vs/editor/editor.main'], () => { monacoLoaded = true; resolve(); });
+  return new Promise((resolve, reject) => {
+    // Inline worker fix for CORS — required for CDN-hosted Monaco
+    window.MonacoEnvironment = {
+      getWorkerUrl(_moduleId, label) {
+        const workerSrc = `
+          self.MonacoEnvironment = { baseUrl: '${MONACO_CDN}/../' };
+          importScripts('${MONACO_CDN}/base/worker/workerMain.js');
+        `;
+        return `data:text/javascript;charset=utf-8,${encodeURIComponent(workerSrc)}`;
+      }
+    };
+    require.config({ paths: { vs: MONACO_CDN } });
+    require(['vs/editor/editor.main'], () => { monacoLoaded = true; resolve(); }, reject);
   });
 }
 
@@ -1158,6 +1172,8 @@ async function openIDE(slug) {
   document.getElementById('idePanel').classList.add('visible');
   document.getElementById('chatCol').classList.add('narrow');
 
+  document.getElementById('monacoLoading').style.display = 'flex';
+
   if (!monacoEditor) {
     monacoEditor = monaco.editor.create(document.getElementById('monacoContainer'), {
       value: '',
@@ -1175,6 +1191,8 @@ async function openIDE(slug) {
   } else {
     monacoEditor.setValue('');
   }
+
+  document.getElementById('monacoLoading').style.display = 'none';
 }
 
 function appendToEditor(text) {
