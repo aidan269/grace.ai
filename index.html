@@ -196,38 +196,52 @@ h1 {
   text-align: center;
 }
 
-/* ── Stream Panel ── */
-.stream-wrap {
+/* ── Chat ── */
+.chat-wrap {
   max-width: 680px;
   margin: 32px auto 0;
   display: none;
+  flex-direction: column;
+  gap: 16px;
 }
-.stream-wrap.visible { display: block; }
+.chat-wrap.visible { display: flex; }
 
-.stream-panel {
-  background: var(--gray-50);
-  border: 1px solid var(--gray-200);
-  border-radius: 12px;
-  padding: 28px 32px;
-  font-size: 0.9rem;
-  line-height: 1.75;
-  color: var(--gray-900);
-  min-height: 80px;
-  position: relative;
+.chat-bubble {
+  display: flex;
+  flex-direction: column;
+  max-width: 88%;
 }
+.chat-bubble.user { align-self: flex-end; align-items: flex-end; }
+.chat-bubble.grace { align-self: flex-start; align-items: flex-start; }
 
-.stream-label {
-  font-size: 0.7rem;
+.bubble-label {
+  font-size: 0.68rem;
   font-weight: 600;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--gray-400);
-  margin-bottom: 12px;
+  margin-bottom: 6px;
 }
 
-.stream-text {
-  white-space: pre-wrap;
+.bubble-body {
+  padding: 14px 18px;
+  border-radius: 14px;
+  font-size: 0.88rem;
+  line-height: 1.7;
   word-break: break-word;
+  white-space: pre-wrap;
+}
+.chat-bubble.user .bubble-body {
+  background: var(--black);
+  color: var(--white);
+  border-bottom-right-radius: 4px;
+}
+.chat-bubble.grace .bubble-body {
+  background: var(--gray-50);
+  border: 1px solid var(--gray-200);
+  color: var(--gray-900);
+  border-bottom-left-radius: 4px;
+  min-width: 260px;
 }
 
 .stream-cursor {
@@ -243,7 +257,7 @@ h1 {
 
 .push-btn {
   display: none;
-  margin-top: 20px;
+  margin-top: 4px;
   font-family: inherit;
   font-size: 0.875rem;
   font-weight: 600;
@@ -548,11 +562,15 @@ footer {
 
   <p class="hero-note">Requires Claude Code · Free and open source</p>
 
-  <!-- Stream output -->
-  <div class="stream-wrap" id="streamWrap">
-    <div class="stream-panel">
-      <div class="stream-label">Grace</div>
-      <div class="stream-text" id="streamText"></div><span class="stream-cursor" id="cursor"></span>
+  <!-- Chat output -->
+  <div class="chat-wrap" id="streamWrap">
+    <div class="chat-bubble user" id="userBubble" style="display:none">
+      <div class="bubble-label">You</div>
+      <div class="bubble-body" id="userText"></div>
+    </div>
+    <div class="chat-bubble grace" id="graceBubble" style="display:none">
+      <div class="bubble-label">Grace</div>
+      <div class="bubble-body"><span id="streamText"></span><span class="stream-cursor" id="cursor"></span></div>
     </div>
     <button class="push-btn" id="pushBtn" onclick="pushPlugin()">Push to GitHub</button>
     <p class="push-done" id="pushDone"></p>
@@ -684,6 +702,9 @@ async function runGrace(e) {
   const cursor = document.getElementById('cursor');
   const pushBtn = document.getElementById('pushBtn');
   const pushDone = document.getElementById('pushDone');
+  const userBubble = document.getElementById('userBubble');
+  const graceBubble = document.getElementById('graceBubble');
+  const userText = document.getElementById('userText');
 
   submitBtn.disabled = true;
   submitBtn.textContent = 'Running...';
@@ -693,6 +714,9 @@ async function runGrace(e) {
   pushDone.classList.remove('visible');
   pushDone.textContent = '';
   cursor.style.display = 'inline-block';
+  userText.textContent = url;
+  userBubble.style.display = 'flex';
+  graceBubble.style.display = 'flex';
 
   try {
     const res = await fetch('/api/grace', {
