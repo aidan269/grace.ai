@@ -246,18 +246,13 @@ nav {
 .studio-tab:hover { color: var(--muted); }
 .studio-tab.active { color: var(--text); font-weight: 600; border-bottom-color: var(--orange); }
 
-.studio-body { flex: 1; overflow: hidden; position: relative; background: #0d0e14; }
-.studio-pane { position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden; display: none; }
+.studio-body { flex: 1; overflow: hidden; position: relative; }
+.studio-pane { position: absolute; inset: 0; overflow: hidden; display: none; }
 .studio-pane.active { display: block; }
-.studio-pane::-webkit-scrollbar { width: 5px; }
-.studio-pane::-webkit-scrollbar-track { background: transparent; }
-.studio-pane::-webkit-scrollbar-thumb { background: #2a2c3a; border-radius: 3px; }
-.studio-pane::-webkit-scrollbar-thumb:hover { background: #3d4056; }
 
 .plugin-editor {
-  display: block;
   width: 100%;
-  min-height: 100%;
+  height: 100%;
   box-sizing: border-box;
   font-family: 'SF Mono', ui-monospace, 'Fira Code', monospace;
   font-size: 13px;
@@ -272,9 +267,14 @@ nav {
   white-space: pre-wrap;
   word-break: break-word;
   overflow-wrap: break-word;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 .plugin-editor::selection { background: rgba(250,94,6,0.25); }
-.plugin-editor::placeholder { color: #3a3d52; }
+.plugin-editor::-webkit-scrollbar { width: 5px; }
+.plugin-editor::-webkit-scrollbar-track { background: transparent; }
+.plugin-editor::-webkit-scrollbar-thumb { background: #2a2c3a; border-radius: 3px; }
+.plugin-editor::-webkit-scrollbar-thumb:hover { background: #3d4056; }
 .accept-bar { position:absolute; top:0; left:0; right:0; z-index:10; display:flex; align-items:center; gap:10px; padding:10px 18px; background:rgba(15,17,23,0.92); backdrop-filter:blur(6px); border-bottom:1px solid rgba(250,94,6,0.3); animation:fadeUp 0.2s ease; }
 .accept-bar-label { flex:1; font-size:0.78rem; color:#94a3b8; }
 .accept-bar-label strong { color:#fa5e06; }
@@ -509,10 +509,10 @@ nav {
           <div class="studio-pane active" id="paneWrite" style="position:relative;">
             <textarea class="plugin-editor" id="pluginEditor" spellcheck="false" placeholder="streaming plugin…"></textarea>
           </div>
-          <div class="studio-pane" id="panePreview">
+          <div class="studio-pane" id="panePreview" style="overflow-y:auto;">
             <div class="plugin-preview" id="pluginPreview"></div>
           </div>
-          <div class="studio-pane" id="paneDistribute">
+          <div class="studio-pane" id="paneDistribute" style="overflow-y:auto;">
             <div class="dist-body" id="distBody"></div>
           </div>
         </div>
