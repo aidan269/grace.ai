@@ -417,6 +417,35 @@ nav {
 
 @keyframes fadeUp { from{opacity:0;transform:translateY(5px)} to{opacity:1;transform:none} }
 
+/* ── Glow / nudge system ── */
+@keyframes cta-glow {
+  0%,100% { box-shadow: 0 0 0 0 rgba(250,94,6,0), 0 2px 6px rgba(0,0,0,0.1); }
+  50%      { box-shadow: 0 0 0 7px rgba(250,94,6,0.14), 0 4px 22px rgba(250,94,6,0.2); }
+}
+@keyframes chip-float {
+  0%,100% { transform:translateY(0); box-shadow:0 2px 6px rgba(250,94,6,0.06); }
+  50%      { transform:translateY(-3px); box-shadow:0 6px 18px rgba(250,94,6,0.2); }
+}
+@keyframes dot-slide {
+  0%,100% { transform:translateX(0); opacity:0.4; }
+  50%      { transform:translateX(5px); opacity:1; }
+}
+@keyframes tab-glow {
+  0%,100% { box-shadow: none; }
+  50%      { box-shadow: 0 2px 12px rgba(250,94,6,0.25); }
+}
+.glow-cta { animation: cta-glow 2s ease-in-out infinite !important; }
+.chip-nudge { animation: chip-float 2s ease-in-out infinite; }
+/* stagger chip-nudge for siblings */
+.chip-nudge:nth-child(2) { animation-delay:0.2s; }
+.chip-nudge:nth-child(3) { animation-delay:0.4s; }
+.chip-nudge:nth-child(4) { animation-delay:0.6s; }
+/* orange btn glow when actionable */
+.bar-btn.orange { animation: cta-glow 2s ease-in-out infinite; }
+.accept-btn.primary { animation: cta-glow 2s ease-in-out infinite; }
+/* streaming tab underline pulse */
+.studio-tab.streaming { animation: tab-glow 1.5s ease-in-out infinite; }
+
 @media (max-width:768px) {
   .right-panel { display:none; }
   .chat-col { width:100%; border-right:none; }
@@ -584,7 +613,13 @@ function handleLandingSubmit() {
 
 document.addEventListener('DOMContentLoaded', () => {
   const li = document.getElementById('landingInput');
-  if (li) li.addEventListener('keydown', e => { if (e.key === 'Enter') handleLandingSubmit(); });
+  const lb = document.getElementById('landingBtn');
+  if (li) {
+    li.addEventListener('keydown', e => { if (e.key === 'Enter') handleLandingSubmit(); });
+    li.addEventListener('input', () => {
+      lb.classList.toggle('glow-cta', li.value.trim().length > 0);
+    });
+  }
 });
 
 // ── Bottom bar modes ──
@@ -1000,9 +1035,10 @@ function showQuickChips(raw, onSelect) {
   if (!matches.length) return;
   const el = document.createElement('div');
   el.className = 'quick-chips'; el.id = 'quickChips';
-  matches.forEach(opt => {
+  matches.forEach((opt, i) => {
     const btn = document.createElement('button');
-    btn.className = 'quick-chip'; btn.textContent = opt;
+    btn.className = 'quick-chip chip-nudge'; btn.textContent = opt;
+    btn.style.animationDelay = `${i * 0.15}s`;
     btn.onclick = () => { el.remove(); onSelect(opt); };
     el.appendChild(btn);
   });
@@ -1123,8 +1159,8 @@ function showScopingQuestion(qa, isSecond = false) {
       chEl.innerHTML = '';
       qa.chips.forEach(chip => {
         const btn = document.createElement('button');
-        btn.className = 'scoping-chip'; btn.textContent = chip;
-        btn.addEventListener('click', () => finish(chip));
+        btn.className = 'scoping-chip chip-nudge'; btn.textContent = chip;
+        btn.addEventListener('click', () => { btn.classList.remove('chip-nudge'); finish(chip); });
         chEl.appendChild(btn);
       });
       area.style.opacity = '1';
@@ -1209,10 +1245,12 @@ async function runGrace(url) {
   setBarMode('disabled', { placeholder: 'Writing plugin…', label: '…' });
 
   // Fire plugin BEFORE transition — IDE is already writing when it fades in
+  const tabWrite = document.getElementById('tabWrite');
+  tabWrite.classList.add('streaming');
   const pluginPromise = streamStep('plugin', {
     slug: confirmedSlug,
     scopeContext: scopeAnswer,
-  }, { chatOpenerOnly: true, streamToStudio: true });
+  }, { chatOpenerOnly: true, streamToStudio: true }).then(r => { tabWrite.classList.remove('streaming'); return r; });
 
   // ── Phase 4: Fade transition (concurrent with plugin streaming) ──
   await fadeToWorkspace();
