@@ -22,48 +22,40 @@
   --gray-100:#F3F4F6;
   --gray-200:#E5E7EB;
   --gray-400:#9CA3AF;
-  --gray-900:#111827;
-  --nav-bg:  rgba(255,255,255,0.92);
+  --nav-bg:  rgba(255,255,255,0.94);
   --radius:  8px;
-  --mono: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
+  --mono:    'JetBrains Mono','SF Mono','Fira Code',monospace;
 }
 [data-theme="dark"] {
   --bg:      #0D0D0D;
-  --surface: #151515;
-  --border:  #262626;
+  --surface: #141414;
+  --border:  #252525;
   --text:    #E8E8E8;
   --muted:   #999;
   --subtle:  #555;
   --gray-50: #111;
   --gray-100:#1A1A1A;
-  --gray-200:#262626;
+  --gray-200:#252525;
   --gray-400:#555;
-  --gray-900:#E8E8E8;
-  --nav-bg:  rgba(13,13,13,0.92);
+  --nav-bg:  rgba(13,13,13,0.94);
 }
 
 html, body { height: 100%; }
 body {
   font-family: 'Inter', system-ui, sans-serif;
-  background: var(--bg);
-  color: var(--text);
+  background: var(--bg); color: var(--text);
   -webkit-font-smoothing: antialiased;
-  font-size: 15px;
-  line-height: 1.6;
-  display: flex;
-  flex-direction: column;
+  font-size: 15px; line-height: 1.6;
+  display: flex; flex-direction: column;
   transition: background 0.2s, color 0.2s;
 }
 
 /* ── Nav ── */
 nav {
   position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-  height: 52px;
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 0 20px;
-  background: var(--nav-bg);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--border);
+  height: 52px; display: flex; align-items: center; justify-content: space-between;
+  padding: 0 20px; background: var(--nav-bg);
+  backdrop-filter: blur(12px); border-bottom: 1px solid var(--border);
 }
 .nav-logo { display: flex; align-items: center; gap: 8px; text-decoration: none; }
 .nav-wordmark { font-size: 0.92rem; font-weight: 700; letter-spacing: -0.02em; color: var(--text); }
@@ -74,328 +66,261 @@ nav {
 .plugins-live { display: inline-flex; align-items: center; gap: 5px; font-size: 0.7rem; font-weight: 500; color: var(--subtle); background: var(--gray-100); padding: 3px 9px; border-radius: 99px; }
 .plugins-live-dot { width: 6px; height: 6px; background: #22c55e; border-radius: 50%; animation: pulse 2s ease-in-out infinite; }
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
-.theme-toggle { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; background: none; border: 1px solid var(--border); border-radius: 7px; cursor: pointer; font-size: 0.88rem; transition: background 0.15s; }
+.theme-toggle { display:flex; align-items:center; justify-content:center; width:32px; height:32px; background:none; border:1px solid var(--border); border-radius:7px; cursor:pointer; font-size:0.88rem; transition:background 0.15s; }
 .theme-toggle:hover { background: var(--gray-100); }
 
-/* ── Page shell ── */
+/* ── Page ── */
 .page { flex: 1; display: flex; flex-direction: column; padding-top: 52px; }
 
 /* ── Empty state ── */
 .empty-state {
   flex: 1; display: flex; flex-direction: column;
   align-items: center; justify-content: center;
-  padding: 40px 24px 120px; text-align: center;
-  animation: fadeUp 0.3s ease;
+  padding: 0 24px 100px; text-align: center; animation: fadeUp 0.3s ease;
 }
 .empty-state.hidden { display: none; }
 .grace-logo { width: 96px; height: 96px; border-radius: 50%; object-fit: cover; margin-bottom: 20px; image-rendering: -webkit-optimize-contrast; }
-.empty-title { font-size: 1.45rem; font-weight: 700; letter-spacing: -0.025em; margin-bottom: 8px; }
+.empty-title { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.025em; margin-bottom: 8px; }
 .empty-sub { font-size: 0.88rem; color: var(--muted); max-width: 340px; line-height: 1.65; margin-bottom: 28px; }
-.example-chips { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; max-width: 500px; }
+.example-chips { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; max-width: 480px; }
 .chip { font-size: 0.76rem; color: var(--muted); background: var(--gray-50); border: 1px solid var(--border); border-radius: 99px; padding: 6px 14px; cursor: pointer; transition: all 0.15s; }
-.chip:hover { border-color: var(--gray-400); color: var(--text); background: var(--gray-100); }
+.chip:hover { border-color: var(--gray-400); color: var(--text); }
 
-/* ── Workspace: chat + studio ── */
+/* ── Workspace ── */
 .workspace { display: none; flex: 1; overflow: hidden; height: calc(100vh - 52px); }
 .workspace.visible { display: flex; }
 
-/* ── Chat column ── */
+/* Chat column */
 .chat-col {
   display: flex; flex-direction: column;
-  flex: 1; min-width: 0; overflow: hidden;
-  transition: max-width 0.35s cubic-bezier(0.4,0,0.2,1), flex 0.35s cubic-bezier(0.4,0,0.2,1);
+  width: 420px; flex-shrink: 0;
+  border-right: 1px solid var(--border);
+  transition: width 0.3s ease;
 }
-.chat-col.narrow { max-width: 380px; flex: 0 0 380px; border-right: 1px solid var(--border); }
-.chat-area { flex: 1; overflow-y: auto; padding: 20px 0 140px; }
-.chat-messages { max-width: 640px; margin: 0 auto; padding: 0 20px; display: flex; flex-direction: column; gap: 14px; }
+.chat-area { flex: 1; overflow-y: auto; padding: 20px 0 160px; }
+.chat-messages { max-width: 100%; padding: 0 20px; display: flex; flex-direction: column; gap: 14px; }
 
-/* ── Studio panel ── */
-.studio-panel {
-  display: none; flex: 1; flex-direction: column;
-  background: var(--bg); min-width: 0; overflow: hidden;
-  animation: slideIn 0.3s cubic-bezier(0.4,0,0.2,1);
+/* Right panel */
+.right-panel {
+  flex: 1; display: flex; flex-direction: column;
+  background: var(--bg); overflow: hidden; min-width: 0;
 }
+
+/* ── Campaign Brief (steps 1–2) ── */
+.brief-panel { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.brief-panel.hidden { display: none; }
+
+.brief-header {
+  padding: 16px 24px 12px; border-bottom: 1px solid var(--border);
+  background: var(--surface); flex-shrink: 0;
+}
+.brief-title { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--subtle); margin-bottom: 2px; }
+.brief-step { font-size: 0.82rem; font-weight: 600; color: var(--text); }
+
+.brief-body { flex: 1; overflow-y: auto; padding: 20px 24px; display: flex; flex-direction: column; gap: 20px; }
+
+/* URL card in brief */
+.brief-url-card {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--gray-50); border: 1px solid var(--border);
+  border-radius: 10px; padding: 12px 16px; animation: fadeUp 0.2s ease;
+}
+.brief-favicon { width: 20px; height: 20px; border-radius: 4px; flex-shrink: 0; }
+.brief-url-meta { flex: 1; min-width: 0; }
+.brief-url-domain { font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--subtle); margin-bottom: 2px; }
+.brief-url-title { font-size: 0.82rem; font-weight: 500; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.brief-og { width: 56px; height: 40px; object-fit: cover; border-radius: 6px; flex-shrink: 0; display: none; }
+.brief-og.loaded { display: block; }
+
+/* Virality signals grid */
+.brief-section-label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--subtle); margin-bottom: 10px; }
+.signals-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.signal-card {
+  background: var(--gray-50); border: 1px solid var(--border);
+  border-radius: 10px; padding: 12px 14px;
+  transition: all 0.3s ease;
+}
+.signal-card.on {
+  background: rgba(250,94,6,0.06);
+  border-color: rgba(250,94,6,0.3);
+}
+.signal-card.off { opacity: 0.4; }
+.signal-icon { font-size: 1.1rem; margin-bottom: 5px; }
+.signal-name { font-size: 0.72rem; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+.signal-read { font-size: 0.7rem; color: var(--muted); line-height: 1.4; }
+
+/* Virality score bar */
+.virality-bar-wrap { margin-top: 4px; }
+.virality-bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+.virality-bar-track { flex: 1; height: 5px; background: var(--border); border-radius: 99px; overflow: hidden; }
+.virality-bar-fill { height: 100%; background: var(--orange); border-radius: 99px; transition: width 0.8s cubic-bezier(0.4,0,0.2,1); width: 0%; }
+.virality-bar-score { font-family: var(--mono); font-size: 0.72rem; font-weight: 600; color: var(--orange); }
+
+/* Slug preview in brief */
+.slug-preview {
+  background: var(--gray-50); border: 1px solid var(--border);
+  border-radius: 10px; padding: 14px 16px; animation: fadeUp 0.2s ease;
+}
+.slug-preview-label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--subtle); margin-bottom: 8px; }
+.slug-preview-cmd { font-family: var(--mono); font-size: 0.9rem; color: var(--text); }
+.slug-preview-cmd span { color: var(--subtle); font-weight: 400; }
+.slug-input-wrap { display: flex; gap: 8px; margin-top: 10px; }
+.slug-edit { font-family: var(--mono); font-size: 0.82rem; padding: 7px 11px; border: 1.5px solid var(--border); border-radius: var(--radius); outline: none; color: var(--text); background: var(--surface); flex: 1; transition: border-color 0.15s; }
+.slug-edit:focus { border-color: var(--orange); }
+.slug-confirm-btn { font-family: inherit; font-size: 0.78rem; font-weight: 700; color: #fff; background: var(--orange); border: none; border-radius: var(--radius); padding: 7px 14px; cursor: pointer; white-space: nowrap; transition: opacity 0.15s; }
+.slug-confirm-btn:hover { opacity: 0.88; }
+
+/* ── Studio Panel (step 3) ── */
+.studio-panel { flex: 1; display: none; flex-direction: column; overflow: hidden; animation: fadeUp 0.25s ease; }
 .studio-panel.visible { display: flex; }
-@keyframes slideIn { from { opacity:0; transform: translateX(24px); } to { opacity:1; transform: none; } }
 
-/* Campaign header */
-.studio-header {
-  padding: 16px 24px 12px;
-  border-bottom: 1px solid var(--border);
-  background: var(--surface);
-  flex-shrink: 0;
-}
-.studio-header-top {
-  display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 10px;
-}
-.studio-slug {
-  font-family: var(--mono); font-size: 1rem; font-weight: 600;
-  color: var(--text); letter-spacing: -0.01em;
-}
-.studio-slug::before { content: '/cantinasec:'; color: var(--subtle); font-weight: 400; }
-.studio-status {
-  font-size: 0.62rem; font-weight: 700; letter-spacing: 0.1em;
-  text-transform: uppercase; padding: 3px 8px; border-radius: 4px;
-  background: var(--gray-100); color: var(--subtle);
-}
+.studio-header { padding: 14px 24px 10px; border-bottom: 1px solid var(--border); background: var(--surface); flex-shrink: 0; }
+.studio-header-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.studio-slug { font-family: var(--mono); font-size: 0.95rem; font-weight: 600; color: var(--text); }
+.studio-slug span { color: var(--subtle); font-weight: 400; }
+.studio-status { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 8px; border-radius: 4px; background: var(--gray-100); color: var(--subtle); }
 .studio-status.live { background: #dcfce7; color: #166534; }
 [data-theme="dark"] .studio-status.live { background: #14532d; color: #86efac; }
 
-/* Virality bar */
-.virality-row {
-  display: flex; align-items: center; gap: 10px; margin-bottom: 8px;
-}
-.virality-label { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--subtle); width: 52px; flex-shrink: 0; }
-.virality-track { flex: 1; height: 4px; background: var(--border); border-radius: 99px; overflow: hidden; }
-.virality-fill { height: 100%; background: var(--orange); border-radius: 99px; transition: width 0.6s ease; }
-.virality-score { font-size: 0.72rem; font-weight: 600; color: var(--orange); font-family: var(--mono); width: 28px; flex-shrink: 0; }
-.signal-chips { display: flex; flex-wrap: wrap; gap: 5px; }
-.signal-chip {
-  font-size: 0.68rem; font-weight: 500; padding: 2px 8px;
-  border-radius: 99px; border: 1px solid var(--border);
-  color: var(--muted); background: var(--gray-50);
-}
-.signal-chip.on { border-color: var(--orange); color: var(--orange); background: rgba(250,94,6,0.06); }
-
-/* Studio tabs */
-.studio-tabs {
-  display: flex; border-bottom: 1px solid var(--border);
-  background: var(--surface); flex-shrink: 0;
-}
-.studio-tab {
-  font-family: inherit; font-size: 0.78rem; font-weight: 600;
-  color: var(--subtle); background: none; border: none;
-  padding: 10px 18px; cursor: pointer; position: relative;
-  transition: color 0.15s; letter-spacing: 0.02em;
-}
+.studio-tabs { display: flex; border-bottom: 1px solid var(--border); background: var(--surface); flex-shrink: 0; }
+.studio-tab { font-family: inherit; font-size: 0.76rem; font-weight: 600; color: var(--subtle); background: none; border: none; padding: 9px 18px; cursor: pointer; position: relative; transition: color 0.15s; }
 .studio-tab.active { color: var(--text); }
-.studio-tab.active::after {
-  content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 2px;
-  background: var(--orange); border-radius: 2px 2px 0 0;
-}
-.studio-tab:hover { color: var(--text); }
+.studio-tab.active::after { content:''; position:absolute; bottom:-1px; left:0; right:0; height:2px; background:var(--orange); border-radius:2px 2px 0 0; }
 
-/* Studio panes */
 .studio-body { flex: 1; overflow: hidden; position: relative; }
 .studio-pane { position: absolute; inset: 0; overflow-y: auto; display: none; }
 .studio-pane.active { display: block; }
 
-/* Write tab — markdown editor */
-.plugin-editor {
-  width: 100%; height: 100%;
-  font-family: var(--mono); font-size: 12.5px; line-height: 1.9;
-  color: #e2e8f0;
-  background: #0f1117;
-  border: none; outline: none; resize: none;
-  padding: 20px 28px;
-  tab-size: 2;
-  white-space: pre;
-  overflow-wrap: normal;
-  overflow-x: auto;
-}
+.plugin-editor { width:100%; height:100%; font-family:var(--mono); font-size:12.5px; line-height:1.9; color:#e2e8f0; background:#0f1117; border:none; outline:none; resize:none; padding:20px 28px; tab-size:2; }
 .plugin-editor::selection { background: rgba(250,94,6,0.3); }
 
-/* Preview tab */
-.plugin-preview {
-  padding: 28px 32px;
-  font-size: 0.875rem;
-  line-height: 1.75;
-  color: var(--text);
-  max-width: 680px;
-}
-.plugin-preview h1 { font-size: 1.2rem; font-weight: 700; letter-spacing: -0.02em; margin: 0 0 20px; }
-.plugin-preview h2 { font-size: 0.92rem; font-weight: 600; color: var(--muted); margin: 22px 0 8px; padding-top: 16px; border-top: 1px solid var(--border); }
-.plugin-preview h2:first-of-type { border-top: none; padding-top: 0; }
-.plugin-preview p { margin: 6px 0; color: var(--muted); }
-.plugin-preview ul, .plugin-preview ol { padding-left: 20px; margin: 6px 0; color: var(--muted); }
-.plugin-preview li { margin: 4px 0; }
-.plugin-preview strong { font-weight: 600; color: var(--text); }
-.plugin-preview code { font-family: var(--mono); font-size: 0.78rem; background: var(--gray-100); padding: 1px 5px; border-radius: 4px; }
-.plugin-preview pre { background: #0f1117; color: #e2e8f0; border-radius: 8px; padding: 14px 16px; overflow-x: auto; margin: 10px 0; }
-.plugin-preview pre code { background: none; padding: 0; color: inherit; }
-.plugin-preview table { border-collapse: collapse; width: 100%; margin: 8px 0; font-size: 0.82rem; }
-.plugin-preview th, .plugin-preview td { border: 1px solid var(--border); padding: 7px 11px; text-align: left; }
-.plugin-preview th { background: var(--gray-50); font-weight: 600; }
+.plugin-preview { padding:28px 32px; font-size:0.875rem; line-height:1.75; color:var(--text); }
+.plugin-preview h1 { font-size:1.1rem; font-weight:700; letter-spacing:-0.02em; margin:0 0 18px; }
+.plugin-preview h2 { font-size:0.88rem; font-weight:600; color:var(--muted); margin:20px 0 7px; padding-top:14px; border-top:1px solid var(--border); }
+.plugin-preview h2:first-of-type { border-top:none; padding-top:0; }
+.plugin-preview p { margin:5px 0; color:var(--muted); }
+.plugin-preview ul,.plugin-preview ol { padding-left:18px; margin:5px 0; color:var(--muted); }
+.plugin-preview li { margin:3px 0; }
+.plugin-preview strong { font-weight:600; color:var(--text); }
+.plugin-preview code { font-family:var(--mono); font-size:0.75rem; background:var(--gray-100); padding:1px 5px; border-radius:3px; }
+.plugin-preview pre { background:#0f1117; color:#e2e8f0; border-radius:7px; padding:12px 14px; overflow-x:auto; margin:8px 0; }
+.plugin-preview pre code { background:none; padding:0; color:inherit; }
+.plugin-preview table { border-collapse:collapse; width:100%; margin:7px 0; font-size:0.8rem; }
+.plugin-preview th,.plugin-preview td { border:1px solid var(--border); padding:6px 10px; text-align:left; }
+.plugin-preview th { background:var(--gray-50); font-weight:600; }
 
-/* Distribute tab */
-.dist-body { padding: 24px 28px; display: flex; flex-direction: column; gap: 20px; }
-.dist-section {}
-.dist-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--subtle); margin-bottom: 8px; }
-.dist-card {
-  background: var(--gray-50); border: 1px solid var(--border);
-  border-radius: 10px; padding: 14px 16px;
-  display: flex; align-items: center; gap: 12px;
-}
-.dist-code { font-family: var(--mono); font-size: 0.82rem; color: var(--text); flex: 1; }
-.dist-btn {
-  font-family: inherit; font-size: 0.75rem; font-weight: 600;
-  padding: 6px 12px; border-radius: 6px; cursor: pointer; border: none;
-  background: var(--text); color: var(--bg); transition: opacity 0.15s; white-space: nowrap;
-}
-.dist-btn:hover { opacity: 0.8; }
-.dist-btn.secondary { background: var(--gray-200); color: var(--text); }
-.dist-tweet-wrap { position: relative; }
-.dist-tweet {
-  width: 100%; font-family: inherit; font-size: 0.85rem; line-height: 1.65;
-  color: var(--text); background: var(--gray-50); border: 1px solid var(--border);
-  border-radius: 10px; padding: 14px 16px; resize: vertical; min-height: 120px;
-  outline: none; transition: border-color 0.15s;
-}
-.dist-tweet:focus { border-color: var(--orange); }
-.dist-char-count { font-size: 0.7rem; color: var(--subtle); text-align: right; margin-top: 4px; }
-.dist-copy-tweet {
-  margin-top: 8px; font-family: inherit; font-size: 0.78rem; font-weight: 600;
-  color: var(--bg); background: #1da1f2; border: none; border-radius: 7px;
-  padding: 8px 16px; cursor: pointer; transition: opacity 0.15s; width: 100%;
-}
-.dist-copy-tweet:hover { opacity: 0.88; }
-
-/* Studio footer */
-.studio-footer {
-  padding: 12px 20px; border-top: 1px solid var(--border);
-  background: var(--surface); flex-shrink: 0;
-  display: flex; align-items: center; gap: 10px;
-}
-.studio-push-btn {
-  flex: 1; font-family: inherit; font-size: 0.875rem; font-weight: 700;
-  color: #fff; background: var(--orange); border: none; border-radius: var(--radius);
-  padding: 11px 20px; cursor: pointer; transition: opacity 0.15s; letter-spacing: 0.01em;
-}
-.studio-push-btn:hover { opacity: 0.88; }
-.studio-push-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-.studio-edit-note { font-size: 0.72rem; color: var(--subtle); }
-
-/* ── URL Preview Card ── */
-.url-preview-card {
-  display: flex; align-items: center; gap: 10px;
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: 9px; padding: 9px 13px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-  animation: fadeUp 0.2s ease; align-self: flex-end; max-width: 88%;
-}
-.preview-favicon { width: 16px; height: 16px; border-radius: 3px; flex-shrink: 0; }
-.preview-meta { flex: 1; min-width: 0; }
-.preview-domain { font-size: 0.65rem; color: var(--subtle); font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 1px; }
-.preview-title { font-size: 0.78rem; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.preview-og { width: 44px; height: 32px; object-fit: cover; border-radius: 4px; flex-shrink: 0; display: none; }
-.preview-og.loaded { display: block; }
+.dist-body { padding:22px 24px; display:flex; flex-direction:column; gap:18px; }
+.dist-label { font-size:0.65rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:var(--subtle); margin-bottom:7px; }
+.dist-card { background:var(--gray-50); border:1px solid var(--border); border-radius:9px; padding:12px 14px; display:flex; align-items:center; gap:10px; }
+.dist-code { font-family:var(--mono); font-size:0.8rem; color:var(--text); flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.dist-btn { font-family:inherit; font-size:0.73rem; font-weight:600; padding:5px 11px; border-radius:5px; cursor:pointer; border:none; background:var(--text); color:var(--bg); transition:opacity 0.15s; white-space:nowrap; text-decoration:none; }
+.dist-btn:hover { opacity:0.8; }
+.dist-btn.ghost { background:var(--gray-200); color:var(--text); }
+.dist-tweet { width:100%; font-family:inherit; font-size:0.83rem; line-height:1.65; color:var(--text); background:var(--gray-50); border:1px solid var(--border); border-radius:9px; padding:12px 14px; resize:vertical; min-height:110px; outline:none; transition:border-color 0.15s; }
+.dist-tweet:focus { border-color:var(--orange); }
+.dist-char-count { font-size:0.68rem; color:var(--subtle); text-align:right; margin-top:3px; }
+.dist-tweet-btn { margin-top:7px; font-family:inherit; font-size:0.78rem; font-weight:600; color:#fff; background:#1da1f2; border:none; border-radius:7px; padding:8px 16px; cursor:pointer; width:100%; transition:opacity 0.15s; }
+.dist-tweet-btn:hover { opacity:0.88; }
 
 /* ── Chat bubbles ── */
-.chat-bubble { display: flex; animation: fadeUp 0.2s ease both; }
-.chat-bubble.user { align-self: flex-end; flex-direction: row-reverse; max-width: 88%; }
-.chat-bubble.grace { align-self: flex-start; flex-direction: row; gap: 9px; max-width: 92%; }
-.grace-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; flex-shrink: 0; margin-top: 2px; }
-.bubble-inner { display: flex; flex-direction: column; position: relative; }
-.bubble-label { font-size: 0.63rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--subtle); margin-bottom: 4px; }
-.bubble-body {
-  padding: 11px 15px; border-radius: 14px; font-size: 0.85rem;
-  line-height: 1.7; word-break: break-word;
-}
-.chat-bubble.user .bubble-body {
-  background: var(--text); color: var(--bg); border-bottom-right-radius: 4px;
-}
-.chat-bubble.grace .bubble-body {
-  background: var(--surface); border: 1px solid var(--border);
-  color: var(--text); border-bottom-left-radius: 4px; min-width: 180px;
-  box-shadow: 0 1px 6px rgba(0,0,0,0.06);
-}
-.bubble-body h1,.bubble-body h2,.bubble-body h3 { font-weight: 600; margin: 12px 0 5px; line-height: 1.3; }
-.bubble-body h1 { font-size: 0.95rem; }
-.bubble-body h2 { font-size: 0.88rem; color: var(--muted); }
-.bubble-body p { margin: 5px 0; }
-.bubble-body ul,.bubble-body ol { padding-left: 17px; margin: 5px 0; }
-.bubble-body li { margin: 2px 0; }
-.bubble-body code { font-family: var(--mono); font-size: 0.75rem; background: var(--gray-100); border-radius: 3px; padding: 1px 5px; }
-.bubble-body pre { background: #0f1117; color: #e2e8f0; border-radius: 7px; padding: 11px 13px; overflow-x: auto; margin: 7px 0; }
-.bubble-body pre code { background: none; padding: 0; font-size: 0.75rem; color: inherit; }
-.bubble-body table { border-collapse: collapse; width: 100%; margin: 7px 0; font-size: 0.8rem; }
-.bubble-body th,.bubble-body td { border: 1px solid var(--border); padding: 5px 9px; text-align: left; }
-.bubble-body th { background: var(--gray-50); font-weight: 600; }
-.bubble-body strong { font-weight: 600; }
+.chat-bubble { display:flex; animation:fadeUp 0.2s ease both; }
+.chat-bubble.user { align-self:flex-end; flex-direction:row-reverse; max-width:94%; }
+.chat-bubble.grace { align-self:flex-start; flex-direction:row; gap:9px; max-width:100%; }
+.grace-avatar { width:30px; height:30px; border-radius:50%; object-fit:cover; flex-shrink:0; margin-top:2px; }
+.bubble-inner { display:flex; flex-direction:column; position:relative; min-width:0; flex:1; }
+.bubble-label { font-size:0.62rem; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--subtle); margin-bottom:4px; }
+.bubble-body { padding:11px 15px; border-radius:14px; font-size:0.84rem; line-height:1.7; word-break:break-word; }
+.chat-bubble.user .bubble-body { background:var(--text); color:var(--bg); border-bottom-right-radius:4px; }
+.chat-bubble.grace .bubble-body { background:var(--surface); border:1px solid var(--border); color:var(--text); border-bottom-left-radius:4px; box-shadow:0 1px 4px rgba(0,0,0,0.05); }
+.bubble-body h1,.bubble-body h2,.bubble-body h3 { font-weight:600; margin:12px 0 5px; line-height:1.3; }
+.bubble-body h1 { font-size:0.92rem; }
+.bubble-body h2 { font-size:0.86rem; color:var(--muted); }
+.bubble-body p { margin:5px 0; }
+.bubble-body ul,.bubble-body ol { padding-left:16px; margin:5px 0; }
+.bubble-body li { margin:2px 0; }
+.bubble-body code { font-family:var(--mono); font-size:0.74rem; background:var(--gray-100); border-radius:3px; padding:1px 4px; }
+.bubble-body pre { background:#0f1117; color:#e2e8f0; border-radius:7px; padding:10px 12px; overflow-x:auto; margin:6px 0; }
+.bubble-body pre code { background:none; padding:0; color:inherit; }
+.bubble-body strong { font-weight:600; }
+.bubble-body table { border-collapse:collapse; width:100%; margin:6px 0; font-size:0.78rem; }
+.bubble-body th,.bubble-body td { border:1px solid var(--border); padding:5px 9px; }
+.bubble-body th { background:var(--gray-50); font-weight:600; }
 
-/* Hover copy */
-.bubble-actions { position: absolute; bottom: -22px; left: 0; display: flex; gap: 3px; opacity: 0; pointer-events: none; transition: opacity 0.15s; }
-.chat-bubble.grace:hover .bubble-actions { opacity: 1; pointer-events: auto; }
-.bubble-action-btn { font-family: inherit; font-size: 0.66rem; font-weight: 500; color: var(--subtle); background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 2px 7px; cursor: pointer; white-space: nowrap; }
-.bubble-action-btn:hover { color: var(--text); }
+.bubble-actions { position:absolute; bottom:-22px; left:0; display:flex; gap:3px; opacity:0; pointer-events:none; transition:opacity 0.15s; }
+.chat-bubble.grace:hover .bubble-actions { opacity:1; pointer-events:auto; }
+.bubble-action-btn { font-family:inherit; font-size:0.65rem; font-weight:500; color:var(--subtle); background:var(--surface); border:1px solid var(--border); border-radius:4px; padding:2px 7px; cursor:pointer; }
+.bubble-action-btn:hover { color:var(--text); }
 
-/* Stream cursor */
-.stream-cursor { display: inline-block; width: 2px; height: 1em; background: var(--orange); margin-left: 2px; vertical-align: text-bottom; animation: blink 1s step-end infinite; }
+.stream-cursor { display:inline-block; width:2px; height:1em; background:var(--orange); margin-left:2px; vertical-align:text-bottom; animation:blink 1s step-end infinite; }
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
 
-/* Typing indicator */
-.typing-bubble { display: flex; align-items: center; gap: 9px; align-self: flex-start; }
-.typing-bubble .grace-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
-.typing-dots { display: flex; align-items: center; gap: 4px; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; border-bottom-left-radius: 4px; padding: 11px 15px; }
-.typing-dots span { width: 6px; height: 6px; background: var(--gray-400); border-radius: 50%; animation: typingBounce 1.2s ease-in-out infinite; }
-.typing-dots span:nth-child(2) { animation-delay: 0.2s; }
-.typing-dots span:nth-child(3) { animation-delay: 0.4s; }
-@keyframes typingBounce { 0%,60%,100%{transform:translateY(0);opacity:0.4} 30%{transform:translateY(-5px);opacity:1} }
+.typing-bubble { display:flex; align-items:center; gap:9px; align-self:flex-start; }
+.typing-bubble .grace-avatar { width:30px; height:30px; border-radius:50%; object-fit:cover; flex-shrink:0; }
+.typing-dots { display:flex; align-items:center; gap:4px; background:var(--surface); border:1px solid var(--border); border-radius:14px; border-bottom-left-radius:4px; padding:10px 14px; }
+.typing-dots span { width:5px; height:5px; background:var(--gray-400); border-radius:50%; animation:typingBounce 1.2s ease-in-out infinite; }
+.typing-dots span:nth-child(2) { animation-delay:0.2s; }
+.typing-dots span:nth-child(3) { animation-delay:0.4s; }
+@keyframes typingBounce { 0%,60%,100%{transform:translateY(0);opacity:0.4} 30%{transform:translateY(-4px);opacity:1} }
 
-/* Action controls */
-.action-btn { font-family: inherit; font-size: 0.85rem; font-weight: 600; color: var(--bg); background: var(--text); border: none; border-radius: var(--radius); padding: 10px 17px; cursor: pointer; transition: opacity 0.15s; align-self: flex-end; }
-.action-btn:hover { opacity: 0.8; }
-.slug-row { display: flex; gap: 8px; align-self: flex-end; max-width: 88%; }
-.slug-input { font-family: var(--mono); font-size: 0.82rem; padding: 9px 12px; border: 1.5px solid var(--border); border-radius: var(--radius); outline: none; color: var(--text); background: var(--surface); min-width: 170px; transition: border-color 0.15s; }
-.slug-input:focus { border-color: var(--text); }
-.feedback-row { display: flex; flex-direction: column; gap: 8px; align-self: flex-end; max-width: 88%; width: 100%; }
-.reply-area { display: flex; gap: 8px; align-items: flex-end; }
-.reply-input { flex: 1; font-family: inherit; font-size: 0.85rem; padding: 9px 12px; border: 1.5px solid var(--border); border-radius: var(--radius); outline: none; color: var(--text); background: var(--surface); resize: none; line-height: 1.5; transition: border-color 0.15s; max-height: 110px; overflow-y: auto; }
-.reply-input:focus { border-color: var(--text); }
-.reply-input::placeholder { color: var(--subtle); }
-.reply-btn { font-family: inherit; font-size: 0.85rem; font-weight: 600; color: var(--text); background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 9px 14px; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
-.reply-btn:hover { border-color: var(--gray-400); }
+/* ── Bottom bar ── */
+.input-bar {
+  position:fixed; bottom:0; left:0; right:0; z-index:90;
+  background:var(--nav-bg); backdrop-filter:blur(12px);
+  border-top:1px solid var(--border); padding:10px 20px 14px;
+}
+.input-bar-inner { max-width:420px; margin:0 auto; display:flex; flex-direction:column; gap:5px; }
+.input-bar.wide .input-bar-inner { max-width:100%; padding:0 20px; }
+.input-row { display:flex; gap:8px; align-items:center; }
+
+.url-input { flex:1; font-family:inherit; font-size:0.88rem; color:var(--text); background:var(--surface); border:1.5px solid var(--border); border-radius:12px; padding:10px 15px; outline:none; transition:border-color 0.15s; }
+.url-input:focus { border-color:var(--orange); }
+.url-input::placeholder { color:var(--subtle); }
+
+.bar-btn { font-family:inherit; font-size:0.85rem; font-weight:700; color:var(--bg); background:var(--text); border:none; border-radius:10px; padding:10px 18px; cursor:pointer; white-space:nowrap; transition:all 0.2s; flex-shrink:0; }
+.bar-btn:hover { opacity:0.85; }
+.bar-btn:disabled { opacity:0.35; cursor:not-allowed; }
+.bar-btn.orange { background:var(--orange); color:#fff; }
+
+.input-hint { font-size:0.7rem; color:var(--subtle); text-align:center; }
+
+/* Step indicator */
+.step-pill {
+  display:inline-flex; align-items:center; gap:6px;
+  font-size:0.68rem; font-weight:600; color:var(--muted);
+  background:var(--gray-50); border:1px solid var(--border);
+  border-radius:99px; padding:3px 10px; align-self:center;
+}
+.step-dot { width:5px; height:5px; background:var(--orange); border-radius:50%; animation:pulse 1.5s ease-in-out infinite; }
 
 /* Success block */
-.success-block { align-self: flex-start; width: 100%; animation: fadeUp 0.3s ease; }
-.shipped-card { background: var(--surface); border: 1.5px solid var(--border); border-radius: 10px; padding: 16px 20px; margin-bottom: 8px; }
-.shipped-label { font-size: 0.63rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--orange); margin-bottom: 6px; }
-.shipped-name { font-size: 0.92rem; font-weight: 700; color: var(--text); margin-bottom: 4px; font-family: var(--mono); }
-.shipped-desc { font-size: 0.78rem; color: var(--muted); line-height: 1.6; margin-bottom: 10px; }
-.shipped-install { font-family: var(--mono); font-size: 0.7rem; color: var(--muted); background: var(--gray-100); padding: 4px 8px; border-radius: 4px; display: inline-block; }
-.shipped-actions { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 10px; }
-.shipped-btn { font-family: inherit; font-size: 0.76rem; font-weight: 600; padding: 7px 13px; border-radius: var(--radius); cursor: pointer; transition: opacity 0.15s; text-decoration: none; border: none; white-space: nowrap; }
-.shipped-btn.primary { background: var(--text); color: var(--bg); }
-.shipped-btn.secondary { background: var(--gray-100); color: var(--text); }
-.shipped-btn:hover { opacity: 0.8; }
-
-/* ── Fixed input bar ── */
-.input-bar {
-  position: fixed; bottom: 0; left: 0; right: 0; z-index: 90;
-  background: var(--nav-bg); backdrop-filter: blur(12px);
-  border-top: 1px solid var(--border); padding: 11px 20px 15px;
-}
-.input-bar-inner { max-width: 620px; margin: 0 auto; display: flex; flex-direction: column; gap: 6px; }
-.input-row { display: flex; gap: 8px; align-items: center; }
-.url-input { flex: 1; font-family: inherit; font-size: 0.88rem; color: var(--text); background: var(--surface); border: 1.5px solid var(--border); border-radius: 12px; padding: 10px 15px; outline: none; transition: border-color 0.15s; }
-.url-input:focus { border-color: var(--orange); }
-.url-input::placeholder { color: var(--subtle); }
-.url-submit { font-family: inherit; font-size: 0.85rem; font-weight: 600; color: var(--bg); background: var(--text); border: none; border-radius: 10px; padding: 10px 17px; cursor: pointer; white-space: nowrap; transition: opacity 0.15s; flex-shrink: 0; }
-.url-submit:hover { opacity: 0.8; }
-.url-submit:disabled { opacity: 0.35; cursor: not-allowed; }
-.input-hint { font-size: 0.7rem; color: var(--subtle); text-align: center; }
+.success-block { align-self:flex-start; width:100%; animation:fadeUp 0.3s ease; }
+.shipped-card { background:var(--surface); border:1.5px solid var(--border); border-radius:10px; padding:14px 18px; margin-bottom:8px; }
+.shipped-label { font-size:0.62rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--orange); margin-bottom:6px; }
+.shipped-name { font-size:0.88rem; font-weight:700; color:var(--text); margin-bottom:3px; font-family:var(--mono); }
+.shipped-desc { font-size:0.77rem; color:var(--muted); line-height:1.6; margin-bottom:10px; }
+.shipped-actions { display:flex; gap:7px; flex-wrap:wrap; }
+.shipped-btn { font-family:inherit; font-size:0.75rem; font-weight:600; padding:7px 13px; border-radius:var(--radius); cursor:pointer; transition:opacity 0.15s; text-decoration:none; border:none; white-space:nowrap; }
+.shipped-btn.primary { background:var(--text); color:var(--bg); }
+.shipped-btn.secondary { background:var(--gray-100); color:var(--text); }
+.shipped-btn:hover { opacity:0.8; }
 
 @keyframes fadeUp { from{opacity:0;transform:translateY(5px)} to{opacity:1;transform:none} }
 
-@media (max-width: 768px) {
-  .studio-panel { display: none !important; }
-  .chat-col.narrow { max-width: 100%; flex: 1; border-right: none; }
-  nav { padding: 0 14px; }
-  .nav-link { display: none; }
+@media (max-width:768px) {
+  .right-panel { display:none; }
+  .chat-col { width:100%; border-right:none; }
+  nav { padding:0 14px; }
+  .nav-link { display:none; }
 }
 </style>
 </head>
 <body>
 
 <nav>
-  <a class="nav-logo" href="#">
-    <span class="nav-wordmark">Grace</span>
-    <span class="nav-badge">by Cantina</span>
-  </a>
+  <a class="nav-logo" href="#"><span class="nav-wordmark">Grace</span><span class="nav-badge">by Cantina</span></a>
   <div class="nav-right">
     <span class="plugins-live" id="pluginsCounter" style="display:none">
-      <span class="plugins-live-dot"></span>
-      <span id="pluginsCount">0</span> plugins
+      <span class="plugins-live-dot"></span><span id="pluginsCount">0</span> plugins
     </span>
     <a class="nav-link" href="https://github.com/aidan269/grace" target="_blank">GitHub</a>
     <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">☀️</button>
@@ -403,6 +328,7 @@ nav {
 </nav>
 
 <div class="page">
+  <!-- Empty state -->
   <div class="empty-state" id="emptyState">
     <img class="grace-logo" src="/grace-avatar.png" alt="Grace" />
     <div class="empty-title">Hey, I'm Grace.</div>
@@ -415,63 +341,65 @@ nav {
     </div>
   </div>
 
+  <!-- Workspace -->
   <div class="workspace" id="workspace">
+    <!-- Chat -->
     <div class="chat-col" id="chatCol">
       <div class="chat-area" id="chatArea">
         <div class="chat-messages" id="chatMessages"></div>
       </div>
     </div>
 
-    <!-- Marketing studio panel -->
-    <div class="studio-panel" id="studioPanel">
-      <!-- Campaign header -->
-      <div class="studio-header">
-        <div class="studio-header-top">
-          <div class="studio-slug" id="studioSlug">plugin</div>
-          <span class="studio-status" id="studioStatus">DRAFT</span>
-        </div>
-        <div class="virality-row" id="viralityRow" style="display:none">
-          <span class="virality-label">Virality</span>
-          <div class="virality-track"><div class="virality-fill" id="viralityFill" style="width:0%"></div></div>
-          <span class="virality-score" id="viralityScore">—</span>
-        </div>
-        <div class="signal-chips" id="signalChips"></div>
-      </div>
+    <!-- Right panel -->
+    <div class="right-panel" id="rightPanel">
 
-      <!-- Tabs -->
-      <div class="studio-tabs">
-        <button class="studio-tab active" id="tabWrite" onclick="switchTab('write')">Write</button>
-        <button class="studio-tab" id="tabPreview" onclick="switchTab('preview')">Preview</button>
-        <button class="studio-tab" id="tabDistribute" onclick="switchTab('distribute')">Distribute</button>
-      </div>
-
-      <!-- Panes -->
-      <div class="studio-body">
-        <div class="studio-pane active" id="paneWrite">
-          <textarea class="plugin-editor" id="pluginEditor" spellcheck="false" placeholder="// streaming plugin..."></textarea>
+      <!-- Brief panel (steps 1–2) -->
+      <div class="brief-panel" id="briefPanel">
+        <div class="brief-header">
+          <div class="brief-title">Campaign Brief</div>
+          <div class="brief-step" id="briefStep"></div>
         </div>
-        <div class="studio-pane" id="panePreview">
-          <div class="plugin-preview" id="pluginPreview"></div>
-        </div>
-        <div class="studio-pane" id="paneDistribute">
-          <div class="dist-body" id="distBody"></div>
+        <div class="brief-body" id="briefBody">
+          <!-- URL card, virality signals, slug preview injected here -->
         </div>
       </div>
 
-      <!-- Footer -->
-      <div class="studio-footer">
-        <button class="studio-push-btn" id="studioPushBtn" disabled>Push to GitHub ↗</button>
-        <span class="studio-edit-note" id="studioEditNote">waiting for plugin…</span>
+      <!-- Studio panel (step 3) -->
+      <div class="studio-panel" id="studioPanel">
+        <div class="studio-header">
+          <div class="studio-header-top">
+            <div class="studio-slug"><span>/cantinasec:</span><span id="studioSlug">plugin</span></div>
+            <span class="studio-status" id="studioStatus">DRAFT</span>
+          </div>
+        </div>
+        <div class="studio-tabs">
+          <button class="studio-tab active" id="tabWrite" onclick="switchTab('write')">Write</button>
+          <button class="studio-tab" id="tabPreview" onclick="switchTab('preview')">Preview</button>
+          <button class="studio-tab" id="tabDistribute" onclick="switchTab('distribute')">Distribute</button>
+        </div>
+        <div class="studio-body">
+          <div class="studio-pane active" id="paneWrite">
+            <textarea class="plugin-editor" id="pluginEditor" spellcheck="false" placeholder="streaming plugin…"></textarea>
+          </div>
+          <div class="studio-pane" id="panePreview">
+            <div class="plugin-preview" id="pluginPreview"></div>
+          </div>
+          <div class="studio-pane" id="paneDistribute">
+            <div class="dist-body" id="distBody"></div>
+          </div>
+        </div>
       </div>
+
     </div>
   </div>
 </div>
 
-<div class="input-bar">
+<!-- Bottom input bar -->
+<div class="input-bar" id="inputBar">
   <div class="input-bar-inner">
     <div class="input-row">
-      <input class="url-input" id="urlInput" type="url" placeholder="Paste any article, CVE, tweet, or GitHub link..." autocomplete="off" />
-      <button class="url-submit" id="submitBtn" onclick="handleSubmit()">Run Grace</button>
+      <input class="url-input" id="urlInput" type="text" placeholder="Paste any article, CVE, tweet, or GitHub link…" autocomplete="off" />
+      <button class="bar-btn" id="mainBtn" onclick="handleMainBtn()">Run Grace</button>
     </div>
     <div class="input-hint" id="inputHint">Requires Claude Code · Free and open source</div>
   </div>
@@ -481,10 +409,11 @@ nav {
 let currentUrl = null;
 let confirmedSlug = null;
 let cachedContent = null;
-let viralityData = { score: 0, signals: [] };
-let pushResolve = null;
+let inputMode = 'url'; // 'url' | 'feedback' | 'slug' | 'push'
+let feedbackCallbacks = { onSend: null, onProceed: null };
+let viralityScore = 0;
 
-// ── Theme ────────────────────────────────────────────────────────
+// ── Theme ──
 function toggleTheme() {
   const dark = document.documentElement.getAttribute('data-theme') === 'dark';
   document.documentElement.setAttribute('data-theme', dark ? 'light' : 'dark');
@@ -492,144 +421,100 @@ function toggleTheme() {
   localStorage.setItem('grace-theme', dark ? 'light' : 'dark');
 }
 (function() {
-  const saved = localStorage.getItem('grace-theme') || 'light';
-  if (saved === 'dark') { document.documentElement.setAttribute('data-theme', 'dark'); document.getElementById('themeToggle').textContent = '🌙'; }
+  if (localStorage.getItem('grace-theme') === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    document.getElementById('themeToggle').textContent = '🌙';
+  }
 })();
 
-// ── Plugins counter ──────────────────────────────────────────────
+// ── Plugins counter ──
 (async () => {
   try {
-    const res = await fetch('https://api.github.com/users/aidan269/repos?type=public&per_page=100');
-    const repos = await res.json();
+    const r = await fetch('https://api.github.com/users/aidan269/repos?type=public&per_page=100');
+    const repos = await r.json();
     const n = repos.filter(r => /^cl[a-z]/.test(r.name)).length;
     if (n > 0) { document.getElementById('pluginsCount').textContent = n; document.getElementById('pluginsCounter').style.display = 'inline-flex'; }
   } catch {}
 })();
 
-// ── Chips ────────────────────────────────────────────────────────
 function fillInput(chip) {
+  const i = document.getElementById('urlInput');
+  i.value = chip.textContent.trim(); i.focus(); i.select();
+}
+
+// ── Bottom bar modes ──
+function setBarMode(mode, opts = {}) {
+  inputMode = mode;
   const input = document.getElementById('urlInput');
-  input.value = chip.textContent.trim();
-  input.focus(); input.select();
+  const btn = document.getElementById('mainBtn');
+  const hint = document.getElementById('inputHint');
+  const bar = document.getElementById('inputBar');
+
+  input.value = '';
+  btn.className = 'bar-btn';
+
+  if (mode === 'url') {
+    input.placeholder = 'Paste any article, CVE, tweet, or GitHub link…';
+    btn.textContent = 'Run Grace'; btn.disabled = false;
+    hint.textContent = 'Requires Claude Code · Free and open source';
+    bar.classList.remove('wide');
+    feedbackCallbacks = {};
+  } else if (mode === 'feedback') {
+    input.placeholder = opts.placeholder || 'Feedback, or leave blank to proceed…';
+    btn.textContent = opts.proceedLabel || 'Proceed →';
+    btn.classList.add('orange'); btn.disabled = false;
+    hint.textContent = opts.hint || 'Enter to send feedback · Click to proceed';
+    bar.classList.add('wide');
+    feedbackCallbacks = { onSend: opts.onSend, onProceed: opts.onProceed };
+  } else if (mode === 'push') {
+    input.placeholder = 'Any revisions before pushing?';
+    btn.textContent = 'Push to GitHub ↗';
+    btn.classList.add('orange'); btn.disabled = false;
+    hint.textContent = 'Enter to send revision · Click to push';
+    bar.classList.add('wide');
+    feedbackCallbacks = { onSend: opts.onSend, onProceed: opts.onProceed };
+  } else if (mode === 'disabled') {
+    input.placeholder = opts.placeholder || 'Grace is working…';
+    btn.textContent = opts.label || '…'; btn.disabled = true;
+    hint.textContent = ''; bar.classList.add('wide');
+  }
 }
 
-// ── Virality parser ──────────────────────────────────────────────
-function parseVirality(raw) {
-  const m = raw.match(/(\d)\s*\/\s*4/);
-  const score = m ? parseInt(m[1]) : 2;
-  const signals = [
-    { key: 'shock stat',   label: '🔥 Shock stat' },
-    { key: 'named actor',  label: '👤 Named actors' },
-    { key: 'self.check|self-check|run a command', label: '🔍 Self-check' },
-    { key: 'novel',        label: '✨ Novelty' },
-  ];
-  const strong = signals.map(s => {
-    const re = new RegExp(s.key, 'i');
-    const weakRe = /weak|no |rehash|vague|not/i;
-    const lines = raw.split('\n').filter(l => re.test(l));
-    const isOn = lines.length > 0 && !lines.every(l => weakRe.test(l));
-    return { label: s.label, on: isOn };
-  });
-  return { score, signals: strong };
+function handleMainBtn() {
+  if (inputMode === 'url') {
+    const url = document.getElementById('urlInput').value.trim();
+    if (url) runGrace(url);
+  } else {
+    // Empty input = proceed; text = feedback
+    const text = document.getElementById('urlInput').value.trim();
+    if (text && feedbackCallbacks.onSend) {
+      feedbackCallbacks.onSend(text);
+    } else if (feedbackCallbacks.onProceed) {
+      feedbackCallbacks.onProceed();
+    }
+  }
 }
 
-function setViralityUI(data) {
-  viralityData = data;
-  document.getElementById('viralityRow').style.display = 'flex';
-  document.getElementById('viralityFill').style.width = `${(data.score / 4) * 100}%`;
-  document.getElementById('viralityScore').textContent = `${data.score}/4`;
-  const chips = document.getElementById('signalChips');
-  chips.innerHTML = data.signals.map(s => `<span class="signal-chip ${s.on ? 'on' : ''}">${s.label}</span>`).join('');
-}
+document.getElementById('urlInput').addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return;
+  e.preventDefault();
+  if (inputMode === 'url') {
+    handleMainBtn();
+  } else {
+    const text = document.getElementById('urlInput').value.trim();
+    if (text && feedbackCallbacks.onSend) feedbackCallbacks.onSend(text);
+    else if (!text && feedbackCallbacks.onProceed) feedbackCallbacks.onProceed();
+  }
+});
 
-// ── Studio tabs ──────────────────────────────────────────────────
-function switchTab(tab) {
-  ['write','preview','distribute'].forEach(t => {
-    document.getElementById(`tab${t.charAt(0).toUpperCase()+t.slice(1)}`).classList.toggle('active', t === tab);
-    document.getElementById(`pane${t.charAt(0).toUpperCase()+t.slice(1)}`).classList.toggle('active', t === tab);
-  });
-  if (tab === 'preview') renderPreview();
-  if (tab === 'distribute') renderDistribute();
-}
-
-function renderPreview() {
-  const content = document.getElementById('pluginEditor').value;
-  const cleaned = content.replace(/\[PUSH_READY\]/g, '').trim();
-  document.getElementById('pluginPreview').innerHTML = marked.parse(cleaned);
-}
-
-function renderDistribute() {
-  const slug = confirmedSlug || 'plugin';
-  const installCmd = `/cantinasec:${slug}`;
-  const shareUrl = `${location.origin}/api/plugin?slug=${slug}`;
-  const content = document.getElementById('pluginEditor').value;
-  const overview = (content.match(/## Overview\n([\s\S]*?)(?=\n##)/)?.[1] || content.split('\n\n')[1] || '').trim().slice(0, 200);
-  const tweet = `new cantinasec plugin: /cantinasec:${slug}\n\n${overview}\n\nfree via claude code ↓\n${shareUrl}`;
-
-  document.getElementById('distBody').innerHTML = `
-    <div class="dist-section">
-      <div class="dist-label">Install command</div>
-      <div class="dist-card">
-        <span class="dist-code">${installCmd}</span>
-        <button class="dist-btn" onclick="copyText('${installCmd}', this)">Copy</button>
-      </div>
-    </div>
-    <div class="dist-section">
-      <div class="dist-label">Plugin page</div>
-      <div class="dist-card">
-        <span class="dist-code">${shareUrl}</span>
-        <a class="dist-btn secondary" href="${shareUrl}" target="_blank">Open ↗</a>
-      </div>
-    </div>
-    <div class="dist-section">
-      <div class="dist-label">Tweet draft</div>
-      <div class="dist-tweet-wrap">
-        <textarea class="dist-tweet" id="tweetDraft" oninput="updateCharCount(this)">${tweet}</textarea>
-        <div class="dist-char-count" id="charCount">${tweet.length} chars</div>
-        <button class="dist-copy-tweet" onclick="copyText(document.getElementById('tweetDraft').value, this)">Copy tweet ↗</button>
-      </div>
-    </div>`;
-}
-
-function updateCharCount(el) {
-  document.getElementById('charCount').textContent = `${el.value.length} chars`;
-}
-
-function copyText(text, btn) {
-  navigator.clipboard.writeText(text).then(() => {
-    const orig = btn.textContent;
-    btn.textContent = 'Copied!';
-    setTimeout(() => btn.textContent = orig, 1500);
-  });
-}
-
-// ── Open studio ──────────────────────────────────────────────────
-function openStudio(slug) {
-  document.getElementById('studioSlug').textContent = slug;
-  document.getElementById('studioStatus').textContent = 'DRAFT';
-  document.getElementById('studioStatus').className = 'studio-status';
-  document.getElementById('pluginEditor').value = '';
-  document.getElementById('pluginPreview').innerHTML = '';
-  document.getElementById('studioEditNote').textContent = 'streaming…';
-  document.getElementById('studioPushBtn').disabled = true;
-  switchTab('write');
-  document.getElementById('studioPanel').classList.add('visible');
-  document.getElementById('chatCol').classList.add('narrow');
-}
-
-function studioReady() {
-  document.getElementById('studioPushBtn').disabled = false;
-  document.getElementById('studioEditNote').textContent = 'editable — changes ship with push';
-}
-
-// ── Scroll helpers ───────────────────────────────────────────────
+// ── Scroll ──
 function maybeScrollToBottom() {
   const a = document.getElementById('chatArea');
   if (a.scrollHeight - a.scrollTop - a.clientHeight < 100) a.scrollTop = a.scrollHeight;
 }
 function scrollToBottom() { const a = document.getElementById('chatArea'); a.scrollTop = a.scrollHeight; }
 
-// ── Chat helpers ─────────────────────────────────────────────────
+// ── Chat helpers ──
 function getChat() { return document.getElementById('chatMessages'); }
 
 function makeBubble() {
@@ -656,54 +541,46 @@ function makeBubble() {
 }
 
 function makeUserBubble(text) {
-  const chat = getChat();
   const wrap = document.createElement('div');
   wrap.className = 'chat-bubble user';
-  wrap.innerHTML = `<div class="bubble-inner"><div class="bubble-label" style="text-align:right">You</div><div class="bubble-body"></div></div>`;
-  wrap.querySelector('.bubble-body').textContent = text;
-  chat.appendChild(wrap);
+  wrap.innerHTML = `<div class="bubble-inner"><div class="bubble-label" style="text-align:right">You</div><div class="bubble-body">${text}</div></div>`;
+  getChat().appendChild(wrap);
   scrollToBottom();
 }
 
-function addAction(el) { getChat().appendChild(el); scrollToBottom(); }
+function addStepPill(label) {
+  const el = document.createElement('div');
+  el.style.cssText = 'display:flex;justify-content:center;margin:4px 0;';
+  el.innerHTML = `<div class="step-pill"><span class="step-dot"></span>${label}</div>`;
+  getChat().appendChild(el);
+  scrollToBottom();
+}
 
-// ── Typing indicator ─────────────────────────────────────────────
+// ── Typing indicator ──
 let typingEl = null;
 function showTypingIndicator() {
   if (typingEl) return;
   typingEl = document.createElement('div');
   typingEl.className = 'typing-bubble';
   typingEl.innerHTML = `<img class="grace-avatar" src="/grace-avatar.png" alt="Grace" /><div class="typing-dots"><span></span><span></span><span></span></div>`;
-  getChat().appendChild(typingEl);
-  scrollToBottom();
+  getChat().appendChild(typingEl); scrollToBottom();
 }
 function hideTypingIndicator() { if (typingEl) { typingEl.remove(); typingEl = null; } }
 
-// ── sealBubble ───────────────────────────────────────────────────
+// ── sealBubble ──
 function sealBubble(body, rawText, { splitOnSections = false } = {}) {
-  body.querySelector?.('.stream-cursor')?.remove();
   const cur = body.querySelector('.stream-cursor'); if (cur) cur.remove();
   const cleaned = rawText.replace(/\[PUSH_READY\]/g, '').trim();
   body._rawText = cleaned;
-
   if (!splitOnSections) { body.innerHTML = marked.parse(cleaned); scrollToBottom(); return; }
-
   const parts = cleaned.split(/(?=^## )/m).filter(p => p.trim());
   body.innerHTML = marked.parse(parts[0] || cleaned);
   body._rawText = parts[0] || cleaned;
-
   const chat = getChat();
   for (let i = 1; i < parts.length; i++) {
-    const wrap = document.createElement('div');
-    wrap.className = 'chat-bubble grace';
+    const wrap = document.createElement('div'); wrap.className = 'chat-bubble grace';
     const pt = parts[i].trim();
-    wrap.innerHTML = `
-      <img class="grace-avatar" src="/grace-avatar.png" alt="Grace" />
-      <div class="bubble-inner">
-        <div class="bubble-label">Grace</div>
-        <div class="bubble-body"></div>
-        <div class="bubble-actions"><button class="bubble-action-btn copy-bubble-btn">Copy</button></div>
-      </div>`;
+    wrap.innerHTML = `<img class="grace-avatar" src="/grace-avatar.png" alt="Grace" /><div class="bubble-inner"><div class="bubble-label">Grace</div><div class="bubble-body"></div><div class="bubble-actions"><button class="bubble-action-btn copy-bubble-btn">Copy</button></div></div>`;
     const sb = wrap.querySelector('.bubble-body');
     sb.innerHTML = marked.parse(pt); sb._rawText = pt;
     wrap.querySelector('.copy-bubble-btn').addEventListener('click', function() {
@@ -714,43 +591,151 @@ function sealBubble(body, rawText, { splitOnSections = false } = {}) {
   scrollToBottom();
 }
 
-// ── URL Preview ───────────────────────────────────────────────────
-async function fetchPreview(url) {
-  try {
-    const r = await fetch('/api/preview', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({url}) });
-    return await r.json();
-  } catch { return null; }
+// ── Brief panel ──
+function openBrief() {
+  document.getElementById('briefPanel').classList.remove('hidden');
+  document.getElementById('studioPanel').classList.remove('visible');
 }
-function showPreviewCard(data) {
+
+function setBriefStep(text) { document.getElementById('briefStep').textContent = text; }
+
+function showURLCard(data) {
   if (!data?.title) return;
-  const card = document.createElement('div');
-  card.className = 'url-preview-card';
-  card.innerHTML = `
-    <img class="preview-favicon" src="${data.favicon||''}" alt="" />
-    <div class="preview-meta">
-      <div class="preview-domain">${data.domain||''}</div>
-      <div class="preview-title">${data.title||''}</div>
-    </div>
-    ${data.image ? `<img class="preview-og" src="${data.image}" alt="" onload="this.classList.add('loaded')" />` : ''}`;
-  getChat().appendChild(card); scrollToBottom();
+  const el = document.createElement('div');
+  el.innerHTML = `
+    <div class="brief-section-label">Source</div>
+    <div class="brief-url-card">
+      <img class="brief-favicon" src="${data.favicon||''}" alt="" />
+      <div class="brief-url-meta">
+        <div class="brief-url-domain">${data.domain||''}</div>
+        <div class="brief-url-title">${data.title||''}</div>
+      </div>
+      ${data.image ? `<img class="brief-og" src="${data.image}" alt="" onload="this.classList.add('loaded')" />` : ''}
+    </div>`;
+  document.getElementById('briefBody').appendChild(el);
 }
 
-// ── Content fetch ─────────────────────────────────────────────────
-async function fetchContent(url) {
-  try {
-    const r = await fetch('/api/content', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({url}) });
-    const { content } = await r.json(); return content;
-  } catch { return null; }
+const SIGNALS = [
+  { key: 'shock', icon: '🔥', name: 'Shock stat', re: /shock stat/i },
+  { key: 'actors', icon: '👤', name: 'Named actors', re: /named actor/i },
+  { key: 'selfcheck', icon: '🔍', name: 'Self-check', re: /self.check|run a command/i },
+  { key: 'novelty', icon: '✨', name: 'Novelty', re: /novel/i },
+];
+
+let signalGridEl = null;
+
+function showSignalGrid() {
+  const wrap = document.createElement('div');
+  wrap.innerHTML = `<div class="brief-section-label">Virality signals</div>`;
+  const grid = document.createElement('div');
+  grid.className = 'signals-grid'; grid.id = 'signalGrid';
+  SIGNALS.forEach(s => {
+    const card = document.createElement('div');
+    card.className = 'signal-card'; card.id = `signal-${s.key}`;
+    card.innerHTML = `<div class="signal-icon">${s.icon}</div><div class="signal-name">${s.name}</div><div class="signal-read" id="signal-read-${s.key}">—</div>`;
+    grid.appendChild(card);
+  });
+  wrap.appendChild(grid);
+
+  const barWrap = document.createElement('div');
+  barWrap.className = 'virality-bar-wrap'; barWrap.style.marginTop = '10px';
+  barWrap.innerHTML = `<div class="virality-bar-row"><div class="virality-bar-track"><div class="virality-bar-fill" id="viralityBarFill"></div></div><span class="virality-bar-score" id="viralityBarScore">—</span></div>`;
+  wrap.appendChild(barWrap);
+
+  document.getElementById('briefBody').appendChild(wrap);
+  signalGridEl = grid;
 }
 
-// ── streamStep ────────────────────────────────────────────────────
+function updateSignals(raw) {
+  const weakRe = /weak|no |vague|thin|rehash|not (strong|novel|specific)/i;
+  let score = 0;
+  SIGNALS.forEach(s => {
+    const card = document.getElementById(`signal-${s.key}`);
+    const readEl = document.getElementById(`signal-read-${s.key}`);
+    if (!card) return;
+    const lines = raw.split('\n').filter(l => s.re.test(l));
+    const isOn = lines.length > 0 && !lines.every(l => weakRe.test(l));
+    card.className = `signal-card ${isOn ? 'on' : 'off'}`;
+    if (readEl && lines[0]) readEl.textContent = lines[0].replace(/^[-*•\s]+/, '').slice(0, 60);
+    if (isOn) score++;
+  });
+  viralityScore = score;
+  const m = raw.match(/(\d)\s*\/\s*4/);
+  if (m) viralityScore = parseInt(m[1]);
+  const fill = document.getElementById('viralityBarFill');
+  const scoreEl = document.getElementById('viralityBarScore');
+  if (fill) fill.style.width = `${(viralityScore / 4) * 100}%`;
+  if (scoreEl) scoreEl.textContent = `${viralityScore}/4`;
+}
+
+function showSlugPreview(slug) {
+  const existing = document.getElementById('slugPreviewCard');
+  if (existing) existing.remove();
+  const el = document.createElement('div');
+  el.id = 'slugPreviewCard';
+  el.innerHTML = `
+    <div class="brief-section-label">Plugin slug</div>
+    <div class="slug-preview">
+      <div class="slug-preview-cmd"><span>/cantinasec:</span>${slug}</div>
+    </div>`;
+  document.getElementById('briefBody').appendChild(el);
+}
+
+// ── Studio ──
+function openStudio(slug) {
+  document.getElementById('briefPanel').classList.add('hidden');
+  document.getElementById('studioPanel').classList.add('visible');
+  document.getElementById('studioSlug').textContent = slug;
+  document.getElementById('studioStatus').textContent = 'DRAFT';
+  document.getElementById('studioStatus').className = 'studio-status';
+  document.getElementById('pluginEditor').value = '';
+  switchTab('write');
+}
+
+function switchTab(tab) {
+  ['write','preview','distribute'].forEach(t => {
+    const T = t.charAt(0).toUpperCase() + t.slice(1);
+    document.getElementById(`tab${T}`).classList.toggle('active', t === tab);
+    document.getElementById(`pane${T}`).classList.toggle('active', t === tab);
+  });
+  if (tab === 'preview') {
+    const content = document.getElementById('pluginEditor').value.replace(/\[PUSH_READY\]/g,'').trim();
+    document.getElementById('pluginPreview').innerHTML = marked.parse(content);
+  }
+  if (tab === 'distribute') renderDistribute();
+}
+
+function renderDistribute() {
+  const slug = confirmedSlug || 'plugin';
+  const cmd = `/cantinasec:${slug}`;
+  const url = `${location.origin}/api/plugin?slug=${slug}`;
+  const content = document.getElementById('pluginEditor').value;
+  const overview = (content.match(/## Overview\n([\s\S]*?)(?=\n##)/)?.[1] || '').trim().slice(0,180);
+  const tweet = `new cantinasec plugin: /cantinasec:${slug}\n\n${overview}\n\nfree via claude code ↓\n${url}`;
+  document.getElementById('distBody').innerHTML = `
+    <div><div class="dist-label">Install command</div>
+    <div class="dist-card"><span class="dist-code">${cmd}</span><button class="dist-btn" onclick="copyText('${cmd}',this)">Copy</button></div></div>
+    <div><div class="dist-label">Plugin page</div>
+    <div class="dist-card"><span class="dist-code">${url}</span><a class="dist-btn ghost" href="${url}" target="_blank">Open ↗</a></div></div>
+    <div><div class="dist-label">Tweet draft</div>
+    <textarea class="dist-tweet" id="tweetDraft" oninput="document.getElementById('tweetCharCount').textContent=this.value.length+' chars'">${tweet}</textarea>
+    <div class="dist-char-count" id="tweetCharCount">${tweet.length} chars</div>
+    <button class="dist-tweet-btn" onclick="copyText(document.getElementById('tweetDraft').value,this)">Copy tweet ↗</button></div>`;
+}
+
+function copyText(text, btn) {
+  navigator.clipboard.writeText(text).then(() => {
+    const orig = btn.textContent; btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = orig, 1500);
+  });
+}
+
+// ── streamStep ──
 async function streamStep(step, extraBody = {}, opts = {}) {
   const { streamToStudio = false, ...sealOpts } = opts;
   const body = makeBubble();
   const cursor = document.createElement('span');
-  cursor.className = 'stream-cursor';
-  body.appendChild(cursor);
-
+  cursor.className = 'stream-cursor'; body.appendChild(cursor);
   let raw = '', buf = '';
 
   const res = await fetch('/api/grace', {
@@ -758,13 +743,10 @@ async function streamStep(step, extraBody = {}, opts = {}) {
     body: JSON.stringify({ url: currentUrl, step, content: cachedContent, ...extraBody })
   });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-  const reader = res.body.getReader();
-  const dec = new TextDecoder();
+  const reader = res.body.getReader(); const dec = new TextDecoder();
 
   while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
+    const { done, value } = await reader.read(); if (done) break;
     for (const line of dec.decode(value, { stream:true }).split('\n')) {
       if (!line.startsWith('data: ')) continue;
       try {
@@ -778,50 +760,61 @@ async function streamStep(step, extraBody = {}, opts = {}) {
       } catch {}
     }
   }
-
   sealBubble(body, raw, sealOpts);
   return raw;
 }
 
-// ── waitForFeedback ───────────────────────────────────────────────
-async function waitForFeedback(step, initialRaw, proceedLabel, proceedText) {
-  let currentRaw = initialRaw;
-  while (true) {
-    const result = await new Promise(resolve => {
-      const c = document.createElement('div');
-      c.className = 'feedback-row';
-      c.innerHTML = `<div class="reply-area"><textarea class="reply-input" placeholder="Anything to change?" rows="1"></textarea><button class="reply-btn">Send</button></div><button class="action-btn proceed-btn">${proceedLabel}</button>`;
-      addAction(c);
-      const ta = c.querySelector('.reply-input');
-      ta.addEventListener('input', () => { ta.style.height='auto'; ta.style.height=ta.scrollHeight+'px'; });
-      ta.addEventListener('keydown', e => { if (e.key==='Enter'&&!e.shiftKey) { e.preventDefault(); c.querySelector('.reply-btn').click(); } });
-      c.querySelector('.reply-btn').addEventListener('click', () => { const t=ta.value.trim(); if(!t)return; c.remove(); resolve({type:'feedback',text:t}); });
-      c.querySelector('.proceed-btn').addEventListener('click', () => { c.remove(); resolve({type:'proceed'}); });
+// ── Feedback promise via bottom bar ──
+function waitForBottomBar(opts) {
+  return new Promise(resolve => {
+    setBarMode('feedback', {
+      placeholder: opts.placeholder,
+      proceedLabel: opts.proceedLabel,
+      hint: opts.hint,
+      onSend: text => {
+        document.getElementById('urlInput').value = '';
+        makeUserBubble(text);
+        resolve({ type: 'feedback', text });
+      },
+      onProceed: () => {
+        makeUserBubble(opts.proceedText || 'Proceed');
+        resolve({ type: 'proceed' });
+      }
     });
-    if (result.type === 'proceed') { makeUserBubble(proceedText); return currentRaw; }
-    makeUserBubble(result.text);
-    currentRaw = await streamStep('feedback', { feedback:result.text, previousOutput:currentRaw, originalStep:step });
-  }
+    document.getElementById('urlInput').focus();
+  });
 }
 
-// ── showSuccessBlock ──────────────────────────────────────────────
+// ── URL Preview ──
+async function fetchPreview(url) {
+  try {
+    const r = await fetch('/api/preview', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({url}) });
+    return r.json();
+  } catch { return null; }
+}
+async function fetchContent(url) {
+  try {
+    const r = await fetch('/api/content', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({url}) });
+    const { content } = await r.json(); return content;
+  } catch { return null; }
+}
+
+// ── showSuccessBlock ──
 function showSuccessBlock(slug, overview) {
   document.getElementById('studioStatus').textContent = 'LIVE';
   document.getElementById('studioStatus').classList.add('live');
-  document.getElementById('studioEditNote').textContent = 'shipped ↗';
-
-  const installCmd = `/cantinasec:${slug}`;
+  const cmd = `/cantinasec:${slug}`;
   const shareUrl = `${location.origin}/api/plugin?slug=${slug}`;
   const block = document.createElement('div');
   block.className = 'success-block';
   block.innerHTML = `
     <div class="shipped-card">
       <div class="shipped-label">Shipped</div>
-      <div class="shipped-name">/cantinasec:${slug}</div>
+      <div class="shipped-name">${cmd}</div>
       <div class="shipped-desc">${overview}</div>
     </div>
     <div class="shipped-actions">
-      <button class="shipped-btn primary" onclick="copyText('${installCmd}', this)">Copy install command</button>
+      <button class="shipped-btn primary" onclick="copyText('${cmd}',this)">Copy install command</button>
       <a class="shipped-btn secondary" href="https://github.com/aidan269/${slug}" target="_blank">GitHub →</a>
       <a class="shipped-btn secondary" href="${shareUrl}" target="_blank">Plugin page →</a>
     </div>`;
@@ -829,132 +822,71 @@ function showSuccessBlock(slug, overview) {
   renderDistribute();
 }
 
-// ── handleSubmit / runGrace ───────────────────────────────────────
-function handleSubmit() {
-  const url = document.getElementById('urlInput').value.trim();
-  if (url) runGrace(url);
-}
-document.getElementById('urlInput').addEventListener('keydown', e => { if (e.key==='Enter') { e.preventDefault(); handleSubmit(); } });
-
+// ── runGrace ──
 async function runGrace(url) {
   currentUrl = url; confirmedSlug = null;
-  const submitBtn = document.getElementById('submitBtn');
-  const urlInput = document.getElementById('urlInput');
 
   document.getElementById('emptyState').classList.add('hidden');
   document.getElementById('workspace').classList.add('visible');
-  document.getElementById('chatArea').classList.add('visible');
   document.getElementById('chatMessages').innerHTML = '';
-  document.getElementById('studioPanel').classList.remove('visible');
-  document.getElementById('chatCol').classList.remove('narrow');
+  openBrief();
 
-  submitBtn.disabled = true; submitBtn.textContent = 'Fetching…';
-  urlInput.value = '';
-  document.getElementById('inputHint').textContent = 'Grace is working…';
-
+  setBarMode('disabled', { placeholder: 'Fetching content…', label: '…' });
   makeUserBubble(url);
+
+  // Parallel: preview + content
   showTypingIndicator();
   const [preview, content] = await Promise.all([fetchPreview(url), fetchContent(url)]);
   hideTypingIndicator();
   cachedContent = content;
-  showPreviewCard(preview);
+  showURLCard(preview);
+  showSignalGrid();
+  setBriefStep('Reading source…');
 
-  submitBtn.textContent = 'Running…';
+  // Step 1: Assess (virality + slug in one short response)
+  showTypingIndicator();
+  setBarMode('disabled', { placeholder: 'Grace is reading…', label: '…' });
+  let assessRaw = await streamStep('assess');
+  updateSignals(assessRaw);
 
-  try {
-    // Step 1: Virality
-    showTypingIndicator();
-    const viralityRaw = await streamStep('virality');
-    setViralityUI(parseVirality(viralityRaw));
-    await waitForFeedback('virality', viralityRaw, "Yeah, let's go →", "Yeah, let's go");
+  const extractSlug = r => { const m = r.match(/`([a-z][a-z0-9-]{2,})`/); return m ? m[1] : null; };
+  confirmedSlug = extractSlug(assessRaw) || 'cl-plugin';
+  showSlugPreview(confirmedSlug);
+  setBriefStep('Writing plugin…');
 
-    // Step 2: Slug
-    showTypingIndicator();
-    let slugRaw = await streamStep('slug');
-    const extractSlug = r => { const m = r.match(/`([a-z][a-z0-9-]{2,})`/); return m?m[1]:null; };
-    let suggested = extractSlug(slugRaw) || 'cl-plugin';
+  // Step 2: Plugin — open studio immediately and stream into the editor
+  openStudio(confirmedSlug);
+  showTypingIndicator();
+  setBarMode('disabled', { placeholder: 'Writing plugin…', label: '…' });
+  let pluginRaw = await streamStep('plugin', { slug: confirmedSlug }, { splitOnSections: true, streamToStudio: true });
 
-    while (true) {
-      const result = await new Promise(resolve => {
-        const c = document.createElement('div');
-        c.className = 'feedback-row';
-        c.innerHTML = `
-          <div class="reply-area"><textarea class="reply-input" placeholder="Want a different name?" rows="1"></textarea><button class="reply-btn">Send</button></div>
-          <div class="slug-row"><input class="slug-input" id="slugInput" value="${suggested}" spellcheck="false" /><button class="action-btn" id="useSlugBtn">Write it up →</button></div>`;
-        addAction(c);
-        const ta = c.querySelector('.reply-input');
-        ta.addEventListener('input', () => { ta.style.height='auto'; ta.style.height=ta.scrollHeight+'px'; });
-        ta.addEventListener('keydown', e => { if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();c.querySelector('.reply-btn').click();} });
-        c.querySelector('.reply-btn').addEventListener('click', () => { const t=ta.value.trim(); if(!t)return; c.remove(); resolve({type:'feedback',text:t}); });
-        c.querySelector('#useSlugBtn').addEventListener('click', () => { const v=document.getElementById('slugInput').value.trim()||suggested; c.remove(); resolve({type:'proceed',slug:v}); });
-      });
-      if (result.type === 'proceed') { confirmedSlug = result.slug; makeUserBubble(`${confirmedSlug} — write it up`); break; }
-      makeUserBubble(result.text);
-      slugRaw = await streamStep('feedback', { feedback:result.text, previousOutput:slugRaw, originalStep:'slug' });
-      suggested = extractSlug(slugRaw) || suggested;
-    }
-
-    // Step 3: Plugin — open studio, stream into editor
-    openStudio(confirmedSlug);
-    showTypingIndicator();
-    let pluginRaw = await streamStep('plugin', { slug: confirmedSlug }, { splitOnSections: true, streamToStudio: true });
-    studioReady();
-
-    // Wire up push button
-    await new Promise(resolve => {
-      pushResolve = resolve;
-      function attachPush() {
-        const btn = document.getElementById('studioPushBtn');
-        btn.onclick = async () => {
-          const finalContent = document.getElementById('pluginEditor').value || pluginRaw;
-          btn.disabled = true; btn.textContent = 'Pushing…';
-          try {
-            const r = await fetch('/api/push', {
-              method:'POST', headers:{'Content-Type':'application/json'},
-              body: JSON.stringify({ slug: confirmedSlug, content: finalContent })
-            });
-            await r.json();
-            const overview = (finalContent.match(/## Overview\n([\s\S]*?)(?=\n##)/)?.[1] || finalContent.split('\n\n')[1] || '').trim().slice(0,200);
-            showSuccessBlock(confirmedSlug, overview);
-            resolve();
-          } catch { btn.disabled=false; btn.textContent='Push to GitHub ↗'; }
-        };
-      }
-
-      // Also show feedback row in chat
-      function showFeedbackRow() {
-        const c = document.createElement('div');
-        c.className = 'feedback-row';
-        c.innerHTML = `<div class="reply-area"><textarea class="reply-input" placeholder="Any revisions before we push?" rows="1"></textarea><button class="reply-btn">Send</button></div>`;
-        addAction(c);
-        const ta = c.querySelector('.reply-input');
-        ta.addEventListener('input', () => { ta.style.height='auto'; ta.style.height=ta.scrollHeight+'px'; });
-        ta.addEventListener('keydown', e => { if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();c.querySelector('.reply-btn').click();} });
-        c.querySelector('.reply-btn').addEventListener('click', async () => {
-          const text = ta.value.trim(); if(!text)return;
-          c.remove(); makeUserBubble(text);
-          document.getElementById('pluginEditor').value = '';
-          document.getElementById('studioPushBtn').disabled = true;
-          document.getElementById('studioEditNote').textContent = 'revising…';
-          showTypingIndicator();
-          pluginRaw = await streamStep('feedback', { feedback:text, previousOutput:pluginRaw, originalStep:'plugin' }, { splitOnSections:true, streamToStudio:true });
-          studioReady(); showFeedbackRow(); attachPush();
-        });
-      }
-
-      attachPush();
-      showFeedbackRow();
+  // Push loop — only feedback at this stage
+  while (true) {
+    const r = await waitForBottomBar({
+      placeholder: 'Request changes, or click to push…',
+      proceedLabel: 'Push to GitHub ↗',
+      proceedText: 'Push it',
+      hint: 'Enter to revise · Click to ship'
     });
-
-  } catch (err) {
-    console.error(err);
-    const b = makeBubble();
-    b.textContent = 'Something went wrong. Try again.';
+    if (r.type === 'proceed') {
+      setBarMode('disabled', { placeholder: 'Pushing…', label: '…' });
+      try {
+        const finalContent = document.getElementById('pluginEditor').value || pluginRaw;
+        await fetch('/api/push', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ slug: confirmedSlug, content: finalContent }) });
+        const overview = (finalContent.match(/## Overview\n([\s\S]*?)(?=\n##)/)?.[1] || '').trim().slice(0,200);
+        showSuccessBlock(confirmedSlug, overview);
+        setBarMode('url');
+      } catch {
+        setBarMode('feedback', { placeholder: 'Push failed — try again?', proceedLabel: 'Retry ↗' });
+      }
+      break;
+    }
+    // Revision
+    setBarMode('disabled', { placeholder: 'Revising…', label: '…' });
+    document.getElementById('pluginEditor').value = '';
+    showTypingIndicator();
+    pluginRaw = await streamStep('feedback', { feedback:r.text, previousOutput:pluginRaw, originalStep:'plugin' }, { splitOnSections:true, streamToStudio:true });
   }
-
-  submitBtn.disabled = false; submitBtn.textContent = 'Run Grace';
-  urlInput.placeholder = 'Paste another URL to start over…';
-  document.getElementById('inputHint').textContent = '';
 }
 </script>
 </body>
