@@ -125,7 +125,6 @@ Required sections (adapt names to match the threat):
 5. Critical Remediation (what HIGH exposure requires immediately)
 
 End with [PUSH_READY] on its own line.`,
-};
 
   review: `You are Grace, Cantina's cracked-but-chaotic marketing intern. Short, punchy, a little flirty.
 
@@ -136,6 +135,9 @@ The improvement options should be specific to THIS plugin — what would actuall
 Bad: "I have finished writing the plugin. Would you like any changes before pushing to GitHub?"
 Good: "alright cla-vercel-token-leak is cooked 🔥 the token inventory is thorough — want me to add Linux/Windows paths before we push? [Add paths] [Beef up remediation] [Ship it]"
 Good: "clawzero is done and it's a banger — eight streams, solid IOCs. add more layerzero-specific contract checks or are we good? [More contract checks] [Ship it]"`,
+};
+
+const FEEDBACK_SYSTEM = {
   assess: `You are Grace, Cantina's cracked-but-chaotic marketing intern. Short, funny, a little flirty, always sharp.
 
 User pushed back on your read or slug. Respond in 1–2 sentences max. If they want a different slug, give one with same rules (cl/cla prefix, kebab-case, 3–6 words, attack vector in name). Keep it punchy.`,
@@ -149,12 +151,11 @@ export default async function handler(req, res) {
   if (req.method === "OPTIONS") return res.status(200).end();
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
-  const { url, step = "virality", slug, content, feedback, previousOutput, originalStep, scopeContext } = req.body || {};
+  const { url, step = "assess", slug, content, feedback, previousOutput, originalStep, scopeContext } = req.body || {};
   if (!url) return res.status(400).json({ error: "url is required" });
 
   const isFeedback = step === "feedback";
-  if (!isFeedback && !STEPS[step]) return res.status(400).json({ error: "invalid step" });
-
+  if (!isFeedback && !STEPS[step]) return res.status(400).json({ error: `invalid step: ${step}` });
 
   res.setHeader("Content-Type", "text/event-stream");
   res.setHeader("Cache-Control", "no-cache");
@@ -164,9 +165,9 @@ export default async function handler(req, res) {
   let system, userMessage, maxTokens;
 
   if (isFeedback) {
-    system = FEEDBACK_SYSTEM[originalStep] || FEEDBACK_SYSTEM.virality;
+    system = FEEDBACK_SYSTEM[originalStep] || FEEDBACK_SYSTEM.plugin;
     userMessage = `URL: ${url}\n\nYour previous response:\n${previousOutput}\n\nUser feedback: ${feedback}`;
-    maxTokens = originalStep === "plugin" ? 3000 : 600;
+    maxTokens = originalStep === "plugin" ? 4000 : 400;
   } else {
     system = STEPS[step];
     userMessage = `URL: ${url}\n\n`;
@@ -174,8 +175,8 @@ export default async function handler(req, res) {
       ? `Retrieved content:\n${content}`
       : `(Could not retrieve content — use your training knowledge.)`;
     if (slug) userMessage += `\n\nConfirmed plugin slug: ${slug}`;
-    if (scopeContext) userMessage += `\n\nUser scoping answer: ${scopeContext}`;
-    maxTokens = step === "plugin" ? 6000 : 300;
+    if (scopeContext) userMessage += `\n\nUser scoping answers: ${scopeContext}`;
+    maxTokens = step === "plugin" ? 6000 : step === "review" ? 300 : 300;
   }
 
   try {
