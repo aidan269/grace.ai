@@ -446,11 +446,45 @@ nav {
 /* streaming tab underline pulse */
 .studio-tab.streaming { animation: tab-glow 1.5s ease-in-out infinite; }
 
+/* ── History drawer ── */
+.history-overlay { position:fixed; inset:0; z-index:200; background:rgba(0,0,0,0.25); opacity:0; pointer-events:none; transition:opacity 0.25s; }
+.history-overlay.open { opacity:1; pointer-events:all; }
+.history-drawer {
+  position:fixed; top:0; right:0; bottom:0; z-index:201;
+  width:360px; background:var(--surface); border-left:1px solid var(--border);
+  display:flex; flex-direction:column;
+  transform:translateX(100%); transition:transform 0.3s cubic-bezier(0.4,0,0.2,1);
+  box-shadow:-8px 0 32px rgba(0,0,0,0.1);
+}
+.history-drawer.open { transform:translateX(0); }
+.history-header { display:flex; align-items:center; justify-content:space-between; padding:16px 20px; border-bottom:1px solid var(--border); flex-shrink:0; }
+.history-title { font-size:0.88rem; font-weight:700; color:var(--text); }
+.history-close { background:none; border:none; font-size:1.1rem; color:var(--subtle); cursor:pointer; padding:4px; border-radius:5px; transition:background 0.15s; line-height:1; }
+.history-close:hover { background:var(--gray-100); color:var(--text); }
+.history-list { flex:1; overflow-y:auto; padding:12px; display:flex; flex-direction:column; gap:8px; }
+.history-empty { flex:1; display:flex; align-items:center; justify-content:center; font-size:0.82rem; color:var(--subtle); text-align:center; padding:40px 20px; line-height:1.6; }
+.history-item { background:var(--gray-50); border:1px solid var(--border); border-radius:10px; padding:14px 16px; transition:border-color 0.15s; }
+.history-item:hover { border-color:var(--gray-400); }
+.history-item-slug { font-family:var(--mono); font-size:0.78rem; font-weight:600; color:var(--text); margin-bottom:4px; }
+.history-item-slug .prefix { color:var(--orange); opacity:0.75; }
+.history-item-meta { font-size:0.7rem; color:var(--subtle); margin-bottom:8px; }
+.history-item-overview { font-size:0.75rem; color:var(--muted); line-height:1.5; margin-bottom:10px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+.history-item-actions { display:flex; gap:6px; }
+.history-action { font-family:inherit; font-size:0.7rem; font-weight:600; padding:5px 10px; border-radius:6px; border:none; cursor:pointer; transition:opacity 0.15s; text-decoration:none; white-space:nowrap; }
+.history-action.primary { background:var(--text); color:var(--bg); }
+.history-action.secondary { background:var(--gray-100); color:var(--muted); border:1px solid var(--border); }
+.history-action:hover { opacity:0.8; }
+.history-btn { font-family:inherit; font-size:0.78rem; font-weight:500; color:var(--muted); background:none; border:1px solid var(--border); border-radius:7px; padding:5px 11px; cursor:pointer; transition:all 0.15s; position:relative; }
+.history-btn:hover { background:var(--gray-100); color:var(--text); }
+.history-btn-dot { position:absolute; top:4px; right:4px; width:6px; height:6px; background:var(--orange); border-radius:50%; display:none; }
+.history-btn-dot.visible { display:block; }
+
 @media (max-width:768px) {
   .right-panel { display:none; }
   .chat-col { width:100%; border-right:none; }
   nav { padding:0 14px; }
   .nav-link { display:none; }
+  .history-drawer { width:100%; }
 }
 </style>
 </head>
@@ -462,10 +496,21 @@ nav {
     <span class="plugins-live" id="pluginsCounter" style="display:none">
       <span class="plugins-live-dot"></span><span id="pluginsCount">0</span> plugins
     </span>
+    <button class="history-btn" onclick="openHistory()">History<span class="history-btn-dot" id="historyDot"></span></button>
     <a class="nav-link" href="https://github.com/aidan269/grace" target="_blank">GitHub</a>
     <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">☀️</button>
   </div>
 </nav>
+
+<!-- History drawer -->
+<div class="history-overlay" id="historyOverlay" onclick="closeHistory()"></div>
+<div class="history-drawer" id="historyDrawer">
+  <div class="history-header">
+    <span class="history-title">Past plugins</span>
+    <button class="history-close" onclick="closeHistory()">✕</button>
+  </div>
+  <div class="history-list" id="historyList"></div>
+</div>
 
 <div class="page">
   <!-- Empty state — two-column split -->
@@ -612,6 +657,7 @@ function handleLandingSubmit() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  if (loadHistory().length) document.getElementById('historyDot').classList.add('visible');
   const li = document.getElementById('landingInput');
   const lb = document.getElementById('landingBtn');
   if (li) {
@@ -926,6 +972,53 @@ function renderDistribute() {
     <button class="dist-tweet-btn" onclick="copyText(document.getElementById('tweetDraft').value,this)">Copy tweet ↗</button></div>`;
 }
 
+// ── History (localStorage) ──
+const HISTORY_KEY = 'grace_history';
+
+function loadHistory() {
+  try { return JSON.parse(localStorage.getItem(HISTORY_KEY)) || []; } catch { return []; }
+}
+
+function saveToHistory(entry) {
+  const list = loadHistory().filter(e => e.slug !== entry.slug); // dedupe
+  list.unshift(entry);
+  localStorage.setItem(HISTORY_KEY, JSON.stringify(list.slice(0, 30)));
+  document.getElementById('historyDot').classList.add('visible');
+}
+
+function renderHistory() {
+  const list = loadHistory();
+  const el = document.getElementById('historyList');
+  if (!list.length) {
+    el.innerHTML = '<div class="history-empty">No plugins yet.<br>Generate your first one and it\'ll appear here.</div>';
+    return;
+  }
+  el.innerHTML = list.map(e => {
+    const date = new Date(e.date).toLocaleDateString('en-US', { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
+    const domain = (() => { try { return new URL(e.url).hostname.replace('www.',''); } catch { return e.url || ''; } })();
+    return `<div class="history-item">
+      <div class="history-item-slug"><span class="prefix">/cantinasec:</span>${e.slug}</div>
+      <div class="history-item-meta">${date}${domain ? ' · ' + domain : ''}</div>
+      ${e.overview ? `<div class="history-item-overview">${e.overview}</div>` : ''}
+      <div class="history-item-actions">
+        <a class="history-action primary" href="${e.draftUrl}" target="_blank">Plugin page →</a>
+        <button class="history-action secondary" onclick="navigator.clipboard.writeText('/cantinasec:${e.slug}').then(()=>{this.textContent='Copied!';setTimeout(()=>this.textContent='Copy cmd',1200)})">Copy cmd</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openHistory() {
+  renderHistory();
+  document.getElementById('historyOverlay').classList.add('open');
+  document.getElementById('historyDrawer').classList.add('open');
+}
+
+function closeHistory() {
+  document.getElementById('historyOverlay').classList.remove('open');
+  document.getElementById('historyDrawer').classList.remove('open');
+}
+
 function copyText(text, btn) {
   navigator.clipboard.writeText(text).then(() => {
     const orig = btn.textContent; btn.textContent = 'Copied!';
@@ -1068,6 +1161,7 @@ function showSuccessBlock(slug, overview) {
   const content = document.getElementById('pluginEditor').value || '';
   const draft = btoa(unescape(encodeURIComponent(content)));
   const shareUrl = `${location.origin}/api/plugin?slug=${slug}&draft=${draft}`;
+  saveToHistory({ slug, url: currentUrl, date: new Date().toISOString(), overview, draftUrl: shareUrl });
   const block = document.createElement('div');
   block.className = 'success-block';
   block.innerHTML = `
