@@ -76,34 +76,62 @@ nav {
 .empty-state {
   flex: 1; display: flex; flex-direction: column;
   align-items: center; justify-content: center;
-  padding: 0 24px 100px; text-align: center;
-  transition: opacity 0.3s ease;
+  padding: 0 24px 60px; text-align: center;
+  transition: opacity 0.35s ease;
 }
 .empty-state.hidden { display: none; }
 .empty-state.fading { opacity: 0; pointer-events: none; }
-.grace-logo { width: 96px; height: 96px; border-radius: 50%; object-fit: cover; margin-bottom: 20px; image-rendering: -webkit-optimize-contrast; transition: transform 0.4s ease, opacity 0.4s ease; }
-.empty-state.loading .grace-logo { opacity: 0.7; }
-.empty-title { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.025em; margin-bottom: 8px; transition: all 0.3s ease; }
-.empty-state.scoping .empty-title { font-size: 1.1rem; font-family: var(--mono); color: var(--orange); }
-.empty-sub { font-size: 0.88rem; color: var(--muted); max-width: 360px; line-height: 1.65; margin-bottom: 20px; transition: all 0.3s ease; }
-.example-chips { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; max-width: 480px; transition: opacity 0.2s ease; }
-.chip { font-size: 0.76rem; color: var(--muted); background: var(--gray-50); border: 1px solid var(--border); border-radius: 99px; padding: 6px 14px; cursor: pointer; transition: all 0.15s; }
-.chip:hover { border-color: var(--gray-400); color: var(--text); }
+.grace-logo { width: 88px; height: 88px; border-radius: 50%; object-fit: cover; margin-bottom: 22px; image-rendering: -webkit-optimize-contrast; transition: opacity 0.4s ease; }
+.empty-state.loading .grace-logo { opacity: 0.55; }
+.empty-title { font-size: 1.65rem; font-weight: 700; letter-spacing: -0.03em; margin-bottom: 8px; transition: all 0.35s ease; }
+.empty-state.scoping .empty-title { font-size: 1.05rem; font-family: var(--mono); color: var(--orange); letter-spacing: 0; }
+.empty-sub { font-size: 0.875rem; color: var(--muted); max-width: 340px; line-height: 1.7; margin-bottom: 28px; min-height: 2.8em; transition: color 0.3s ease; }
 
-/* Scoping area (appears on landing after assess) */
-.scoping-area { display:none; flex-direction:column; align-items:center; gap:14px; margin-top:6px; animation:fadeUp 0.35s ease; }
-.scoping-q { font-size:0.9rem; color:var(--muted); font-weight:500; }
-.scoping-chips { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; }
-.scoping-chip { font-family:inherit; font-size:0.8rem; font-weight:500; color:var(--muted); background:var(--surface); border:1.5px solid var(--border); border-radius:20px; padding:7px 18px; cursor:pointer; transition:all 0.15s; }
-.scoping-chip:hover { border-color:var(--orange); color:var(--orange); background:rgba(250,94,6,0.04); }
+/* Landing URL input (lives in the page, not fixed bar) */
+.landing-input-wrap { width: 100%; max-width: 460px; display: flex; gap: 8px; margin-bottom: 16px; }
+.landing-input { flex: 1; font-family: inherit; font-size: 0.9rem; color: var(--text); background: var(--surface); border: 1.5px solid var(--border); border-radius: 12px; padding: 12px 16px; outline: none; transition: border-color 0.15s, box-shadow 0.15s; }
+.landing-input:focus { border-color: var(--orange); box-shadow: 0 0 0 3px rgba(250,94,6,0.12); }
+.landing-input::placeholder { color: var(--subtle); }
+.landing-btn { font-family: inherit; font-size: 0.88rem; font-weight: 700; color: #fff; background: var(--text); border: none; border-radius: 12px; padding: 12px 22px; cursor: pointer; white-space: nowrap; transition: opacity 0.15s, transform 0.1s; flex-shrink: 0; }
+.landing-btn:hover { opacity: 0.85; }
+.landing-btn:active { transform: scale(0.97); }
+.landing-btn:disabled { opacity: 0.35; cursor: not-allowed; }
 
-/* Loading pulse on subtitle */
-.empty-state.loading .empty-sub { animation: pulse 1.6s ease-in-out infinite; }
+/* Example chips below input */
+.example-chips { display: flex; flex-wrap: wrap; gap: 7px; justify-content: center; max-width: 460px; transition: opacity 0.25s ease, transform 0.25s ease; }
+.chip { font-size: 0.73rem; color: var(--subtle); background: transparent; border: 1px solid var(--border); border-radius: 99px; padding: 5px 13px; cursor: pointer; transition: all 0.15s; }
+.chip:hover { border-color: var(--gray-400); color: var(--muted); background: var(--gray-50); }
+
+/* Scoping state — replaces input with question + choices */
+.scoping-area { display:none; flex-direction:column; align-items:center; gap:20px; width:100%; max-width:460px; animation:fadeUp 0.35s ease; }
+.scoping-q { font-size:0.92rem; color:var(--muted); font-weight:500; text-align:center; }
+.scoping-chips { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; }
+.scoping-chip {
+  font-family:inherit; font-size:0.88rem; font-weight:600;
+  color:var(--text); background:var(--surface);
+  border:1.5px solid var(--border); border-radius:10px;
+  padding:11px 24px; cursor:pointer;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.07);
+  transition: border-color 0.15s, background 0.15s, color 0.15s, transform 0.1s, box-shadow 0.15s;
+  min-width: 80px;
+}
+.scoping-chip:hover { border-color:var(--orange); color:var(--orange); background:rgba(250,94,6,0.04); box-shadow:0 2px 8px rgba(250,94,6,0.12); }
+.scoping-chip:active { transform:scale(0.96); }
+
+.scoping-alt { font-size:0.72rem; color:var(--subtle); }
+
+/* Loading dots on subtitle */
+.loading-dots::after { content:''; animation: loadingDots 1.4s steps(4,end) infinite; }
+@keyframes loadingDots { 0%{content:''} 25%{content:'.'} 50%{content:'..'} 75%{content:'...'} }
 
 /* ── Workspace ── */
 .workspace { display: none; flex: 1; overflow: hidden; height: calc(100vh - 52px); opacity: 0; transition: opacity 0.45s ease; }
 .workspace.visible { display: flex; }
 .workspace.faded-in { opacity: 1; }
+
+/* Bottom bar — hidden until workspace is active */
+.input-bar { display: none; }
+.input-bar.active { display: block; }
 
 /* Chat column */
 .chat-col {
@@ -362,16 +390,26 @@ nav {
     <img class="grace-logo" src="/grace-avatar.png" alt="Grace" />
     <div class="empty-title" id="emptyTitle">Hey, I'm Grace.</div>
     <div class="empty-sub" id="emptySub">Drop any article, CVE, or tweet — I'll check if it's worth a plugin and write it up.</div>
-    <div class="example-chips" id="exampleChips">
-      <div class="chip" onclick="fillInput(this)">github.com/advisories/GHSA-...</div>
-      <div class="chip" onclick="fillInput(this)">nvd.nist.gov/vuln/detail/CVE-...</div>
-      <div class="chip" onclick="fillInput(this)">x.com/...</div>
-      <div class="chip" onclick="fillInput(this)">blog.cloudflare.com/...</div>
+
+    <!-- Landing input (visible initially) -->
+    <div class="landing-input-wrap" id="landingInputWrap">
+      <input class="landing-input" id="landingInput" type="text"
+        placeholder="Paste any article, CVE, tweet, or GitHub link…"
+        autocomplete="off" />
+      <button class="landing-btn" id="landingBtn" onclick="handleLandingSubmit()">Run Grace →</button>
     </div>
-    <!-- Scoping question appears here after assess -->
+    <div class="example-chips" id="exampleChips">
+      <div class="chip" onclick="fillLanding(this)">github.com/advisories/GHSA-…</div>
+      <div class="chip" onclick="fillLanding(this)">nvd.nist.gov/vuln/detail/CVE-…</div>
+      <div class="chip" onclick="fillLanding(this)">x.com/…</div>
+      <div class="chip" onclick="fillLanding(this)">blog.cloudflare.com/…</div>
+    </div>
+
+    <!-- Scoping question (replaces input after assess) -->
     <div class="scoping-area" id="scopingArea">
       <div class="scoping-q" id="scopingQ"></div>
       <div class="scoping-chips" id="scopingChips"></div>
+      <div class="scoping-alt">or type below and press Enter</div>
     </div>
   </div>
 
@@ -471,10 +509,21 @@ function toggleTheme() {
   } catch {}
 })();
 
-function fillInput(chip) {
-  const i = document.getElementById('urlInput');
+function fillLanding(chip) {
+  const i = document.getElementById('landingInput');
   i.value = chip.textContent.trim(); i.focus(); i.select();
 }
+function fillInput(chip) { fillLanding(chip); }
+
+function handleLandingSubmit() {
+  const url = document.getElementById('landingInput').value.trim();
+  if (url) runGrace(url);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const li = document.getElementById('landingInput');
+  if (li) li.addEventListener('keydown', e => { if (e.key === 'Enter') handleLandingSubmit(); });
+});
 
 // ── Bottom bar modes ──
 function setBarMode(mode, opts = {}) {
@@ -483,6 +532,8 @@ function setBarMode(mode, opts = {}) {
   const btn = document.getElementById('mainBtn');
   const hint = document.getElementById('inputHint');
   const bar = document.getElementById('inputBar');
+  // Bar is only shown in workspace mode
+  bar.classList.toggle('active', mode !== 'url' || document.getElementById('workspace').classList.contains('faded-in'));
 
   input.value = '';
   btn.className = 'bar-btn';
@@ -947,21 +998,43 @@ function showLandingScoping(assessRaw) {
 
   const emptyState = document.getElementById('emptyState');
   emptyState.classList.add('scoping');
-  document.getElementById('emptyTitle').textContent = `/cantinasec:${slug}`;
-  document.getElementById('emptySub').textContent = hook;
-  document.getElementById('exampleChips').style.opacity = '0';
-  document.getElementById('exampleChips').style.pointerEvents = 'none';
 
+  // Morph title + subtitle
+  document.getElementById('emptyTitle').textContent = `/cantinasec:${slug}`;
+  document.getElementById('emptySub').textContent = hook || 'got it.';
+
+  // Fade out input + example chips
+  const inputWrap = document.getElementById('landingInputWrap');
+  const exChips = document.getElementById('exampleChips');
+  inputWrap.style.transition = 'opacity 0.25s ease';
+  inputWrap.style.opacity = '0';
+  exChips.style.transition = 'opacity 0.25s ease';
+  exChips.style.opacity = '0';
+  setTimeout(() => {
+    inputWrap.style.display = 'none';
+    exChips.style.display = 'none';
+  }, 260);
+
+  // Show scoping chips
   const qEl = document.getElementById('scopingQ');
   const chipsEl = document.getElementById('scopingChips');
   if (scopingQ) qEl.textContent = scopingQ;
+  else qEl.textContent = 'what\'s the target stack?';
   chipsEl.innerHTML = '';
-  chips.forEach(chip => {
+  (chips.length ? chips : ['Node', 'Python', 'Go', 'Cloud']).forEach(chip => {
     const btn = document.createElement('button');
     btn.className = 'scoping-chip'; btn.textContent = chip;
     chipsEl.appendChild(btn);
   });
-  document.getElementById('scopingArea').style.display = 'flex';
+
+  // Show scoping area with slight delay (after input fades)
+  setTimeout(() => {
+    document.getElementById('scopingArea').style.display = 'flex';
+    // Also show bottom bar as a text fallback
+    document.getElementById('inputBar').classList.add('active');
+    document.getElementById('urlInput').value = '';
+    document.getElementById('urlInput').placeholder = 'Or type your answer…';
+  }, 200);
 }
 
 // ── Fade to workspace ──
@@ -969,21 +1042,18 @@ async function fadeToWorkspace() {
   const empty = document.getElementById('emptyState');
   const workspace = document.getElementById('workspace');
 
-  // Show workspace behind the landing page (transparent)
-  workspace.style.display = 'flex';
-
   // Fade out landing
   empty.classList.add('fading');
 
-  // After 200ms start fading in workspace
-  await new Promise(r => setTimeout(r, 200));
+  // After 180ms start fading in workspace
+  await new Promise(r => setTimeout(r, 180));
   workspace.classList.add('faded-in');
+  document.getElementById('inputBar').classList.add('active');
 
-  // After transition completes, clean up
-  await new Promise(r => setTimeout(r, 450));
+  // After transition, clean up landing
+  await new Promise(r => setTimeout(r, 460));
   empty.style.display = 'none';
   empty.classList.remove('fading', 'scoping', 'loading');
-  empty.style.opacity = '';
 }
 
 // ── runGrace ──
@@ -993,8 +1063,10 @@ async function runGrace(url) {
   // ── Phase 1: Landing page loading state ──
   const emptyState = document.getElementById('emptyState');
   emptyState.classList.add('loading');
-  document.getElementById('emptySub').textContent = 'reading the article…';
-  setBarMode('disabled', { placeholder: 'Grace is reading…', label: '…' });
+  const subEl = document.getElementById('emptySub');
+  subEl.innerHTML = '<span class="loading-dots">reading the article</span>';
+  document.getElementById('landingBtn').disabled = true;
+  document.getElementById('landingInput').disabled = true;
 
   // Parallel: content + silent assess (no chat bubbles yet)
   const [content, assessRaw] = await Promise.all([
@@ -1004,6 +1076,7 @@ async function runGrace(url) {
   cachedContent = content;
   confirmedSlug = extractSlug(assessRaw) || 'cl-plugin';
   emptyState.classList.remove('loading');
+  subEl.innerHTML = '';
 
   // ── Phase 2: Scoping question on landing page ──
   showLandingScoping(assessRaw);
@@ -1012,18 +1085,20 @@ async function runGrace(url) {
     let done = false;
     const finish = (text) => { if (done) return; done = true; resolve(text); };
 
+    // Chips on landing page
     document.querySelectorAll('.scoping-chip').forEach(btn => {
       btn.addEventListener('click', () => finish(btn.textContent.trim()));
     });
-    setBarMode('feedback', {
-      placeholder: 'Or describe the scope…',
-      proceedLabel: 'Skip →',
-      proceedText: 'skip',
-      hint: 'Pick a chip · Enter to type · Click to skip',
+
+    // Bottom bar text fallback (wired in showLandingScoping via active class)
+    feedbackCallbacks = {
       onSend: text => finish(text),
       onProceed: () => finish('general'),
-    });
-    document.getElementById('urlInput').focus();
+    };
+    inputMode = 'feedback';
+    document.getElementById('mainBtn').textContent = 'Skip →';
+    document.getElementById('mainBtn').className = 'bar-btn';
+    document.getElementById('inputHint').textContent = 'Pick a chip above · or type here · Click Skip to proceed';
   });
 
   // ── Phase 3: Set up workspace (still invisible), fire plugin stream ──
