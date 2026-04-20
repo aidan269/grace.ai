@@ -938,7 +938,7 @@ function waitForBottomBar(opts) {
 
 // ── Quick reply chips ──
 function showQuickChips(raw, onSelect) {
-  const matches = [...raw.matchAll(/\[([^\]]{1,20})\]/g)].map(m => m[1]);
+  const matches = [...raw.matchAll(/\[([^\]]{1,50})\]/g)].map(m => m[1]);
   if (!matches.length) return;
   const el = document.createElement('div');
   el.className = 'quick-chips'; el.id = 'quickChips';
