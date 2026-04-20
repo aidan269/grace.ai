@@ -1065,7 +1065,9 @@ function showSuccessBlock(slug, overview) {
   document.getElementById('studioStatus').textContent = 'LIVE';
   document.getElementById('studioStatus').classList.add('live');
   const cmd = `/cantinasec:${slug}`;
-  const shareUrl = `${location.origin}/api/plugin?slug=${slug}`;
+  const content = document.getElementById('pluginEditor').value || '';
+  const draft = btoa(unescape(encodeURIComponent(content)));
+  const shareUrl = `${location.origin}/api/plugin?slug=${slug}&draft=${draft}`;
   const block = document.createElement('div');
   block.className = 'success-block';
   block.innerHTML = `
@@ -1076,7 +1078,7 @@ function showSuccessBlock(slug, overview) {
     </div>
     <div class="shipped-actions">
       <button class="shipped-btn primary" onclick="copyText('${cmd}',this)">Copy install command</button>
-      <a class="shipped-btn secondary" href="https://github.com/aidan269/${slug}" target="_blank">GitHub →</a>
+      <button class="shipped-btn secondary" onclick="navigator.clipboard.writeText('${shareUrl}').then(()=>{this.textContent='Copied!';setTimeout(()=>this.textContent='Share link',1500)})">Share link</button>
       <a class="shipped-btn secondary" href="${shareUrl}" target="_blank">Plugin page →</a>
     </div>`;
   getChat().appendChild(block); scrollToBottom();

@@ -7,12 +7,29 @@ export default async function handler(req, res) {
     return res.status(400).send("Invalid slug");
   }
 
-  const rawUrl = `https://raw.githubusercontent.com/aidan269/${slug}/main/skills/${slug}/SKILL.md`;
+  // Draft mode: content passed directly as base64 in the URL
+  const draftParam = req.query.draft;
+  let md, isDraft = false;
+
+  if (draftParam) {
+    try {
+      md = Buffer.from(draftParam, "base64").toString("utf-8");
+      isDraft = true;
+    } catch {
+      return res.status(400).send("Invalid draft content");
+    }
+  } else {
+    const rawUrl = `https://raw.githubusercontent.com/aidan269/${slug}/main/skills/${slug}/SKILL.md`;
+    try {
+      const r = await fetch(rawUrl, { signal: AbortSignal.timeout(8000) });
+      if (!r.ok) return res.status(404).send("Plugin not found");
+      md = await r.text();
+    } catch {
+      return res.status(500).send("Error fetching plugin");
+    }
+  }
 
   try {
-    const r = await fetch(rawUrl, { signal: AbortSignal.timeout(8000) });
-    if (!r.ok) return res.status(404).send("Plugin not found");
-    const md = await r.text();
 
     const overview = md.match(/## Overview\n([\s\S]*?)(?=\n##)/)?.[1]?.trim() || "";
     const title = md.match(/^# (.+)/m)?.[1] || slug;
@@ -68,10 +85,11 @@ nav{background:#fff;border-bottom:1px solid #E5E7EB;padding:0 40px;height:56px;d
   <a class="nav-back" href="/">← All plugins</a>
 </nav>
 <div class="container">
+  ${isDraft ? `<div style="background:#FFF7ED;border:1px solid #FED7AA;border-radius:8px;padding:10px 16px;margin-bottom:16px;font-size:0.8rem;color:#92400E;display:flex;align-items:center;gap:8px;"><span style="font-weight:700">DRAFT</span> — not yet on GitHub. Share this link to preview.</div>` : ''}
   <div class="install-bar">
     <span class="install-cmd">/cantinasec:${slug}</span>
     <button class="copy-btn" onclick="navigator.clipboard.writeText('/cantinasec:${slug}').then(()=>{this.textContent='Copied!';setTimeout(()=>this.textContent='Copy',1500)})">Copy</button>
-    <a class="copy-btn" href="https://github.com/aidan269/${slug}" target="_blank" style="text-decoration:none;background:#F3F4F6;color:#374151">GitHub →</a>
+    ${isDraft ? '' : `<a class="copy-btn" href="https://github.com/aidan269/${slug}" target="_blank" style="text-decoration:none;background:#F3F4F6;color:#374151">GitHub →</a>`}
   </div>
   <div class="skill-body" id="content"></div>
   <div class="footer">Built with <a href="/">Grace</a> · <a href="https://cantina.xyz" target="_blank">Cantina</a></div>
@@ -82,7 +100,7 @@ document.getElementById('content').innerHTML = marked.parse(md);
 </script>
 </body>
 </html>`);
-  } catch (err) {
-    return res.status(500).send("Error fetching plugin");
+  } catch {
+    return res.status(500).send("Error rendering plugin");
   }
 }
