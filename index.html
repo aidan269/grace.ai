@@ -367,6 +367,12 @@ nav {
   position:fixed; bottom:0; left:0; right:0; z-index:90;
   background:var(--nav-bg); backdrop-filter:blur(12px);
   border-top:1px solid var(--border); padding:10px 20px 14px;
+  transition: background 0.2s, border-color 0.2s, backdrop-filter 0.2s;
+}
+.input-bar.dormant {
+  background: transparent;
+  backdrop-filter: none;
+  border-top-color: transparent;
 }
 .input-bar-inner { max-width:360px; margin:0 auto; display:flex; flex-direction:column; gap:5px; }
 .input-bar.wide .input-bar-inner { max-width:100%; padding:0 24px; }
@@ -619,6 +625,7 @@ function setBarMode(mode, opts = {}) {
     btn.textContent = opts.label || '…'; btn.disabled = true;
     hint.textContent = ''; bar.classList.add('wide');
   }
+  bar.classList.toggle('dormant', mode === 'disabled');
 }
 
 function handleMainBtn() {
