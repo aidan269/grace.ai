@@ -103,7 +103,7 @@ nav {
 .chip:hover { border-color: var(--gray-400); color: var(--muted); background: var(--gray-50); }
 
 /* Scoping state — replaces input with question + choices */
-.scoping-area { display:none; flex-direction:column; align-items:center; gap:20px; width:100%; max-width:460px; animation:fadeUp 0.35s ease; }
+.scoping-area { display:none; flex-direction:column; align-items:center; gap:20px; width:100%; max-width:460px; opacity:0; transition: opacity 0.3s ease; }
 .scoping-q { font-size:0.92rem; color:var(--muted); font-weight:500; text-align:center; }
 .scoping-chips { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; }
 .scoping-chip {
@@ -985,56 +985,86 @@ async function streamToBuffer(step, extraBody = {}) {
 
 // ── Assess parsers ──
 function extractSlug(raw) { const m = raw.match(/`([a-z][a-z0-9-]{2,})`/); return m ? m[1] : null; }
-function extractChips(raw) { return [...raw.matchAll(/\[([^\]]{1,25})\]/g)].map(m => m[1]); }
 function extractHook(raw) { const m = raw.match(/^([^.\n!?]*[.!?])/); return m ? m[1].trim() : raw.split('\n')[0].trim(); }
-function extractScopingQ(raw) { const m = raw.match(/([^.\n!?]+\?)\s*(?:\[|$)/); return m ? m[1].trim() : null; }
 
-// ── Landing page scoping reveal ──
-function showLandingScoping(assessRaw) {
+function parseQA(raw) {
+  // Extract all Q+chips pairs: "question? [Chip1] [Chip2]"
+  const results = [];
+  const pattern = /([^.!?\[\]\n][^?\[\]]*\?)\s*((?:\[[^\]]{1,30}\]\s*)+)/g;
+  let m;
+  while ((m = pattern.exec(raw)) !== null) {
+    const question = m[1].trim();
+    const chips = [...m[2].matchAll(/\[([^\]]{1,30})\]/g)].map(c => c[1]);
+    if (chips.length) results.push({ question, chips });
+  }
+  return results.slice(0, 2);
+}
+
+// ── Landing page scoping setup (title + hook only, no chips yet) ──
+function setupLandingScoping(assessRaw) {
   const slug = confirmedSlug || 'cl-plugin';
   const hook = extractHook(assessRaw);
-  const scopingQ = extractScopingQ(assessRaw);
-  const chips = extractChips(assessRaw);
 
-  const emptyState = document.getElementById('emptyState');
-  emptyState.classList.add('scoping');
-
-  // Morph title + subtitle
+  document.getElementById('emptyState').classList.add('scoping');
   document.getElementById('emptyTitle').textContent = `/cantinasec:${slug}`;
   document.getElementById('emptySub').textContent = hook || 'got it.';
 
   // Fade out input + example chips
-  const inputWrap = document.getElementById('landingInputWrap');
-  const exChips = document.getElementById('exampleChips');
-  inputWrap.style.transition = 'opacity 0.25s ease';
-  inputWrap.style.opacity = '0';
-  exChips.style.transition = 'opacity 0.25s ease';
-  exChips.style.opacity = '0';
-  setTimeout(() => {
-    inputWrap.style.display = 'none';
-    exChips.style.display = 'none';
-  }, 260);
-
-  // Show scoping chips
-  const qEl = document.getElementById('scopingQ');
-  const chipsEl = document.getElementById('scopingChips');
-  if (scopingQ) qEl.textContent = scopingQ;
-  else qEl.textContent = 'what\'s the target stack?';
-  chipsEl.innerHTML = '';
-  (chips.length ? chips : ['Node', 'Python', 'Go', 'Cloud']).forEach(chip => {
-    const btn = document.createElement('button');
-    btn.className = 'scoping-chip'; btn.textContent = chip;
-    chipsEl.appendChild(btn);
+  ['landingInputWrap','exampleChips'].forEach(id => {
+    const el = document.getElementById(id);
+    el.style.transition = 'opacity 0.22s ease';
+    el.style.opacity = '0';
+    setTimeout(() => { el.style.display = 'none'; }, 230);
   });
 
-  // Show scoping area with slight delay (after input fades)
+  // Show bottom bar as text fallback
   setTimeout(() => {
-    document.getElementById('scopingArea').style.display = 'flex';
-    // Also show bottom bar as a text fallback
     document.getElementById('inputBar').classList.add('active');
     document.getElementById('urlInput').value = '';
     document.getElementById('urlInput').placeholder = 'Or type your answer…';
   }, 200);
+}
+
+// ── Render a single scoping Q with chips and return an answer promise ──
+function showScopingQuestion(qa, isSecond = false) {
+  return new Promise(resolve => {
+    let done = false;
+    const finish = text => { if (done) return; done = true; resolve(text); };
+
+    const area = document.getElementById('scopingArea');
+    const qEl  = document.getElementById('scopingQ');
+    const chEl = document.getElementById('scopingChips');
+
+    const render = () => {
+      qEl.textContent = qa.question;
+      chEl.innerHTML = '';
+      qa.chips.forEach(chip => {
+        const btn = document.createElement('button');
+        btn.className = 'scoping-chip'; btn.textContent = chip;
+        btn.addEventListener('click', () => finish(chip));
+        chEl.appendChild(btn);
+      });
+      area.style.opacity = '1';
+      area.style.display = 'flex';
+    };
+
+    if (isSecond) {
+      // Fade old question out, swap content, fade back in
+      area.style.transition = 'opacity 0.2s ease';
+      area.style.opacity = '0';
+      setTimeout(() => { render(); }, 220);
+    } else {
+      area.style.transition = 'opacity 0.3s ease';
+      setTimeout(() => render(), 240); // wait for input to fade first
+    }
+
+    // Bottom bar fallback
+    feedbackCallbacks = { onSend: text => finish(text), onProceed: () => finish('general') };
+    inputMode = 'feedback';
+    document.getElementById('mainBtn').textContent = 'Skip →';
+    document.getElementById('mainBtn').className = 'bar-btn';
+    document.getElementById('inputHint').textContent = 'Pick a chip · or type here · Click Skip to proceed';
+  });
 }
 
 // ── Fade to workspace ──
@@ -1078,28 +1108,15 @@ async function runGrace(url) {
   emptyState.classList.remove('loading');
   subEl.innerHTML = '';
 
-  // ── Phase 2: Scoping question on landing page ──
-  showLandingScoping(assessRaw);
+  // ── Phase 2: Two scoping questions on landing page ──
+  const qas = parseQA(assessRaw);
+  const qa1 = qas[0] || { question: "what's the target stack?", chips: ['Node', 'Python', 'Go', 'Cloud'] };
+  const qa2 = qas[1] || { question: 'detection only or full remediation?', chips: ['Detection', 'Remediation', 'Both'] };
 
-  const scopeAnswer = await new Promise(resolve => {
-    let done = false;
-    const finish = (text) => { if (done) return; done = true; resolve(text); };
-
-    // Chips on landing page
-    document.querySelectorAll('.scoping-chip').forEach(btn => {
-      btn.addEventListener('click', () => finish(btn.textContent.trim()));
-    });
-
-    // Bottom bar text fallback (wired in showLandingScoping via active class)
-    feedbackCallbacks = {
-      onSend: text => finish(text),
-      onProceed: () => finish('general'),
-    };
-    inputMode = 'feedback';
-    document.getElementById('mainBtn').textContent = 'Skip →';
-    document.getElementById('mainBtn').className = 'bar-btn';
-    document.getElementById('inputHint').textContent = 'Pick a chip above · or type here · Click Skip to proceed';
-  });
+  setupLandingScoping(assessRaw);
+  const ans1 = await showScopingQuestion(qa1, false);
+  const ans2 = await showScopingQuestion(qa2, true);
+  const scopeAnswer = `${ans1}; ${ans2}`;
 
   // ── Phase 3: Set up workspace (still invisible), fire plugin stream ──
   document.getElementById('workspace').classList.add('visible');
