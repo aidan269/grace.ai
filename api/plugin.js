@@ -7,11 +7,23 @@ export default async function handler(req, res) {
     return res.status(400).send("Invalid slug");
   }
 
-  // Draft mode: content passed directly as base64 in the URL
+  const gistParam = req.query.gist;
   const draftParam = req.query.draft;
   let md, isDraft = false;
 
-  if (draftParam) {
+  if (gistParam) {
+    // Short gist ID — fetch from GitHub Gist raw
+    if (!/^[a-f0-9]{20,40}$/.test(gistParam)) return res.status(400).send("Invalid gist ID");
+    try {
+      const r = await fetch(`https://gist.githubusercontent.com/aidan269/${gistParam}/raw/SKILL.md`, { signal: AbortSignal.timeout(8000) });
+      if (!r.ok) return res.status(404).send("Plugin not found");
+      md = await r.text();
+      isDraft = true;
+    } catch {
+      return res.status(500).send("Error fetching plugin");
+    }
+  } else if (draftParam) {
+    // Legacy base64 draft (fallback)
     try {
       md = Buffer.from(draftParam, "base64").toString("utf-8");
       isDraft = true;
