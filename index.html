@@ -72,56 +72,73 @@ nav {
 /* ── Page ── */
 .page { flex: 1; display: flex; flex-direction: column; padding-top: 52px; }
 
-/* ── Empty state ── */
+/* ── Empty state — two-column split ── */
 .empty-state {
-  flex: 1; display: flex; flex-direction: column;
+  flex: 1; display: flex; flex-direction: row;
   align-items: center; justify-content: center;
-  padding: 0 24px 60px; text-align: center;
+  padding: 0 8% 40px; gap: 72px;
   transition: opacity 0.35s ease;
 }
 .empty-state.hidden { display: none; }
 .empty-state.fading { opacity: 0; pointer-events: none; }
-.grace-logo { width: 88px; height: 88px; border-radius: 50%; object-fit: cover; margin-bottom: 22px; transition: opacity 0.4s ease; }
-.empty-state.loading .grace-logo { opacity: 0.55; }
-.empty-title { font-size: 1.65rem; font-weight: 700; letter-spacing: -0.03em; margin-bottom: 8px; transition: all 0.35s ease; }
-.empty-state.scoping .empty-title { font-size: 1.05rem; font-family: var(--mono); color: var(--orange); letter-spacing: 0; }
-.empty-sub { font-size: 0.875rem; color: var(--muted); max-width: 340px; line-height: 1.7; margin-bottom: 28px; min-height: 2.8em; transition: color 0.3s ease; }
 
-/* Landing URL input (lives in the page, not fixed bar) */
-.landing-input-wrap { width: 100%; max-width: 460px; display: flex; gap: 8px; margin-bottom: 16px; }
-.landing-input { flex: 1; font-family: inherit; font-size: 0.9rem; color: var(--text); background: var(--surface); border: 1.5px solid var(--border); border-radius: 12px; padding: 12px 16px; outline: none; transition: border-color 0.15s, box-shadow 0.15s; }
+/* LEFT column — Grace identity */
+.landing-left {
+  display: flex; flex-direction: column; align-items: flex-start;
+  flex-shrink: 0; width: 260px;
+}
+.grace-logo { width: 72px; height: 72px; border-radius: 50%; object-fit: cover; margin-bottom: 18px; transition: opacity 0.4s ease; }
+.empty-state.loading .grace-logo { opacity: 0.5; }
+.empty-title { font-size: 1.6rem; font-weight: 700; letter-spacing: -0.03em; margin-bottom: 8px; transition: all 0.35s ease; line-height: 1.2; }
+.empty-state.scoping .empty-title { font-size: 1rem; font-family: var(--mono); color: var(--orange); letter-spacing: 0; }
+.empty-sub { font-size: 0.85rem; color: var(--muted); line-height: 1.7; min-height: 3em; transition: color 0.3s ease; }
+
+/* RIGHT column — input / scoping */
+.landing-right {
+  display: flex; flex-direction: column; align-items: flex-start;
+  width: 400px; flex-shrink: 0;
+}
+
+/* Landing URL input */
+.landing-input-wrap { width: 100%; display: flex; gap: 8px; margin-bottom: 14px; }
+.landing-input { flex: 1; font-family: inherit; font-size: 0.88rem; color: var(--text); background: var(--surface); border: 1.5px solid var(--border); border-radius: 12px; padding: 12px 15px; outline: none; transition: border-color 0.15s, box-shadow 0.15s; }
 .landing-input:focus { border-color: var(--orange); box-shadow: 0 0 0 3px rgba(250,94,6,0.12); }
 .landing-input::placeholder { color: var(--subtle); }
-.landing-btn { font-family: inherit; font-size: 0.88rem; font-weight: 700; color: #fff; background: var(--text); border: none; border-radius: 12px; padding: 12px 22px; cursor: pointer; white-space: nowrap; transition: opacity 0.15s, transform 0.1s; flex-shrink: 0; }
+.landing-btn { font-family: inherit; font-size: 0.86rem; font-weight: 700; color: #fff; background: var(--text); border: none; border-radius: 12px; padding: 12px 20px; cursor: pointer; white-space: nowrap; transition: opacity 0.15s, transform 0.1s; flex-shrink: 0; }
 .landing-btn:hover { opacity: 0.85; }
 .landing-btn:active { transform: scale(0.97); }
 .landing-btn:disabled { opacity: 0.35; cursor: not-allowed; }
 
-/* Example chips below input */
-.example-chips { display: flex; flex-wrap: wrap; gap: 7px; justify-content: center; max-width: 460px; transition: opacity 0.25s ease, transform 0.25s ease; }
-.chip { font-size: 0.73rem; color: var(--subtle); background: transparent; border: 1px solid var(--border); border-radius: 99px; padding: 5px 13px; cursor: pointer; transition: all 0.15s; }
+/* Example chips */
+.example-chips { display: flex; flex-wrap: wrap; gap: 7px; transition: opacity 0.25s ease; }
+.chip { font-size: 0.72rem; color: var(--subtle); background: transparent; border: 1px solid var(--border); border-radius: 99px; padding: 5px 12px; cursor: pointer; transition: all 0.15s; }
 .chip:hover { border-color: var(--gray-400); color: var(--muted); background: var(--gray-50); }
 
-/* Scoping state — replaces input with question + choices */
-.scoping-area { display:none; flex-direction:column; align-items:center; gap:20px; width:100%; max-width:460px; opacity:0; transition: opacity 0.3s ease; }
-.scoping-q { font-size:0.92rem; color:var(--muted); font-weight:500; text-align:center; }
-.scoping-chips { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; }
+/* Scoping area (right side, replaces input) */
+.scoping-area { display:none; flex-direction:column; align-items:flex-start; gap:18px; width:100%; opacity:0; transition: opacity 0.3s ease; }
+.scoping-q { font-size:0.9rem; color:var(--muted); font-weight:500; line-height:1.5; }
+.scoping-chips { display:flex; flex-wrap:wrap; gap:10px; }
 .scoping-chip {
-  font-family:inherit; font-size:0.88rem; font-weight:600;
+  font-family:inherit; font-size:0.86rem; font-weight:600;
   color:var(--text); background:var(--surface);
   border:1.5px solid var(--border); border-radius:10px;
-  padding:11px 24px; cursor:pointer;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.07);
+  padding:10px 22px; cursor:pointer;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
   transition: border-color 0.15s, background 0.15s, color 0.15s, transform 0.1s, box-shadow 0.15s;
-  min-width: 80px;
 }
 .scoping-chip:hover { border-color:var(--orange); color:var(--orange); background:rgba(250,94,6,0.04); box-shadow:0 2px 8px rgba(250,94,6,0.12); }
 .scoping-chip:active { transform:scale(0.96); }
+.scoping-alt { font-size:0.7rem; color:var(--subtle); }
 
-.scoping-alt { font-size:0.72rem; color:var(--subtle); }
-
-/* Loading dots on subtitle */
+/* Loading dots */
 .loading-dots::after { content:''; animation: loadingDots 1.4s steps(4,end) infinite; }
+
+@media (max-width: 680px) {
+  .empty-state { flex-direction: column; align-items: center; text-align: center; padding: 0 24px 60px; gap: 32px; }
+  .landing-left { align-items: center; width: auto; }
+  .landing-right { width: 100%; }
+  .scoping-area { align-items: center; }
+}
 @keyframes loadingDots { 0%{content:''} 25%{content:'.'} 50%{content:'..'} 75%{content:'...'} }
 
 /* ── Workspace ── */
@@ -385,32 +402,40 @@ nav {
 </nav>
 
 <div class="page">
-  <!-- Empty state -->
+  <!-- Empty state — two-column split -->
   <div class="empty-state" id="emptyState">
-    <img class="grace-logo" src="/grace-avatar.png" alt="Grace" />
-    <div class="empty-title" id="emptyTitle">Hey, I'm Grace.</div>
-    <div class="empty-sub" id="emptySub">Drop any article, CVE, or tweet — I'll check if it's worth a plugin and write it up.</div>
 
-    <!-- Landing input (visible initially) -->
-    <div class="landing-input-wrap" id="landingInputWrap">
-      <input class="landing-input" id="landingInput" type="text"
-        placeholder="Paste any article, CVE, tweet, or GitHub link…"
-        autocomplete="off" />
-      <button class="landing-btn" id="landingBtn" onclick="handleLandingSubmit()">Run Grace →</button>
-    </div>
-    <div class="example-chips" id="exampleChips">
-      <div class="chip" onclick="fillLanding(this)">github.com/advisories/GHSA-…</div>
-      <div class="chip" onclick="fillLanding(this)">nvd.nist.gov/vuln/detail/CVE-…</div>
-      <div class="chip" onclick="fillLanding(this)">x.com/…</div>
-      <div class="chip" onclick="fillLanding(this)">blog.cloudflare.com/…</div>
+    <!-- LEFT: Grace identity -->
+    <div class="landing-left">
+      <img class="grace-logo" src="/grace-avatar.png" alt="Grace" />
+      <div class="empty-title" id="emptyTitle">Hey, I'm Grace.</div>
+      <div class="empty-sub" id="emptySub">Drop any article, CVE, or tweet — I'll check if it's worth a plugin and write it up.</div>
     </div>
 
-    <!-- Scoping question (replaces input after assess) -->
-    <div class="scoping-area" id="scopingArea">
-      <div class="scoping-q" id="scopingQ"></div>
-      <div class="scoping-chips" id="scopingChips"></div>
-      <div class="scoping-alt">or type below and press Enter</div>
+    <!-- RIGHT: Input / scoping questions -->
+    <div class="landing-right" id="landingRight">
+      <!-- URL input (visible initially) -->
+      <div class="landing-input-wrap" id="landingInputWrap">
+        <input class="landing-input" id="landingInput" type="text"
+          placeholder="Paste any article, CVE, tweet, or GitHub link…"
+          autocomplete="off" />
+        <button class="landing-btn" id="landingBtn" onclick="handleLandingSubmit()">Run Grace →</button>
+      </div>
+      <div class="example-chips" id="exampleChips">
+        <div class="chip" onclick="fillLanding(this)">github.com/advisories/GHSA-…</div>
+        <div class="chip" onclick="fillLanding(this)">nvd.nist.gov/vuln/detail/CVE-…</div>
+        <div class="chip" onclick="fillLanding(this)">x.com/…</div>
+        <div class="chip" onclick="fillLanding(this)">blog.cloudflare.com/…</div>
+      </div>
+
+      <!-- Scoping questions (replace input after assess) -->
+      <div class="scoping-area" id="scopingArea">
+        <div class="scoping-q" id="scopingQ"></div>
+        <div class="scoping-chips" id="scopingChips"></div>
+        <div class="scoping-alt">or type below and press Enter</div>
+      </div>
     </div>
+
   </div>
 
   <!-- Workspace -->
@@ -1134,15 +1159,44 @@ async function runGrace(url) {
   // ── Phase 4: Fade transition (concurrent with plugin streaming) ──
   await fadeToWorkspace();
 
-  // ── Phase 5: Await plugin then push / revision loop ──
+  // ── Phase 5: Await plugin, then mandatory review step ──
   let pluginRaw = await pluginPromise;
 
+  // Grace reviews what she wrote and asks one final question before push
+  showTypingIndicator();
+  setBarMode('disabled', { placeholder: 'Grace is reviewing…', label: '…' });
+  const reviewRaw = await streamStep('review', { slug: confirmedSlug });
+  const reviewChips = parseQA(reviewRaw)[0]?.chips || ['Ship it'];
+
+  const reviewAnswer = await new Promise(resolve => {
+    let done = false;
+    const finish = text => { if (done) return; done = true; resolve(text); };
+    showQuickChips(reviewRaw, text => { makeUserBubble(text); finish(text); });
+    setBarMode('feedback', {
+      placeholder: 'Request a change, or click Ship it…',
+      proceedLabel: 'Ship it ↗',
+      proceedText: 'Ship it',
+      hint: 'Pick above · Enter to request changes · Click to ship',
+      onSend: text => { makeUserBubble(text); finish(text); },
+      onProceed: () => { makeUserBubble('Ship it'); finish('Ship it'); },
+    });
+  });
+
+  // If not shipping, do one revision then go to push
+  if (!/ship\s*it/i.test(reviewAnswer)) {
+    setBarMode('disabled', { placeholder: 'Revising…', label: '…' });
+    document.getElementById('pluginEditor').value = '';
+    showTypingIndicator();
+    pluginRaw = await streamStep('feedback', { feedback: reviewAnswer, previousOutput: pluginRaw, originalStep: 'plugin' }, { chatOpenerOnly: true, streamToStudio: true });
+  }
+
+  // ── Phase 6: Push (final step) ──
   while (true) {
     const r = await waitForBottomBar({
-      placeholder: 'Request changes, or click to push…',
+      placeholder: 'Any last changes, or push to ship…',
       proceedLabel: 'Push to GitHub ↗',
       proceedText: 'Push it',
-      hint: 'Enter to revise · Click to ship'
+      hint: 'Enter for one last change · Click to ship'
     });
     if (r.type === 'proceed') {
       setBarMode('disabled', { placeholder: 'Pushing…', label: '…' });
