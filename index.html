@@ -252,6 +252,14 @@ nav {
 
 .plugin-editor { width:100%; height:100%; font-family:var(--mono); font-size:12.5px; line-height:1.9; color:#e2e8f0; background:#0f1117; border:none; outline:none; resize:none; padding:20px 28px; tab-size:2; }
 .plugin-editor::selection { background: rgba(250,94,6,0.3); }
+.accept-bar { position:absolute; top:0; left:0; right:0; z-index:10; display:flex; align-items:center; gap:10px; padding:10px 18px; background:rgba(15,17,23,0.92); backdrop-filter:blur(6px); border-bottom:1px solid rgba(250,94,6,0.3); animation:fadeUp 0.2s ease; }
+.accept-bar-label { flex:1; font-size:0.78rem; color:#94a3b8; }
+.accept-bar-label strong { color:#fa5e06; }
+.accept-btn { font-family:inherit; font-size:0.76rem; font-weight:600; padding:6px 16px; border-radius:8px; border:none; cursor:pointer; transition:all 0.15s; }
+.accept-btn.primary { background:#fa5e06; color:#fff; }
+.accept-btn.primary:hover { background:#e04d00; }
+.accept-btn.secondary { background:transparent; color:#64748b; border:1px solid #334155; }
+.accept-btn.secondary:hover { color:#94a3b8; border-color:#475569; }
 
 .plugin-preview { padding:28px 32px; font-size:0.875rem; line-height:1.75; color:var(--text); }
 .plugin-preview h1 { font-size:1.1rem; font-weight:700; letter-spacing:-0.02em; margin:0 0 18px; }
@@ -475,7 +483,7 @@ nav {
           <button class="studio-tab" id="tabDistribute" onclick="switchTab('distribute')">Distribute</button>
         </div>
         <div class="studio-body">
-          <div class="studio-pane active" id="paneWrite">
+          <div class="studio-pane active" id="paneWrite" style="position:relative;">
             <textarea class="plugin-editor" id="pluginEditor" spellcheck="false" placeholder="streaming plugin…"></textarea>
           </div>
           <div class="studio-pane" id="panePreview">
@@ -860,9 +868,29 @@ function copyText(text, btn) {
   });
 }
 
+// ── Accept-changes bar ──
+function showAcceptBar(originalContent, revisedContent) {
+  return new Promise(resolve => {
+    const pane = document.getElementById('paneWrite');
+    const bar = document.createElement('div');
+    bar.className = 'accept-bar';
+    bar.innerHTML = `<span class="accept-bar-label"><strong>Grace revised the plugin</strong> — preview below</span>
+      <button class="accept-btn secondary" id="discardBtn">Discard</button>
+      <button class="accept-btn primary" id="acceptBtn">Accept changes</button>`;
+    pane.prepend(bar);
+
+    const ed = document.getElementById('pluginEditor');
+    ed.value = revisedContent;
+    ed.scrollTop = 0;
+
+    bar.querySelector('#acceptBtn').onclick = () => { bar.remove(); resolve(revisedContent); };
+    bar.querySelector('#discardBtn').onclick = () => { ed.value = originalContent; bar.remove(); resolve(originalContent); };
+  });
+}
+
 // ── streamStep ──
 async function streamStep(step, extraBody = {}, opts = {}) {
-  const { streamToStudio = false, chatOpenerOnly = false, ...sealOpts } = opts;
+  const { streamToStudio = false, chatOpenerOnly = false, bufferOnly = false, ...sealOpts } = opts;
   const chatBody = makeBubble();
   const cursor = document.createElement('span');
   cursor.className = 'stream-cursor'; chatBody.appendChild(cursor);
@@ -884,8 +912,8 @@ async function streamStep(step, extraBody = {}, opts = {}) {
         if (d || !text) continue;
         raw += text;
 
-        // Always stream to studio if enabled
-        if (streamToStudio) {
+        // Stream to studio (unless buffering for accept-changes flow)
+        if (streamToStudio && !bufferOnly) {
           const ed = document.getElementById('pluginEditor');
           ed.value += text; ed.scrollTop = ed.scrollHeight;
         }
@@ -1185,9 +1213,10 @@ async function runGrace(url) {
   // If not shipping, do one revision then go to push
   if (!/ship\s*it/i.test(reviewAnswer)) {
     setBarMode('disabled', { placeholder: 'Revising…', label: '…' });
-    document.getElementById('pluginEditor').value = '';
     showTypingIndicator();
-    pluginRaw = await streamStep('feedback', { feedback: reviewAnswer, previousOutput: pluginRaw, originalStep: 'plugin' }, { chatOpenerOnly: true, streamToStudio: true });
+    const originalContent = document.getElementById('pluginEditor').value;
+    const revisedRaw = await streamStep('feedback', { feedback: reviewAnswer, previousOutput: pluginRaw, originalStep: 'plugin' }, { chatOpenerOnly: true, bufferOnly: true });
+    pluginRaw = await showAcceptBar(originalContent, revisedRaw.replace(/\[PUSH_READY\]/g, '').trim());
   }
 
   // ── Phase 6: Push (final step) ──
@@ -1212,9 +1241,10 @@ async function runGrace(url) {
       break;
     }
     setBarMode('disabled', { placeholder: 'Revising…', label: '…' });
-    document.getElementById('pluginEditor').value = '';
     showTypingIndicator();
-    pluginRaw = await streamStep('feedback', { feedback:r.text, previousOutput:pluginRaw, originalStep:'plugin' }, { chatOpenerOnly:true, streamToStudio:true });
+    const origContent = document.getElementById('pluginEditor').value;
+    const revisedRaw2 = await streamStep('feedback', { feedback:r.text, previousOutput:pluginRaw, originalStep:'plugin' }, { chatOpenerOnly:true, bufferOnly:true });
+    pluginRaw = await showAcceptBar(origContent, revisedRaw2.replace(/\[PUSH_READY\]/g, '').trim());
   }
 }
 </script>
