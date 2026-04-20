@@ -301,6 +301,11 @@ nav {
 }
 .step-dot { width:5px; height:5px; background:var(--orange); border-radius:50%; animation:pulse 1.5s ease-in-out infinite; }
 
+/* Quick reply chips */
+.quick-chips { display:flex; flex-wrap:wrap; gap:6px; padding:4px 0 6px; margin-left:36px; animation:fadeUp 0.2s ease; }
+.quick-chip { font-family:inherit; font-size:0.76rem; font-weight:500; color:var(--muted); background:var(--surface); border:1.5px solid var(--border); border-radius:20px; padding:5px 14px; cursor:pointer; transition:all 0.15s; }
+.quick-chip:hover { border-color:var(--orange); color:var(--orange); background:rgba(250,94,6,0.04); }
+
 /* Success block */
 .success-block { align-self:flex-start; width:100%; animation:fadeUp 0.3s ease; }
 .shipped-card { background:var(--surface); border:1.5px solid var(--border); border-radius:10px; padding:14px 18px; margin-bottom:8px; }
@@ -767,11 +772,11 @@ function copyText(text, btn) {
 
 // ── streamStep ──
 async function streamStep(step, extraBody = {}, opts = {}) {
-  const { streamToStudio = false, ...sealOpts } = opts;
-  const body = makeBubble();
+  const { streamToStudio = false, chatOpenerOnly = false, ...sealOpts } = opts;
+  const chatBody = makeBubble();
   const cursor = document.createElement('span');
-  cursor.className = 'stream-cursor'; body.appendChild(cursor);
-  let raw = '', buf = '';
+  cursor.className = 'stream-cursor'; chatBody.appendChild(cursor);
+  let raw = '', chatBuf = '', chatSealed = false;
 
   const res = await fetch('/api/grace', {
     method:'POST', headers:{'Content-Type':'application/json'},
@@ -787,15 +792,36 @@ async function streamStep(step, extraBody = {}, opts = {}) {
       try {
         const { text, done: d } = JSON.parse(line.slice(6));
         if (d || !text) continue;
-        buf += text; raw += text;
-        const safe = buf.lastIndexOf('\n') + 1 || Math.max(0, buf.length - 20);
-        if (safe > 0) { body.insertBefore(document.createTextNode(buf.slice(0, safe)), cursor); buf = buf.slice(safe); }
-        if (streamToStudio) { const ed = document.getElementById('pluginEditor'); ed.value += text; ed.scrollTop = ed.scrollHeight; }
-        maybeScrollToBottom();
+        raw += text;
+
+        // Always stream to studio if enabled
+        if (streamToStudio) {
+          const ed = document.getElementById('pluginEditor');
+          ed.value += text; ed.scrollTop = ed.scrollHeight;
+        }
+
+        // Chat rendering
+        if (!chatSealed) {
+          chatBuf += text;
+          // chatOpenerOnly: seal the bubble once we hit the first blank line (opener done)
+          const sealTrigger = raw.indexOf('\n\n') > -1 ? raw.indexOf('\n\n') : (raw.indexOf('\n#') > -1 ? raw.indexOf('\n#') : -1);
+          if (chatOpenerOnly && sealTrigger > -1) {
+            const opener = raw.slice(0, sealTrigger).trim();
+            if (cursor.parentNode) cursor.remove();
+            chatBody.innerHTML = marked.parse(opener || raw.trim());
+            chatBody._rawText = opener || raw.trim();
+            scrollToBottom();
+            chatSealed = true;
+          } else {
+            const safe = chatBuf.lastIndexOf('\n') + 1 || Math.max(0, chatBuf.length - 20);
+            if (safe > 0) { chatBody.insertBefore(document.createTextNode(chatBuf.slice(0, safe)), cursor); chatBuf = chatBuf.slice(safe); }
+            maybeScrollToBottom();
+          }
+        }
       } catch {}
     }
   }
-  sealBubble(body, raw, sealOpts);
+  if (!chatSealed) sealBubble(chatBody, raw, sealOpts);
   return raw;
 }
 
@@ -818,6 +844,22 @@ function waitForBottomBar(opts) {
     });
     document.getElementById('urlInput').focus();
   });
+}
+
+// ── Quick reply chips ──
+function showQuickChips(raw, onSelect) {
+  const matches = [...raw.matchAll(/\[([^\]]{1,20})\]/g)].map(m => m[1]);
+  if (!matches.length) return;
+  const el = document.createElement('div');
+  el.className = 'quick-chips'; el.id = 'quickChips';
+  matches.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'quick-chip'; btn.textContent = opt;
+    btn.onclick = () => { el.remove(); onSelect(opt); };
+    el.appendChild(btn);
+  });
+  getChat().appendChild(el);
+  scrollToBottom();
 }
 
 // ── URL Preview ──
@@ -878,7 +920,7 @@ async function runGrace(url) {
   showSignalGrid();
   setBriefStep('Reading source…');
 
-  // Step 1: Assess (virality + slug in one short response)
+  // Step 1: Assess (virality + slug + scoping question)
   showTypingIndicator();
   setBarMode('disabled', { placeholder: 'Grace is reading…', label: '…' });
   let assessRaw = await streamStep('assess');
@@ -887,13 +929,33 @@ async function runGrace(url) {
   const extractSlug = r => { const m = r.match(/`([a-z][a-z0-9-]{2,})`/); return m ? m[1] : null; };
   confirmedSlug = extractSlug(assessRaw) || 'cl-plugin';
   showSlugPreview(confirmedSlug);
-  setBriefStep('Writing plugin…');
 
-  // Step 2: Plugin — open studio immediately and stream into the editor
+  // Scoping answer — chips or typed reply, both resolve the promise
+  const scopeAnswer = await new Promise(resolve => {
+    let done = false;
+    const finish = (text) => {
+      if (done) return; done = true;
+      document.getElementById('quickChips')?.remove();
+      resolve(text);
+    };
+    showQuickChips(assessRaw, text => { makeUserBubble(text); finish(text); });
+    setBarMode('feedback', {
+      placeholder: 'Or type your answer…',
+      proceedLabel: 'Skip →',
+      proceedText: 'skip',
+      hint: 'Pick a chip above · Enter to type · Click to skip',
+      onSend: text => { makeUserBubble(text); finish(text); },
+      onProceed: () => { finish('general'); },
+    });
+    document.getElementById('urlInput').focus();
+  });
+
+  // Step 2: Plugin — open studio immediately, only Grace's opener shows in chat
+  setBriefStep('Writing plugin…');
   openStudio(confirmedSlug);
   showTypingIndicator();
   setBarMode('disabled', { placeholder: 'Writing plugin…', label: '…' });
-  let pluginRaw = await streamStep('plugin', { slug: confirmedSlug }, { splitOnSections: true, streamToStudio: true });
+  let pluginRaw = await streamStep('plugin', { slug: confirmedSlug, scopeContext: scopeAnswer }, { chatOpenerOnly: true, streamToStudio: true });
 
   // Push loop — only feedback at this stage
   while (true) {
@@ -920,7 +982,7 @@ async function runGrace(url) {
     setBarMode('disabled', { placeholder: 'Revising…', label: '…' });
     document.getElementById('pluginEditor').value = '';
     showTypingIndicator();
-    pluginRaw = await streamStep('feedback', { feedback:r.text, previousOutput:pluginRaw, originalStep:'plugin' }, { splitOnSections:true, streamToStudio:true });
+    pluginRaw = await streamStep('feedback', { feedback:r.text, previousOutput:pluginRaw, originalStep:'plugin' }, { chatOpenerOnly:true, streamToStudio:true });
   }
 }
 </script>

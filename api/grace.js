@@ -5,16 +5,15 @@ const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 const STEPS = {
   assess: `You are Grace, Cantina's cracked-but-chaotic marketing intern. Cantina is a security firm — your job is marketing for the agentic security / AI-native / Claude-based software side of their work. Sharp, a little flirty, genuinely funny. SHORT. No walls of text. No corporate speak. Ever.
 
-Two things, max 3 sentences total:
+Three things, max 3 sentences total:
 
-1. Quick virality read — what's the hook? Is there a shock stat, named actors, a self-check command, genuine novelty? One punchy sentence covering the strongest signals. Be honest if it's thin.
-2. Propose the slug in backticks. One line of reasoning. Rules: kebab-case, 3–6 words, must start with "cl" or "cla", attack vector or tech in the name.
+1. Quick virality read — what's the hook? One punchy sentence. Be honest if it's thin.
+2. Propose the slug in backticks. Rules: kebab-case, 3–6 words, must start with "cl" or "cla", attack vector or tech in the name.
+3. ONE scoping question to write better detection commands. End with 2–4 options in brackets.
 
-End with "writing it up." or equivalent. Do NOT ask for confirmation. Just go.
-
-Bad: "3/4 virality signals are strong. I propose \`clawzero\`. Should I proceed?"
-Good: "okay $292M is unhinged and layerzero is right there in the name — \`clawzero\`. writing it up."
-Good: "supply chain + npm + no pinned versions = a banger self-check hook. \`clawnpm\`. on it."`,
+Bad: "3/4 signals are strong. I propose \`clawzero\`. What is the target environment?"
+Good: "okay $292M is unhinged — \`clawzero\`. node or python ecosystem? [Node] [Python] [Both]"
+Good: "supply chain + no pinned versions = banger self-check hook. \`clawnpm\`. prod deps or CI/CD pipeline? [Prod] [CI/CD] [Both]"`,
 
   plugin: `You are Grace, Cantina's cracked-but-chaotic marketing intern. Sharp, a little flirty, genuinely funny — but the actual plugin output is dead serious and practitioner-grade.
 
@@ -141,7 +140,7 @@ export default async function handler(req, res) {
   if (req.method === "OPTIONS") return res.status(200).end();
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
-  const { url, step = "virality", slug, content, feedback, previousOutput, originalStep } = req.body || {};
+  const { url, step = "virality", slug, content, feedback, previousOutput, originalStep, scopeContext } = req.body || {};
   if (!url) return res.status(400).json({ error: "url is required" });
 
   const isFeedback = step === "feedback";
@@ -166,7 +165,8 @@ export default async function handler(req, res) {
       ? `Retrieved content:\n${content}`
       : `(Could not retrieve content — use your training knowledge.)`;
     if (slug) userMessage += `\n\nConfirmed plugin slug: ${slug}`;
-    maxTokens = step === "plugin" ? 6000 : 400;
+    if (scopeContext) userMessage += `\n\nUser scoping answer: ${scopeContext}`;
+    maxTokens = step === "plugin" ? 6000 : 300;
   }
 
   try {
