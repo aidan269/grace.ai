@@ -846,6 +846,157 @@ nav {
   .input-bar { bottom: 44px; }
   .chat-area { padding-bottom: 220px; }
 }
+
+/* ── Grace avatar mood rings ── */
+.grace-avatar, .grace-logo { transition: box-shadow 0.4s ease, filter 0.4s ease; }
+.grace-avatar.mood-hype { box-shadow: 0 0 0 2px rgba(250,94,6,0.35); }
+.grace-avatar.mood-skeptical { box-shadow: 0 0 0 2px rgba(148,163,184,0.45); filter: saturate(0.6); }
+.grace-avatar.mood-neutral { box-shadow: 0 0 0 2px rgba(161,161,170,0.2); }
+.grace-logo.mood-hype { box-shadow: 0 0 0 4px var(--bg), 0 0 0 7px rgba(250,94,6,0.45), var(--shadow-md); }
+.grace-logo.mood-skeptical { box-shadow: 0 0 0 4px var(--bg), 0 0 0 7px rgba(148,163,184,0.4), var(--shadow-md); filter: saturate(0.7); }
+
+.mood-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 0.58rem; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--muted);
+  background: var(--gray-100); border: 1px solid var(--border);
+  border-radius: 99px; padding: 2px 8px;
+  margin-bottom: 4px;
+}
+.mood-badge.hype { color: var(--orange); background: rgba(250,94,6,0.08); border-color: rgba(250,94,6,0.2); }
+.mood-badge.skeptical { color: #64748b; background: rgba(100,116,139,0.08); border-color: rgba(100,116,139,0.2); }
+
+/* ── Trending strip ── */
+.trending-strip {
+  width: 100%; max-width: 560px; margin-bottom: 14px;
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 14px; background: var(--surface);
+  border: 1px solid var(--border); border-radius: 99px;
+  box-shadow: var(--shadow); font-size: 0.72rem;
+  overflow: hidden;
+}
+.trending-strip.hidden { display: none; }
+.trending-label {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 0.6rem; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--orange); flex-shrink: 0;
+}
+.trending-label .td { width: 6px; height: 6px; background: var(--orange); border-radius: 50%; animation: pulse 2s ease-in-out infinite; }
+.trending-items { display: flex; align-items: center; gap: 2px; overflow: hidden; flex: 1; min-width: 0; }
+.trending-item {
+  font-family: inherit; font-size: 0.72rem; color: var(--muted);
+  background: none; border: none; cursor: pointer;
+  padding: 4px 10px; border-radius: 99px; white-space: nowrap;
+  transition: all 0.15s; font-weight: 500;
+  overflow: hidden; text-overflow: ellipsis;
+}
+.trending-item:hover { color: var(--orange); background: rgba(250,94,6,0.06); }
+.trending-item strong { color: var(--text); font-weight: 600; margin-right: 5px; }
+.trending-item .t-count { font-family: var(--mono); font-size: 0.62rem; color: var(--subtle); margin-left: 4px; }
+.trending-sep { width: 1px; height: 12px; background: var(--border); flex-shrink: 0; }
+
+/* ── Related-plugin hint (appears under input when URL detected matches existing) ── */
+.related-hint {
+  width: 100%; display: flex; align-items: center; gap: 10px;
+  padding: 9px 12px; background: rgba(250,94,6,0.04);
+  border: 1px dashed rgba(250,94,6,0.3); border-radius: 10px;
+  margin-bottom: 14px; margin-top: -6px;
+  font-size: 0.76rem; color: var(--muted);
+  animation: fadeUp 0.25s ease;
+}
+.related-hint.hidden { display: none; }
+.related-hint-icon { flex-shrink: 0; color: var(--orange); font-size: 0.95rem; }
+.related-hint-text { flex: 1; min-width: 0; line-height: 1.4; }
+.related-hint-text strong { color: var(--orange); font-family: var(--mono); font-weight: 600; }
+.related-hint-text small { display: block; font-size: 0.66rem; color: var(--subtle); margin-top: 1px; }
+.related-hint-btn {
+  font-family: inherit; font-size: 0.68rem; font-weight: 600;
+  padding: 4px 10px; border-radius: 6px; cursor: pointer; border: 1px solid var(--border);
+  background: var(--surface); color: var(--muted); white-space: nowrap;
+  transition: all 0.15s;
+}
+.related-hint-btn:hover { color: var(--orange); border-color: var(--orange); }
+
+/* ── Keyboard shortcut overlay ── */
+.kbd-overlay {
+  position: fixed; inset: 0; z-index: 400;
+  background: rgba(0,0,0,0.5); backdrop-filter: blur(6px);
+  display: none; align-items: center; justify-content: center;
+  padding: 20px; animation: fadeUp 0.15s ease;
+}
+.kbd-overlay.visible { display: flex; }
+.kbd-panel {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 16px; box-shadow: var(--shadow-lg);
+  width: 100%; max-width: 460px; padding: 22px 26px;
+}
+.kbd-panel h3 {
+  font-size: 1rem; font-weight: 700; letter-spacing: -0.02em;
+  margin-bottom: 4px; display: flex; align-items: center; justify-content: space-between;
+}
+.kbd-panel h3 small { font-size: 0.68rem; font-weight: 500; color: var(--subtle); letter-spacing: 0; }
+.kbd-subtitle { font-size: 0.78rem; color: var(--muted); margin-bottom: 16px; }
+.kbd-list { display: flex; flex-direction: column; gap: 2px; }
+.kbd-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 9px 2px; font-size: 0.82rem; color: var(--text);
+  border-bottom: 1px solid var(--border);
+}
+.kbd-row:last-child { border-bottom: none; }
+.kbd-combo { display: inline-flex; gap: 4px; }
+.kbd-key {
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 3px 8px; border-radius: 6px;
+  background: var(--gray-100); border: 1px solid var(--border);
+  color: var(--muted); min-width: 22px; text-align: center;
+  box-shadow: 0 1px 0 var(--border);
+}
+.kbd-plus { color: var(--subtle); font-size: 0.7rem; align-self: center; }
+
+/* ── Preview section nav + severity ── */
+.preview-shell { display: flex; height: 100%; }
+.preview-nav {
+  width: 180px; flex-shrink: 0;
+  border-right: 1px solid var(--border);
+  padding: 24px 12px 32px 20px;
+  overflow-y: auto; background: var(--bg);
+}
+.preview-nav-label {
+  font-size: 0.56rem; font-weight: 700; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--subtle);
+  margin-bottom: 10px; padding-left: 10px;
+}
+.preview-nav a {
+  display: block; padding: 7px 10px;
+  font-size: 0.76rem; color: var(--muted);
+  text-decoration: none; border-radius: 7px;
+  border-left: 2px solid transparent;
+  margin-bottom: 1px; transition: all 0.15s;
+  cursor: pointer;
+}
+.preview-nav a:hover { color: var(--text); background: var(--gray-100); }
+.preview-nav a.active { color: var(--orange); border-left-color: var(--orange); background: rgba(250,94,6,0.05); font-weight: 600; }
+.preview-shell .plugin-preview { flex: 1; }
+
+/* Severity chips auto-highlighted in preview */
+.sev-chip {
+  display: inline-block;
+  font-family: var(--mono); font-size: 0.68rem; font-weight: 700;
+  padding: 1px 7px; border-radius: 5px; letter-spacing: 0.04em;
+  margin-right: 2px; vertical-align: middle;
+}
+.sev-chip.critical { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+.sev-chip.high { background: #fff7ed; color: #ea580c; border: 1px solid #fed7aa; }
+.sev-chip.medium { background: #fefce8; color: #ca8a04; border: 1px solid #fde68a; }
+.sev-chip.low { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
+[data-theme="dark"] .sev-chip.critical { background: #450a0a; color: #fca5a5; border-color: #7f1d1d; }
+[data-theme="dark"] .sev-chip.high { background: #431407; color: #fdba74; border-color: #7c2d12; }
+[data-theme="dark"] .sev-chip.medium { background: #422006; color: #fde047; border-color: #713f12; }
+[data-theme="dark"] .sev-chip.low { background: #052e16; color: #86efac; border-color: #14532d; }
+
+@media (max-width: 900px) {
+  .preview-nav { display: none; }
+}
 </style>
 </head>
 <body>
@@ -907,6 +1058,12 @@ nav {
   <!-- Empty state -->
   <div class="empty-state" id="emptyState">
 
+    <!-- Trending strip -->
+    <div class="trending-strip" id="trendingStrip">
+      <span class="trending-label"><span class="td"></span>Trending</span>
+      <div class="trending-items" id="trendingItems"></div>
+    </div>
+
     <!-- How-it-works strip -->
     <div class="how-strip" id="howStrip">
       <button class="how-close" onclick="dismissHow()" title="Dismiss">
@@ -961,6 +1118,12 @@ nav {
           Run Grace
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </button>
+      </div>
+
+      <div class="related-hint hidden" id="relatedHint">
+        <span class="related-hint-icon">💡</span>
+        <div class="related-hint-text" id="relatedHintText"></div>
+        <button class="related-hint-btn" onclick="dismissRelated()">Got it</button>
       </div>
 
       <div class="example-cards" id="exampleCards">
@@ -1064,6 +1227,28 @@ nav {
   </div>
 </div>
 
+<!-- Keyboard shortcut overlay -->
+<div class="kbd-overlay" id="kbdOverlay" onclick="if(event.target===this)closeKbd()">
+  <div class="kbd-panel">
+    <h3>Keyboard shortcuts <small>Press ? anytime</small></h3>
+    <div class="kbd-subtitle">Move through Grace without the mouse.</div>
+    <div class="kbd-list">
+      <div class="kbd-row"><span>Focus the input</span><span class="kbd-combo"><span class="kbd-key">⌘</span><span class="kbd-plus">+</span><span class="kbd-key">K</span></span></div>
+      <div class="kbd-row"><span>Run / send / ship</span><span class="kbd-combo"><span class="kbd-key">⌘</span><span class="kbd-plus">+</span><span class="kbd-key">↵</span></span></div>
+      <div class="kbd-row"><span>Toggle Tweaks panel</span><span class="kbd-combo"><span class="kbd-key">⌘</span><span class="kbd-plus">+</span><span class="kbd-key">/</span></span></div>
+      <div class="kbd-row"><span>Open History</span><span class="kbd-combo"><span class="kbd-key">⌘</span><span class="kbd-plus">+</span><span class="kbd-key">H</span></span></div>
+      <div class="kbd-row"><span>Toggle theme</span><span class="kbd-combo"><span class="kbd-key">⌘</span><span class="kbd-plus">+</span><span class="kbd-key">D</span></span></div>
+      <div class="kbd-row"><span>Switch Write / Preview / Distribute</span><span class="kbd-combo"><span class="kbd-key">1</span><span class="kbd-plus">·</span><span class="kbd-key">2</span><span class="kbd-plus">·</span><span class="kbd-key">3</span></span></div>
+      <div class="kbd-row"><span>Close / go back</span><span class="kbd-key">Esc</span></div>
+      <div class="kbd-row"><span>Show this overlay</span><span class="kbd-key">?</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ?-help floating button (only visible when tweaks are hidden) -->
+<button class="icon-btn square" id="kbdHelpBtn" onclick="openKbd()" title="Keyboard shortcuts (?)"
+  style="position:fixed; bottom:20px; right:74px; z-index:298; width:36px; height:36px; padding:0; border-radius:50%; background:var(--surface); box-shadow:var(--shadow); font-weight:700;">?</button>
+
 <script>
 /* ==============================================================
    TWEAKS — toggleable features for A/B comparison vs original
@@ -1081,21 +1266,39 @@ const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
   "betterErrorStates": true,
   "mobileStudio": true,
   "tweetDraftInline": true,
-  "diffToggleOnAccept": true
+  "diffToggleOnAccept": true,
+  "trendingStrip": true,
+  "relatedPlugins": true,
+  "moodStates": true,
+  "catchphraseBank": true,
+  "keyboardShortcuts": true,
+  "previewSectionNav": true,
+  "severityHighlight": true
 }/*EDITMODE-END*/;
 
 const TWEAK_GROUPS = [
   { group: 'Landing', items: [
+    { key: 'trendingStrip', label: 'Trending strip', sub: '3 most-installed plugins this week, up top' },
     { key: 'howStrip', label: 'How-it-works strip', sub: '3-icon onboarding above the input' },
     { key: 'smartExamples', label: 'Smart example cards', sub: 'Real stories with virality score, not URL placeholders' },
     { key: 'smartInputDetection', label: 'Smart input detection', sub: 'Accepts CVE IDs, npm packages, GitHub — shows live badge' },
+    { key: 'relatedPlugins', label: '"Who else wrote about this"', sub: 'Warn when a similar plugin already exists' },
     { key: 'viralityInLoading', label: 'Virality during loading', sub: 'See the score before committing' },
     { key: 'gracePicksDefault', label: 'Grace-picks default', sub: 'One-click escape hatch on every scoping question' },
+  ]},
+  { group: 'Personality', items: [
+    { key: 'moodStates', label: 'Mood states', sub: 'Avatar ring + label shifts with virality (hype / neutral / skeptical)' },
+    { key: 'catchphraseBank', label: 'Catchphrase bank', sub: 'Grace rotates her openers — no repeats' },
+  ]},
+  { group: 'Studio', items: [
+    { key: 'previewSectionNav', label: 'Preview section nav', sub: 'Sticky left rail for long plugins' },
+    { key: 'severityHighlight', label: 'Severity chips highlighted', sub: 'CRITICAL / HIGH / MEDIUM / LOW colored in Preview' },
+    { key: 'diffToggleOnAccept', label: 'Accept bar: diff toggle', sub: 'Full / Diff-only view when Grace revises' },
   ]},
   { group: 'Workflow', items: [
     { key: 'progressRail', label: 'Progress rail', sub: 'Read → Scope → Write → Review → Ship' },
     { key: 'modeAwareBar', label: 'Mode-aware bottom bar', sub: 'Icon + progress shimmer per mode' },
-    { key: 'diffToggleOnAccept', label: 'Accept bar: diff toggle', sub: 'Full / Diff-only view when Grace revises' },
+    { key: 'keyboardShortcuts', label: 'Keyboard shortcuts', sub: '⌘K, ⌘↵, ⌘/ · press ? for the overlay' },
   ]},
   { group: 'Shipping', items: [
     { key: 'autoDistributeOnShip', label: 'Auto Distribute tab on ship', sub: 'Surface the tweet draft immediately' },
@@ -1130,8 +1333,13 @@ function applyTweaks() {
   const how = document.getElementById('howStrip');
   if (how) how.style.display = (tweaks.howStrip && !localStorage.getItem('grace_how_dismissed')) ? '' : 'none';
 
+  // Trending strip
+  const trend = document.getElementById('trendingStrip');
+  if (trend) trend.classList.toggle('hidden', !tweaks.trendingStrip);
+
   // Smart examples vs old chips
   renderExamples();
+  renderTrending();
 
   // Progress rail
   const rail = document.getElementById('progressRail');
@@ -1140,6 +1348,10 @@ function applyTweaks() {
     else if (document.getElementById('workspace').classList.contains('visible')) rail.classList.add('visible');
   }
   document.getElementById('page').classList.toggle('has-rail', tweaks.progressRail && document.getElementById('workspace').classList.contains('visible'));
+
+  // Keyboard help button
+  const kh = document.getElementById('kbdHelpBtn');
+  if (kh) kh.style.display = tweaks.keyboardShortcuts ? 'inline-flex' : 'none';
 }
 
 function renderTweaksPanel() {
@@ -1167,12 +1379,14 @@ function renderTweaksPanel() {
 
 function openTweaks() {
   document.getElementById('tweaksToggleBtn').style.display = 'none';
+  document.getElementById('kbdHelpBtn').style.display = 'none';
   document.getElementById('tweaksPanel').classList.add('visible');
   renderTweaksPanel();
 }
 function closeTweaks() {
   document.getElementById('tweaksPanel').classList.remove('visible');
   document.getElementById('tweaksToggleBtn').style.display = 'flex';
+  if (tweaks.keyboardShortcuts) document.getElementById('kbdHelpBtn').style.display = 'inline-flex';
 }
 function resetTweaks() {
   tweaks = { ...TWEAK_DEFAULTS };
@@ -1267,8 +1481,207 @@ function renderExamples() {
 }
 
 /* ==============================================================
-   SMART INPUT DETECTION
+   TRENDING STRIP — top 3 most-installed plugins this week
    ============================================================== */
+const TRENDING = [
+  { slug: 'cl-shai-hulud-check',    installs: 412, sparkle: '🔥' },
+  { slug: 'cla-vercel-token-leak',  installs: 287, sparkle: '📈' },
+  { slug: 'cl-axios-supply-chain',  installs: 164, sparkle: '🆕' },
+];
+function renderTrending() {
+  const el = document.getElementById('trendingItems');
+  if (!el) return;
+  el.innerHTML = '';
+  TRENDING.forEach((t, i) => {
+    if (i > 0) {
+      const sep = document.createElement('span');
+      sep.className = 'trending-sep';
+      el.appendChild(sep);
+    }
+    const b = document.createElement('button');
+    b.className = 'trending-item';
+    b.innerHTML = `<strong>${t.sparkle} /${t.slug}</strong><span class="t-count">${t.installs}↓</span>`;
+    b.onclick = () => {
+      // Open a little peek "card" — simulate by filling the input with a known URL
+      const matched = EXAMPLES.find(e => e.url && t.slug.includes(e.url.split('/').pop().split('-')[1] || '_')) || EXAMPLES[0];
+      document.getElementById('landingInput').value = matched.url || '';
+      document.getElementById('landingInput').dispatchEvent(new Event('input'));
+      document.getElementById('landingInput').focus();
+    };
+    el.appendChild(b);
+  });
+}
+
+/* ==============================================================
+   RELATED-PLUGIN HINT — "who else wrote about this"
+   ============================================================== */
+// Keyword → existing-slug map (demo data)
+const EXISTING_SLUGS = [
+  { match: /axios|supply[-\s]?chain/i,     slug: 'cl-axios-supply-chain',   written: '2026-03-11', by: '@beefshroud' },
+  { match: /shai[-\s]?hulud|npm worm/i,    slug: 'cl-shai-hulud-check',     written: '2026-04-19', by: '@lutebert' },
+  { match: /vercel|token leak/i,           slug: 'cla-vercel-token-leak',   written: '2026-04-02', by: '@prawnling' },
+  { match: /litellm/i,                     slug: 'cl-litellm-supply-chain', written: '2026-02-28', by: '@grace' },
+  { match: /log4j/i,                       slug: 'cl-log4j-audit',          written: '2025-12-10', by: '@beefshroud' },
+  { match: /CVE-2024-3094|xz/i,            slug: 'cl-xz-backdoor',          written: '2025-07-04', by: '@grace' },
+];
+function checkRelated(v) {
+  if (!tweaks.relatedPlugins) return null;
+  return EXISTING_SLUGS.find(e => e.match.test(v)) || null;
+}
+function renderRelated(v) {
+  const hint = document.getElementById('relatedHint');
+  const txt  = document.getElementById('relatedHintText');
+  if (!hint) return;
+  if (dismissedRelated) { hint.classList.add('hidden'); return; }
+  const m = checkRelated(v);
+  if (!m) { hint.classList.add('hidden'); return; }
+  txt.innerHTML = `Someone already wrote <strong>/${m.slug}</strong> — ${m.by}, ${m.written}.
+    <small>Grace will still ship yours, but consider a unique angle or merging instead.</small>`;
+  hint.classList.remove('hidden');
+}
+let dismissedRelated = false;
+function dismissRelated() {
+  dismissedRelated = true;
+  document.getElementById('relatedHint').classList.add('hidden');
+}
+
+/* ==============================================================
+   GRACE MOOD STATES
+   ============================================================== */
+function graceMood(score) {
+  if (score >= 4)  return 'hype';
+  if (score <= 1)  return 'skeptical';
+  return 'neutral';
+}
+function applyGraceMood(score) {
+  if (!tweaks.moodStates) return;
+  const mood = graceMood(score);
+  const logo = document.querySelector('.empty-state .grace-logo');
+  if (logo) {
+    logo.classList.remove('mood-hype', 'mood-neutral', 'mood-skeptical');
+    logo.classList.add('mood-' + mood);
+  }
+  // All existing avatar bubbles
+  document.querySelectorAll('.chat-bubble .grace-avatar, .typing-bubble .grace-avatar').forEach(a => {
+    a.classList.remove('mood-hype', 'mood-neutral', 'mood-skeptical');
+    a.classList.add('mood-' + mood);
+  });
+}
+function moodBadgeHtml(score) {
+  if (!tweaks.moodStates) return '';
+  const mood = graceMood(score);
+  if (mood === 'hype') return `<span class="mood-badge hype">🔥 Hype</span> `;
+  if (mood === 'skeptical') return `<span class="mood-badge skeptical">🤨 Skeptical</span> `;
+  return '';
+}
+
+/* ==============================================================
+   CATCHPHRASE BANK — rotating, no-repeat within session
+   ============================================================== */
+const CATCHPHRASES = {
+  openerHype:       ['say less.', 'oh this is good.', 'time to cook.', 'on it.', 'this one\'s spicy.'],
+  openerNeutral:    ['alright, reading now.', 'on it.', 'let me take a look.', 'got it.', 'okay.'],
+  openerSkeptical:  ['hmm. okay.', 'we\'ll see what I can do.', 'let me read it. no promises.', 'fine, fine.'],
+  writing:          ['okay okay okay. writing.', 'here we go.', 'cooking.', 'on the keyboard.', 'writing now.'],
+  reviewHype:       ['this is clean. ship?', 'looks tight to me. one last look.', 'I like it. ready?'],
+  reviewNeutral:    ['okay — ran it through a read. Want a change, or ship?', 'draft done. your call.', 'alright. review or ship?'],
+  reviewSkeptical:  ['it\'s alright. thin in places but it ships. your call.', 'not my strongest. but it\'s something.'],
+};
+const USED_PHRASES = {}; // { key: [indices used] }
+function pickPhrase(bucket) {
+  if (!tweaks.catchphraseBank) {
+    // Legacy fallback — first item, same every time
+    return CATCHPHRASES[bucket][0];
+  }
+  USED_PHRASES[bucket] = USED_PHRASES[bucket] || [];
+  const pool = CATCHPHRASES[bucket];
+  const avail = pool.map((_, i) => i).filter(i => !USED_PHRASES[bucket].includes(i));
+  const choices = avail.length ? avail : (USED_PHRASES[bucket] = [], pool.map((_, i) => i));
+  const pick = choices[Math.floor(Math.random() * choices.length)];
+  USED_PHRASES[bucket].push(pick);
+  return pool[pick];
+}
+function openerBucket(score) {
+  if (score >= 4) return 'openerHype';
+  if (score <= 1) return 'openerSkeptical';
+  return 'openerNeutral';
+}
+function reviewBucket(score) {
+  if (score >= 4) return 'reviewHype';
+  if (score <= 1) return 'reviewSkeptical';
+  return 'reviewNeutral';
+}
+
+/* ==============================================================
+   KEYBOARD SHORTCUTS
+   ============================================================== */
+function openKbd() {
+  document.getElementById('kbdOverlay').classList.add('visible');
+}
+function closeKbd() {
+  document.getElementById('kbdOverlay').classList.remove('visible');
+}
+function installKbdShortcuts() {
+  document.addEventListener('keydown', (e) => {
+    if (!tweaks.keyboardShortcuts) return;
+    const meta = e.metaKey || e.ctrlKey;
+    const tag = (e.target.tagName || '').toUpperCase();
+    const isTyping = tag === 'INPUT' || tag === 'TEXTAREA';
+
+    // ? to open help — only if not typing
+    if (e.key === '?' && !isTyping && !meta) {
+      e.preventDefault(); openKbd(); return;
+    }
+    // Esc
+    if (e.key === 'Escape') {
+      if (document.getElementById('kbdOverlay').classList.contains('visible')) { closeKbd(); return; }
+      if (document.getElementById('tweaksPanel').classList.contains('visible')) { closeTweaks(); return; }
+      if (document.getElementById('historyDrawer').style.transform === 'translateX(0px)') { closeHistory(); return; }
+    }
+    // ⌘K — focus input
+    if (meta && e.key.toLowerCase() === 'k') {
+      e.preventDefault();
+      const wsVisible = document.getElementById('workspace').classList.contains('visible');
+      const target = wsVisible ? document.getElementById('urlInput') : document.getElementById('landingInput');
+      if (target && !target.disabled) target.focus();
+      return;
+    }
+    // ⌘↵ — main button (works from anywhere)
+    if (meta && e.key === 'Enter') {
+      e.preventDefault();
+      const wsVisible = document.getElementById('workspace').classList.contains('visible');
+      if (wsVisible) handleMainBtn();
+      else handleLandingSubmit();
+      return;
+    }
+    // ⌘/ — tweaks
+    if (meta && e.key === '/') {
+      e.preventDefault();
+      const panel = document.getElementById('tweaksPanel');
+      if (panel.classList.contains('visible')) closeTweaks(); else openTweaks();
+      return;
+    }
+    // ⌘H — history
+    if (meta && e.key.toLowerCase() === 'h') {
+      e.preventDefault();
+      const drawer = document.getElementById('historyDrawer');
+      if (drawer.style.transform === 'translateX(0px)') closeHistory(); else openHistory();
+      return;
+    }
+    // ⌘D — theme
+    if (meta && e.key.toLowerCase() === 'd') {
+      e.preventDefault(); toggleTheme(); return;
+    }
+    // 1/2/3 — switch tabs (in studio, not typing)
+    if (!isTyping && !meta && ['1','2','3'].includes(e.key)) {
+      if (!document.getElementById('workspace').classList.contains('visible')) return;
+      e.preventDefault();
+      switchTab(['write','preview','distribute'][Number(e.key)-1]);
+    }
+  });
+}
+
+
 function detectInputType(v) {
   const t = v.trim();
   if (!t) return null;
@@ -1301,6 +1714,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const type = tweaks.smartInputDetection ? detectInputType(li.value) : null;
       if (type) { badge.classList.add('visible'); badgeText.textContent = type; wrap.classList.add('detected'); }
       else { badge.classList.remove('visible'); wrap.classList.remove('detected'); }
+      renderRelated(li.value);
     });
     li.addEventListener('paste', e => {
       setTimeout(() => {
@@ -1324,6 +1738,9 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('urlInput').addEventListener('keydown', e => {
     if (e.key === 'Enter') { e.preventDefault(); handleMainBtn(); }
   });
+
+  installKbdShortcuts();
+  renderTrending();
 });
 
 function handleLandingSubmit() {
@@ -1472,7 +1889,7 @@ function setupLandingScoping(slug, hook) {
   document.getElementById('emptyState').classList.add('scoping');
   document.getElementById('emptyTitle').textContent = `/cantinasec:${slug}`;
   document.getElementById('emptySub').textContent = hook;
-  ['landingInputWrap', 'exampleCards', 'howStrip'].forEach(id => {
+  ['landingInputWrap', 'exampleCards', 'howStrip', 'trendingStrip', 'relatedHint'].forEach(id => {
     const el = document.getElementById(id);
     if (!el) return;
     el.style.transition = 'opacity 0.22s ease, margin 0.22s ease, height 0.22s ease';
@@ -1605,11 +2022,64 @@ function switchTab(tab) {
     document.getElementById(`pane${T}`).classList.toggle('active', t === tab);
   });
   if (tab === 'preview') {
-    const content = document.getElementById('pluginEditor').value.trim();
-    document.getElementById('pluginPreview').innerHTML = marked.parse(content || '*empty*');
+    renderPreview();
   }
   if (tab === 'distribute') renderDistribute();
   if (tab === 'distribute') document.getElementById('tabDistribute').classList.remove('has-dot');
+}
+
+/* ==============================================================
+   PREVIEW — markdown + optional section nav + severity chips
+   ============================================================== */
+function renderPreview() {
+  const pane = document.getElementById('panePreview');
+  const content = document.getElementById('pluginEditor').value.trim();
+  let html = marked.parse(content || '*empty*');
+
+  // Severity chip highlighting
+  if (tweaks.severityHighlight) {
+    html = html.replace(/<strong>(CRITICAL|HIGH|MEDIUM|LOW)<\/strong>/g,
+      (_, sev) => `<span class="sev-chip ${sev.toLowerCase()}">${sev}</span>`);
+  }
+
+  if (tweaks.previewSectionNav) {
+    pane.innerHTML = `
+      <div class="preview-shell">
+        <aside class="preview-nav" id="previewNav"><div class="preview-nav-label">On this page</div></aside>
+        <div class="plugin-preview" id="pluginPreview"></div>
+      </div>`;
+    const previewEl = pane.querySelector('#pluginPreview');
+    previewEl.innerHTML = html;
+    // Build nav from h2's
+    const nav = pane.querySelector('#previewNav');
+    const h2s = previewEl.querySelectorAll('h2');
+    h2s.forEach((h, i) => {
+      const id = 'sec-' + i;
+      h.id = id;
+      const link = document.createElement('a');
+      link.textContent = h.textContent;
+      link.dataset.target = id;
+      link.onclick = (e) => {
+        e.preventDefault();
+        const container = previewEl;
+        const top = h.offsetTop - 14;
+        container.scrollTo({ top, behavior: 'smooth' });
+        nav.querySelectorAll('a').forEach(a => a.classList.remove('active'));
+        link.classList.add('active');
+      };
+      if (i === 0) link.classList.add('active');
+      nav.appendChild(link);
+    });
+    // Scroll-spy
+    previewEl.addEventListener('scroll', () => {
+      let active = 0;
+      h2s.forEach((h, i) => { if (h.offsetTop - 50 <= previewEl.scrollTop) active = i; });
+      nav.querySelectorAll('a').forEach((a, i) => a.classList.toggle('active', i === active));
+    });
+  } else {
+    pane.innerHTML = `<div class="plugin-preview" id="pluginPreview"></div>`;
+    pane.querySelector('#pluginPreview').innerHTML = html;
+  }
 }
 
 function renderDistribute() {
@@ -1820,11 +2290,10 @@ async function streamToBuffer(step, extraBody = {}) {
 
 async function streamStep(step, extraBody = {}, opts = {}) {
   const { streamToStudio = false, chatOpenerOnly = false, bufferOnly = false } = opts;
-  const chatBody = makeGraceBubble('');
+  const chatBody = makeGraceBubble(moodBadgeHtml(viralityScore));
   const cursor = document.createElement('span');
   cursor.className = 'stream-cursor';
   chatBody.appendChild(cursor);
-
   let raw = '';
   let chatBuf = '';
   let chatSealed = false;
@@ -1835,9 +2304,9 @@ async function streamStep(step, extraBody = {}, opts = {}) {
     body: JSON.stringify({ url: currentUrl, step, content: cachedContent, ...extraBody })
   });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
   const reader = res.body.getReader();
   const dec = new TextDecoder();
+
   while (true) {
     const { done, value } = await reader.read();
     if (done) break;
@@ -1861,7 +2330,7 @@ async function streamStep(step, extraBody = {}, opts = {}) {
           if (chatOpenerOnly && sealTrigger > -1) {
             const opener = raw.slice(0, sealTrigger).trim();
             if (cursor.parentNode) cursor.remove();
-            chatBody.innerHTML = marked.parse(opener || raw.trim());
+            chatBody.innerHTML = moodBadgeHtml(viralityScore) + marked.parse(opener || raw.trim());
             chatSealed = true;
             scrollToBottom();
           } else {
@@ -1876,10 +2345,9 @@ async function streamStep(step, extraBody = {}, opts = {}) {
       } catch {}
     }
   }
-
   if (!chatSealed) {
     if (cursor.parentNode) cursor.remove();
-    chatBody.innerHTML = marked.parse((raw || '').replace(/\[PUSH_READY\]/g, '').trim());
+    chatBody.innerHTML = moodBadgeHtml(viralityScore) + marked.parse((raw || '').replace(/\[PUSH_READY\]/g, '').trim());
     scrollToBottom();
   }
   return raw;
@@ -1895,7 +2363,9 @@ async function streamText(target, text, speed = 8) {
 
 async function typeInto(body, text) {
   let i = 0;
-  body.innerHTML = '<span class="stream-cursor"></span>';
+  // Preserve any pre-existing HTML (e.g. mood badge) before the cursor
+  const prefix = body.innerHTML;
+  body.innerHTML = prefix + '<span class="stream-cursor"></span>';
   const cursor = body.querySelector('.stream-cursor');
   while (i < text.length) {
     const chunk = text.slice(i, i + 4);
@@ -1905,7 +2375,7 @@ async function typeInto(body, text) {
     await sleep(15);
   }
   cursor.remove();
-  body.innerHTML = marked.parse(text);
+  body.innerHTML = prefix + marked.parse(text);
   scrollToBottom();
 }
 
@@ -1944,16 +2414,17 @@ For **CRITICAL** or **HIGH**: revoke all npm tokens via \`npm token revoke <id>\
 const FAKE_OVERVIEW = FAKE_PLUGIN.match(/## Overview\n([\s\S]*?)(?=\n##)/)[1].trim().slice(0, 180);
 
 /* ==============================================================
-   MAIN FLOW — runGrace (real API)
+   MAIN FLOW — runGrace (simulated)
    ============================================================== */
 async function runGrace(url) {
   currentUrl = url;
   confirmedSlug = null;
-  cachedContent = null;
   scopingHistory = [];
+  cachedContent = null;
 
   setProgress('read');
 
+  // Phase 1: Loading with virality
   const emptyState = document.getElementById('emptyState');
   emptyState.classList.add('loading');
   const subEl = document.getElementById('emptySub');
@@ -1966,40 +2437,41 @@ async function runGrace(url) {
   subEl.textContent = '';
   document.getElementById('landingBtn').disabled = true;
   document.getElementById('landingInput').disabled = true;
+
   if (tweaks.viralityInLoading) {
     lm.classList.add('visible');
     lStatus.textContent = 'reading the article…';
   }
-
   const [previewData, content, assessRaw] = await Promise.all([
     fetchPreview(url),
     fetchContent(url),
     streamToBuffer('assess')
   ]);
   cachedContent = content;
-
   if (tweaks.viralityInLoading) {
     lStatus.textContent = 'scoring virality…';
     const s = (assessRaw.match(/(\d)\s*\/\s*4/) || [])[1];
     viralityScore = s ? parseInt(s, 10) : 0;
     lFill.style.width = `${(viralityScore / 4) * 100}%`;
     lScore.textContent = `${viralityScore}/4`;
-    lFire.classList.toggle('visible', viralityScore >= 3);
+    if (viralityScore >= 3) lFire.classList.add('visible');
     await sleep(300);
-    lm.classList.remove('visible');
   }
   emptyState.classList.remove('loading');
 
+  // Derive slug + hook
   confirmedSlug = extractSlug(assessRaw) || 'cl-plugin';
+
+  // Phase 2: Scoping on landing
   setupLandingScoping(confirmedSlug, extractHook(assessRaw) || 'got it.');
   setProgress('scope');
+  lm.classList.remove('visible');
 
   const parsed = parseQA(assessRaw);
   const questions = [
     parsed[0] || { question: "what's the target stack?", chips: ['Node', 'Python', 'Go', 'Cloud'] },
-    parsed[1] || { question: 'detection only, or full remediation?', chips: ['Detection', 'Remediation', 'Both'] }
+    parsed[1] || { question: 'detection only, or full remediation?', chips: ['Detection', 'Remediation', 'Both'] },
   ];
-
   const answers = [];
   let qIdx = 0;
   while (qIdx < questions.length) {
@@ -2013,36 +2485,44 @@ async function runGrace(url) {
     scopingHistory.push(ans);
     qIdx++;
   }
-  const scopeAnswer = answers.join('; ');
 
+  // Phase 3: Fade to workspace & stream plugin
   document.getElementById('chatMessages').innerHTML = '';
   document.getElementById('workspace').classList.add('visible');
   openStudio(confirmedSlug);
   document.getElementById('viralityPill').style.display = 'inline-flex';
-  document.getElementById('viralityPillScore').textContent = viralityScore || '—';
-
+  document.getElementById('viralityPillScore').textContent = viralityScore;
   setProgress('write');
   setBarMode('disabled', { placeholder: 'Writing plugin…', label: '…', hint: 'Grace is cooking' });
   document.getElementById('tabWrite').classList.add('streaming');
+  const scopeAnswer = answers.join('; ');
   const pluginPromise = streamStep('plugin', {
     slug: confirmedSlug,
     scopeContext: scopeAnswer,
     preview: previewData || null
-  }, { chatOpenerOnly: true, streamToStudio: true }).then((out) => {
+  }, { streamToStudio: true, chatOpenerOnly: true }).then((out) => {
     document.getElementById('tabWrite').classList.remove('streaming');
     return out;
   });
 
   await fadeToWorkspace();
+
+  applyGraceMood(viralityScore);
   makeUserBubble(url);
   for (const a of answers) makeUserBubble(a);
 
   let pluginRaw = await pluginPromise;
   saveDraft(confirmedSlug, document.getElementById('pluginEditor').value, 'review');
 
+  // Phase 4: Review
   setProgress('review');
+  applyGraceMood(viralityScore);
   await streamStep('review', { slug: confirmedSlug });
-  if (tweaks.viralityInLoading && viralityScore <= 1) showOffRamp('warn');
+
+  // Show low-virality off-ramp if applicable
+  if (tweaks.viralityInLoading && viralityScore <= 1) {
+    showOffRamp('warn');
+  }
 
   const reviewAnswer = await new Promise(resolve => {
     setBarMode('feedback', {
@@ -2066,15 +2546,16 @@ async function runGrace(url) {
     saveDraft(confirmedSlug, pluginRaw, 'review');
   }
 
+  // Phase 5: Ship
   setProgress('ship');
   while (true) {
     const action = await new Promise(resolve => {
-      setBarMode('ship', {
-        placeholder: 'Any last changes, or push to ship…',
-        proceedLabel: 'Push to GitHub',
+    setBarMode('ship', {
+      placeholder: 'Any last changes, or push to ship…',
+      proceedLabel: 'Push to GitHub',
         onSend: text => { makeUserBubble(text); resolve({ type: 'feedback', text }); },
         onProceed: () => { makeUserBubble('Push it'); resolve({ type: 'proceed' }); },
-      });
+    });
     });
 
     if (action.type === 'proceed') {
@@ -2089,19 +2570,16 @@ async function runGrace(url) {
         makeGraceBubble(marked.parse('Push failed. I kept your draft intact so you can retry.'));
         continue;
       }
-
       document.getElementById('studioStatus').textContent = 'LIVE';
       document.getElementById('studioStatus').classList.add('live');
       const overview = (finalContent.match(/## Overview\n([\s\S]*?)(?=\n##)/)?.[1] || '').trim().slice(0, 180);
       await showSuccessBlock(confirmedSlug, overview);
       clearDraft();
-
       if (tweaks.autoDistributeOnShip) {
         switchTab('distribute');
       } else {
         document.getElementById('tabDistribute').classList.add('has-dot');
       }
-
       setBarMode('url');
       break;
     }
