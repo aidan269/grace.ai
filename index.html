@@ -1754,7 +1754,14 @@ function handleLandingSubmit() {
 const DRAFT_KEY = 'grace_draft_v2';
 function saveDraft(slug, content, step = 'write') {
   if (!tweaks.draftRecovery) return;
-  localStorage.setItem(DRAFT_KEY, JSON.stringify({ slug, content, step, ts: Date.now(), url: currentUrl }));
+  localStorage.setItem(DRAFT_KEY, JSON.stringify({
+    slug,
+    content,
+    step,
+    ts: Date.now(),
+    url: runSourceUrl || currentUrl,
+    resolvedUrl: currentUrl,
+  }));
 }
 function clearDraft() { localStorage.removeItem(DRAFT_KEY); }
 function checkDraft() {
@@ -1771,7 +1778,8 @@ function discardDraft() { clearDraft(); document.getElementById('draftBanner').c
 function resumeDraft() {
   const d = JSON.parse(localStorage.getItem(DRAFT_KEY));
   document.getElementById('draftBanner').classList.remove('visible');
-  currentUrl = d.url;
+  runSourceUrl = d.url;
+  currentUrl = d.resolvedUrl || d.url;
   confirmedSlug = d.slug;
   // Jump straight to workspace with draft loaded
   simulateResume(d);
@@ -1781,6 +1789,7 @@ function resumeDraft() {
    STATE
    ============================================================== */
 let currentUrl = null;
+let runSourceUrl = null;
 let confirmedSlug = null;
 let viralityScore = 0;
 let currentStep = null;
@@ -2220,11 +2229,15 @@ async function fetchContent(url) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ url })
     });
-    if (!r.ok) return null;
-    const { content } = await r.json();
-    return content || null;
+    if (!r.ok) return { content: null, resolvedUrl: null, resolvedFrom: null };
+    const json = await r.json();
+    return {
+      content: json.content || null,
+      resolvedUrl: json.resolvedUrl || null,
+      resolvedFrom: json.resolvedFrom || null,
+    };
   } catch {
-    return null;
+    return { content: null, resolvedUrl: null, resolvedFrom: null };
   }
 }
 
@@ -2250,6 +2263,14 @@ function extractSlug(raw) {
 function extractHook(raw) {
   const m = (raw || '').match(/^([^.\n!?]*[.!?])/);
   return m ? m[1].trim() : (raw || '').split('\n')[0].trim();
+}
+
+function extractOverviewFromPlugin(text) {
+  const raw = (text || '').trim();
+  if (!raw) return '';
+  const m = raw.match(/##\s*Overview\s*\n([\s\S]*?)(?=\n##\s|\n?$)/i);
+  const section = (m && m[1]) ? m[1].trim().replace(/\s+/g, ' ') : raw.replace(/\s+/g, ' ');
+  return section.slice(0, 220);
 }
 
 function parseQA(raw) {
@@ -2380,43 +2401,11 @@ async function typeInto(body, text) {
 }
 
 /* ==============================================================
-   FAKE PAYLOADS (prototype)
-   ============================================================== */
-const FAKE_PLUGIN = `# Shai-Hulud npm Worm Detection Skill
-
-This skill audits any Node.js project for infection traces left by the self-replicating \`Shai-Hulud\` npm worm, which spread through 187+ compromised packages on 2026-04-18.
-
-## Overview
-
-The worm hijacks publish credentials via a postinstall script that exfiltrates \`~/.npmrc\`, \`~/.ssh/id_rsa\`, and env vars to \`worm-c2.host:4041\`, then uses harvested tokens to publish trojaned versions of packages the victim maintains. Self-propagation is the signature.
-
-Safe to run on any codebase — read-only.
-
-## Procedure Overview
-
-1. **Lockfile scan** — greps \`package-lock.json\`, \`pnpm-lock.yaml\`, \`yarn.lock\` for the 187 compromised package@versions.
-2. **IOC file search** — checks for \`/tmp/sh-worm.tmp\`, \`~/.npmrc.bak\`, and macOS LaunchAgent \`com.shai.helper.plist\`.
-3. **Credential exfiltration check** — inspects shell history for suspicious \`curl worm-c2.host\` or \`npm publish\` bursts on 2026-04-18.
-4. **Package maintainer audit** — for every package the user publishes (\`npm whoami\` + \`npm access\`), pulls the 48-hour version history and flags unexpected releases.
-5. **CI secret audit** — scans GitHub Actions logs for publish events that didn't originate from a PR merge.
-
-## Exposure Classification
-
-- **CRITICAL**: IOC artifacts + unexpected publishes under the user's scope.
-- **HIGH**: Compromised versions installed OR IOC artifacts present.
-- **MEDIUM**: Compromised versions in transitive-only lockfile entries.
-- **LOW**: Safe — but rotate npm tokens anyway if you published anything on 04-18.
-
-## Critical Remediation
-
-For **CRITICAL** or **HIGH**: revoke all npm tokens via \`npm token revoke <id>\`, rotate SSH keys, unpublish any unexpected releases, and force-push clean commits to replace poisoned tags.`;
-
-const FAKE_OVERVIEW = FAKE_PLUGIN.match(/## Overview\n([\s\S]*?)(?=\n##)/)[1].trim().slice(0, 180);
-
-/* ==============================================================
-   MAIN FLOW — runGrace (simulated)
+   MAIN FLOW — runGrace
    ============================================================== */
 async function runGrace(url) {
+  const originalUrl = url;
+  runSourceUrl = originalUrl;
   currentUrl = url;
   confirmedSlug = null;
   scopingHistory = [];
@@ -2442,12 +2431,18 @@ async function runGrace(url) {
     lm.classList.add('visible');
     lStatus.textContent = 'reading the article…';
   }
-  const [previewData, content, assessRaw] = await Promise.all([
-    fetchPreview(url),
-    fetchContent(url),
-    streamToBuffer('assess')
+  const contentMeta = await fetchContent(url);
+  cachedContent = contentMeta.content;
+  if (contentMeta.resolvedUrl && contentMeta.resolvedUrl !== originalUrl) {
+    currentUrl = contentMeta.resolvedUrl;
+    const ui = document.getElementById('urlInput');
+    if (ui) ui.value = contentMeta.resolvedUrl;
+  }
+
+  const [previewData, assessRaw] = await Promise.all([
+    fetchPreview(currentUrl),
+    streamToBuffer('assess'),
   ]);
-  cachedContent = content;
   if (tweaks.viralityInLoading) {
     lStatus.textContent = 'scoring virality…';
     const s = (assessRaw.match(/(\d)\s*\/\s*4/) || [])[1];
@@ -2508,7 +2503,10 @@ async function runGrace(url) {
   await fadeToWorkspace();
 
   applyGraceMood(viralityScore);
-  makeUserBubble(url);
+  makeUserBubble(originalUrl);
+  if (currentUrl !== originalUrl) {
+    makeUserBubble(`Resolved source → ${currentUrl}`);
+  }
   for (const a of answers) makeUserBubble(a);
 
   let pluginRaw = await pluginPromise;
@@ -2696,7 +2694,7 @@ async function showSuccessBlock(slug, overview) {
   scrollToBottom();
   window.lastSharedUrl = url;
   window.lastSharedSlug = slug;
-  saveToHistory({ slug, url: currentUrl, date: new Date().toISOString(), overview });
+  saveToHistory({ slug, url: runSourceUrl || currentUrl, date: new Date().toISOString(), overview });
   renderDistribute();
 }
 
@@ -2708,7 +2706,8 @@ function tweetInline() {
 
 async function simulateResume(d) {
   // Jump into workspace with draft
-  currentUrl = d.url || 'https://github.com/advisories/GHSA-shai-hulud-2026';
+  runSourceUrl = d.url || 'https://github.com/advisories/GHSA-shai-hulud-2026';
+  currentUrl = d.resolvedUrl || d.url || runSourceUrl;
   confirmedSlug = d.slug;
   viralityScore = 4;
   document.getElementById('emptyState').style.display = 'none';
@@ -2719,7 +2718,10 @@ async function simulateResume(d) {
   document.getElementById('viralityPillScore').textContent = 4;
   document.getElementById('pluginEditor').value = d.content;
   setProgress('review');
-  makeUserBubble(currentUrl);
+  makeUserBubble(runSourceUrl);
+  if (currentUrl !== runSourceUrl) {
+    makeUserBubble(`Resolved source → ${currentUrl}`);
+  }
   makeGraceBubble(marked.parse(`picking up where we left off. I wrote \`/cantinasec:${d.slug}\` — ready to review or ship?`));
   setBarMode('ship', {
     placeholder: 'Changes, or push to ship…',
@@ -2730,7 +2732,7 @@ async function simulateResume(d) {
       document.getElementById('studioStatus').textContent = 'LIVE';
       document.getElementById('studioStatus').classList.add('live');
       setProgress('ship');
-      await showSuccessBlock(d.slug, FAKE_OVERVIEW);
+      await showSuccessBlock(d.slug, extractOverviewFromPlugin(d.content));
       clearDraft();
       if (tweaks.autoDistributeOnShip) switchTab('distribute');
       setBarMode('url');
