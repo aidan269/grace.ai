@@ -1,14 +1,6 @@
 {
   "functions": {
     "api/*.js": {
-      "memory": 512,
-      "maxDuration": 30
-    },
-    "api/news-sync.js": {
-      "memory": 1024,
-      "maxDuration": 120
-    },
-    "api/intake.js": {
       "memory": 1024,
       "maxDuration": 120
     }
