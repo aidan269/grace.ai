@@ -5,6 +5,23 @@ const DEFAULT_SOURCE_URL = "https://ahackaday-site.vercel.app/";
 const DEFAULT_OWNER = process.env.NEWS_QUEUE_REPO_OWNER || "aidan269";
 const DEFAULT_REPO = process.env.NEWS_QUEUE_REPO || "grace.ai";
 
+async function mapPool(items, concurrency, fn) {
+  const results = new Array(items.length);
+  let idx = 0;
+
+  async function worker() {
+    while (true) {
+      const i = idx++;
+      if (i >= items.length) return;
+      results[i] = await fn(items[i], i);
+    }
+  }
+
+  const workers = Array.from({ length: Math.min(concurrency, items.length || 1) }, () => worker());
+  await Promise.all(workers);
+  return results;
+}
+
 const ASSESS_SYSTEM = `You are Grace, Cantina's security marketing specialist.
 Assess incident virality and campaign value.
 
@@ -125,13 +142,13 @@ async function createQueueIssue(item, triage) {
     `2. ${triage.q2 || "n/a"}`,
   ].join("\n");
 
-  const labels = ["news-intake", `triage:${triage.status}`];
+  // Keep labels minimal — GitHub auto-creates missing labels, and many labels slows issue creation.
   const { data } = await octokit.issues.create({
     owner: DEFAULT_OWNER,
     repo: DEFAULT_REPO,
     title: issueTitle,
     body: issueBody,
-    labels,
+    labels: ["news-intake"],
   });
   return data.html_url;
 }
@@ -146,22 +163,41 @@ export default async function handler(req, res) {
   const source_url = req.body?.source_url || DEFAULT_SOURCE_URL;
   const max_items = Math.min(Math.max(parseInt(req.body?.max_items || "8", 10), 1), 30);
   const create_issue = req.body?.create_issue !== false;
+  const assess_concurrency = Math.min(Math.max(parseInt(req.body?.assess_concurrency || "3", 10), 1), 6);
+  const issue_concurrency = Math.min(Math.max(parseInt(req.body?.issue_concurrency || "3", 10), 1), 6);
 
   const htmlRes = await fetch(source_url, { signal: AbortSignal.timeout(10000) });
   if (!htmlRes.ok) return res.status(500).json({ error: `Failed to fetch source: ${htmlRes.status}` });
   const html = await htmlRes.text();
   const candidates = extractItemsFromHtml(html, max_items);
 
-  const results = [];
-  for (const item of candidates) {
+  const triaged = await mapPool(candidates, assess_concurrency, async (item) => {
     try {
       const triage = await assessItem(item);
-      const issue_url = create_issue ? await createQueueIssue(item, triage) : null;
-      results.push({ ...item, ...triage, issue_url });
+      return { ok: true, item, triage };
     } catch (err) {
-      results.push({ ...item, error: err.message || "Triage failed" });
+      return { ok: false, item, error: err.message || "Triage failed" };
     }
-  }
+  });
+
+  const results = await mapPool(triaged, issue_concurrency, async (row) => {
+    if (!row.ok) return { ...row.item, error: row.error };
+
+    const triage = row.triage;
+    const item = row.item;
+
+    let issue_url = null;
+    let issue_error = null;
+    if (create_issue) {
+      try {
+        issue_url = await createQueueIssue(item, triage);
+      } catch (err) {
+        issue_error = err.message || "Failed to create issue";
+      }
+    }
+
+    return { ...item, ...triage, issue_url, issue_error };
+  });
 
   const summary = results.reduce((acc, r) => {
     if (r.status === "promote") acc.promote += 1;

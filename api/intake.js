@@ -22,6 +22,23 @@ Rules:
 const DEFAULT_OWNER = process.env.NEWS_QUEUE_REPO_OWNER || "aidan269";
 const DEFAULT_REPO = process.env.NEWS_QUEUE_REPO || "grace.ai";
 
+async function mapPool(items, concurrency, fn) {
+  const results = new Array(items.length);
+  let idx = 0;
+
+  async function worker() {
+    while (true) {
+      const i = idx++;
+      if (i >= items.length) return;
+      results[i] = await fn(items[i], i);
+    }
+  }
+
+  const workers = Array.from({ length: Math.min(concurrency, items.length || 1) }, () => worker());
+  await Promise.all(workers);
+  return results;
+}
+
 function normalizeItems(body) {
   if (!body) return [];
   if (Array.isArray(body.items)) return body.items;
@@ -118,16 +135,12 @@ async function createQueueIssue(item, triage) {
     "```",
   ].join("\n");
 
-  const labels = ["news-intake", `triage:${triage.status}`];
-  if (item.severity) labels.push(`severity:${String(item.severity).toLowerCase()}`);
-  if (item.type) labels.push(`type:${String(item.type).toLowerCase().replace(/\s+/g, "-")}`);
-
   const { data } = await octokit.issues.create({
     owner: DEFAULT_OWNER,
     repo: DEFAULT_REPO,
     title: issueTitle,
     body: issueBody,
-    labels,
+    labels: ["news-intake"],
   });
 
   return data.html_url;
@@ -148,33 +161,53 @@ export default async function handler(req, res) {
   }
 
   const createIssues = req.body?.create_issue !== false;
-  const results = [];
+  const assess_concurrency = Math.min(Math.max(parseInt(req.body?.assess_concurrency || "3", 10), 1), 8);
+  const issue_concurrency = Math.min(Math.max(parseInt(req.body?.issue_concurrency || "3", 10), 1), 8);
 
-  for (const item of items) {
+  const triaged = await mapPool(items, assess_concurrency, async (item) => {
     try {
       const triage = await assessItem(item);
-      const issue_url = createIssues ? await createQueueIssue(item, triage) : null;
-      results.push({
-        id: item.id || null,
-        title: item.title || null,
-        url: item.url || null,
-        score: triage.score,
-        status: triage.status,
-        slug: triage.slug,
-        why: triage.why,
-        q1: triage.q1,
-        q2: triage.q2,
-        issue_url,
-      });
+      return { ok: true, item, triage };
     } catch (err) {
-      results.push({
-        id: item.id || null,
-        title: item.title || null,
-        url: item.url || null,
-        error: err.message || "Failed to triage item",
-      });
+      return { ok: false, item, error: err.message || "Failed to triage item" };
     }
-  }
+  });
+
+  const results = await mapPool(triaged, issue_concurrency, async (row) => {
+    if (!row.ok) {
+      return {
+        id: row.item.id || null,
+        title: row.item.title || null,
+        url: row.item.url || null,
+        error: row.error,
+      };
+    }
+
+    const { item, triage } = row;
+    let issue_url = null;
+    let issue_error = null;
+    if (createIssues) {
+      try {
+        issue_url = await createQueueIssue(item, triage);
+      } catch (err) {
+        issue_error = err.message || "Failed to create issue";
+      }
+    }
+
+    return {
+      id: item.id || null,
+      title: item.title || null,
+      url: item.url || null,
+      score: triage.score,
+      status: triage.status,
+      slug: triage.slug,
+      why: triage.why,
+      q1: triage.q1,
+      q2: triage.q2,
+      issue_url,
+      issue_error,
+    };
+  });
 
   const summary = results.reduce(
     (acc, r) => {
