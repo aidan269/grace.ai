@@ -1,4 +1,4 @@
-import { supabaseAdmin } from "../lib/intelStore.js";
+import { supabaseAdmin } from "../../lib/intelStore.js";
 
 function isAuthorized(req) {
   const secret = process.env.HEALTH_SECRET;
