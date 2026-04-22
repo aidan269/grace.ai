@@ -78,18 +78,23 @@ nav {
 .nav-pills {
   justify-self: center;
   display: flex; align-items: center; gap: 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 4px;
+  box-shadow: var(--shadow-sm);
 }
 .nav-pill {
   font-family: inherit; font-size: 0.78rem; font-weight: 600;
-  padding: 7px 14px; border-radius: 9px;
-  border: 1px solid var(--border); background: var(--surface);
+  padding: 7px 14px; border-radius: 8px;
+  border: 1px solid transparent; background: transparent;
   color: var(--muted); cursor: pointer;
   transition: background 0.15s, border-color 0.15s, color 0.15s;
 }
 .nav-pill:hover { background: var(--gray-100); color: var(--text); }
 .nav-pill.active {
-  background: var(--orange-dim);
-  border-color: rgba(250, 94, 6, 0.35);
+  background: linear-gradient(180deg, rgba(250,94,6,0.14), rgba(250,94,6,0.08));
+  border-color: rgba(250, 94, 6, 0.38);
   color: var(--text);
 }
 .nav-right { justify-self: end; }
@@ -212,11 +217,30 @@ nav {
 .empty-state[data-landing="discover"] .studio-landing { display: none !important; }
 .empty-state[data-landing="studio"] .discover-shell { display: none !important; }
 .discover-shell {
-  width: 100%; max-width: 900px; margin: 0 auto;
-  padding: 0 20px 48px;
+  width: 100%; max-width: 1020px; margin: 0 auto;
+  padding: 0 20px 56px;
   display: flex; flex-direction: column; align-items: stretch; gap: 14px;
+  background: linear-gradient(180deg, rgba(250,94,6,0.04), transparent 180px), var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  box-shadow: var(--shadow-lg);
+  position: relative;
+  overflow: hidden;
 }
-.discover-head { text-align: center; max-width: 560px; margin: 0 auto; }
+[data-theme="dark"] .discover-shell {
+  background: linear-gradient(180deg, rgba(250,94,6,0.1), transparent 180px), var(--surface);
+}
+.discover-shell::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 20px;
+  right: 20px;
+  height: 2px;
+  background: linear-gradient(90deg, rgba(250,94,6,0), rgba(250,94,6,0.7), rgba(250,94,6,0));
+  pointer-events: none;
+}
+.discover-head { text-align: center; max-width: 660px; margin: 0 auto; padding-top: 24px; }
 .discover-tabs {
   display: flex; justify-content: center; gap: 6px; margin-bottom: 12px;
 }
@@ -234,11 +258,11 @@ nav {
   color: var(--text);
 }
 .discover-title {
-  font-size: 1.35rem; font-weight: 800; letter-spacing: -0.03em;
-  margin-bottom: 6px; color: var(--text);
+  font-size: 1.55rem; font-weight: 800; letter-spacing: -0.03em;
+  margin-bottom: 4px; color: var(--text);
 }
 .discover-sub {
-  font-size: 0.86rem; color: var(--muted); line-height: 1.55; margin-bottom: 14px;
+  font-size: 0.9rem; color: var(--muted); line-height: 1.55; margin-bottom: 14px;
 }
 .discover-sub a { color: var(--orange); font-weight: 600; text-decoration: none; }
 .discover-sub a:hover { text-decoration: underline; }
@@ -251,7 +275,7 @@ nav {
   color: var(--orange); font-weight: 600; cursor: pointer; text-decoration: underline;
 }
 .discover-toolbar {
-  display: flex; align-items: center; gap: 8px; max-width: 440px; margin: 0 auto;
+  display: flex; align-items: center; gap: 8px; max-width: 520px; margin: 0 auto;
 }
 .discover-search {
   flex: 1; min-width: 0;
@@ -264,21 +288,24 @@ nav {
 .discover-search:focus { border-color: var(--orange); box-shadow: 0 0 0 3px rgba(250,94,6,0.12); }
 .discover-refresh { flex-shrink: 0; min-width: 40px; }
 .discover-status {
-  font-size: 0.78rem; color: var(--subtle); text-align: center; min-height: 1.2em;
+  font-size: 0.75rem; color: var(--subtle); text-align: center; min-height: 1.2em;
   font-family: var(--mono);
+  margin-top: 2px;
 }
 .discover-err { color: var(--warn); }
 .discover-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(286px, 1fr));
+  gap: 12px;
+  padding: 4px 18px 20px;
 }
 .discover-card {
   background: var(--surface); border: 1px solid var(--border);
-  border-radius: 12px; padding: 14px 14px 12px;
+  border-radius: 14px; padding: 14px 14px 12px;
   display: flex; flex-direction: column; gap: 8px;
-  text-align: left; transition: border-color 0.15s, box-shadow 0.15s;
+  text-align: left; transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
   position: relative;
+  min-height: 168px;
 }
 .discover-card-badge {
   position: absolute; top: 10px; right: 10px;
@@ -291,25 +318,27 @@ nav {
 .discover-card:hover {
   border-color: rgba(250,94,6,0.35);
   box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
 }
 .discover-card-title {
-  font-size: 0.86rem; font-weight: 600; line-height: 1.35;
+  font-size: 0.88rem; font-weight: 650; line-height: 1.35;
   color: var(--text); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
   padding-right: 56px;
 }
 .discover-card-url {
-  font-size: 0.68rem; font-family: var(--mono); color: var(--subtle);
+  font-size: 0.66rem; font-family: var(--mono); color: var(--subtle);
   word-break: break-all; line-height: 1.35; text-decoration: none;
 }
 .discover-card-url:hover { color: var(--orange); }
-.discover-card-actions { display: flex; gap: 8px; margin-top: 4px; }
+.discover-card-actions { display: flex; gap: 8px; margin-top: auto; }
 .discover-card-btn {
   font-family: inherit; font-size: 0.76rem; font-weight: 700;
   padding: 8px 12px; border-radius: 8px; border: none; cursor: pointer;
   background: var(--text); color: #fff;
-  transition: opacity 0.15s;
+  transition: opacity 0.15s, transform 0.1s;
 }
 .discover-card-btn:hover { opacity: 0.88; }
+.discover-card-btn:active { transform: scale(0.98); }
 .discover-card-open {
   font-size: 0.76rem; font-weight: 600; padding: 8px 12px;
   border-radius: 8px; border: 1px solid var(--border);
@@ -1143,6 +1172,12 @@ nav {
   .nav-pills { justify-self: center; flex-wrap: wrap; }
   .nav-pill { font-size: 0.72rem; padding: 6px 11px; }
   .nav-right { justify-self: center; flex-wrap: wrap; justify-content: center; }
+  .discover-shell {
+    border-radius: 14px;
+    padding-bottom: 30px;
+  }
+  .discover-head { padding-top: 16px; }
+  .discover-grid { padding: 4px 10px 14px; }
 }
 </style>
 </head>
@@ -1217,12 +1252,12 @@ nav {
         <div class="trending-items" id="trendingItems"></div>
       </div>
       <div class="discover-head">
-        <h2 class="discover-title">Security feed</h2>
+        <h2 class="discover-title">Cantina Security Feed</h2>
         <div class="discover-tabs" role="tablist">
           <button type="button" class="discover-tab active" id="discoverTabAh" onclick="setDiscoverTab('ahackaday')">AHackaday</button>
           <button type="button" class="discover-tab" id="discoverTabQ" onclick="setDiscoverTab('queue')">Queue</button>
         </div>
-        <p class="discover-sub"><strong>AHackaday</strong> pulls the public index. <strong>Queue</strong> lists open triage issues in your repo (label <code class="discover-code">news-intake</code> by default). Filter, then create a plugin from any row — or use <button type="button" class="discover-linklike" onclick="setLandingView('studio')">Plugin studio</button> to paste a URL or issue link.</p>
+        <p class="discover-sub">Your on-brand triage surface for Cantina. <strong>AHackaday</strong> pulls the public index, while <strong>Queue</strong> shows open triage issues from your repo (label <code class="discover-code">news-intake</code>). Filter, then create a plugin from any row — or jump to <button type="button" class="discover-linklike" onclick="setLandingView('studio')">Plugin studio</button> to paste a URL or issue link.</p>
         <div class="discover-toolbar">
           <input type="search" id="discoverSearch" class="discover-search" placeholder="Filter titles and URLs…" autocomplete="off" />
           <button type="button" class="icon-btn discover-refresh square" id="discoverRefresh" title="Refresh feed" onclick="loadDiscoverData(true)">↻</button>
