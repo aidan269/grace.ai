@@ -1,4 +1,4 @@
-import { runNewsSync } from "./lib/newsSyncCore.js";
+import { runNewsSync } from "../lib/newsSyncCore.js";
 
 function authorizeCron(req) {
   const secret = process.env.CRON_SECRET;

@@ -1,6 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
-import { persistGraceResults } from "./lib/intelStore.js";
-import { postSlackFeedFromResults } from "./lib/slackSink.js";
+import { persistGraceResults } from "../lib/intelStore.js";
+import { postSlackFeedFromResults } from "../lib/slackSink.js";
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
