@@ -1,4 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
+import { persistGraceResults } from "./lib/intelStore.js";
+import { appendNotionFeedFromResults } from "./lib/notionSink.js";
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -196,6 +198,7 @@ export default async function handler(req, res) {
 
     return {
       id: item.id || null,
+      source: item.source || null,
       title: item.title || null,
       url: item.url || null,
       score: triage.score,
@@ -204,6 +207,7 @@ export default async function handler(req, res) {
       why: triage.why,
       q1: triage.q1,
       q2: triage.q2,
+      raw: triage.raw,
       issue_url,
       issue_error,
     };
@@ -220,10 +224,29 @@ export default async function handler(req, res) {
     { promote: 0, review: 0, archive: 0, failed: 0 }
   );
 
+  let store = null;
+  let notion = null;
+  try {
+    store = await persistGraceResults(results, "intake");
+  } catch (e) {
+    store = { error: e.message || String(e) };
+  }
+  if (process.env.NOTION_ON_INTAKE === "true") {
+    try {
+      notion = await appendNotionFeedFromResults(results, {
+        heading: `Grace — intake (${new Date().toISOString().slice(0, 16)} UTC)`,
+      });
+    } catch (e) {
+      notion = { error: e.message || String(e) };
+    }
+  }
+
   return res.status(200).json({
     ok: true,
     count: results.length,
     summary,
     results,
+    store,
+    notion,
   });
 }

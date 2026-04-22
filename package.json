@@ -4,6 +4,8 @@
   "type": "module",
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0",
-    "@octokit/rest": "^21.0.0"
+    "@notionhq/client": "^2.2.15",
+    "@octokit/rest": "^21.0.0",
+    "@supabase/supabase-js": "^2.49.1"
   }
 }
