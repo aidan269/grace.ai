@@ -1,4 +1,7 @@
 const DEFAULT_SOURCE_URL = "https://ahackaday-site.vercel.app/";
+const LIST_CACHE_TTL_MS = 90_000;
+/** In-process cache (best-effort on warm serverless invocations). */
+const listCache = new Map();
 
 function pickAll(regex, text) {
   const out = [];
@@ -45,18 +48,38 @@ export default async function handler(req, res) {
   const source_url = params.source_url || DEFAULT_SOURCE_URL;
   const limit = Math.min(Math.max(parseInt(params.limit || "45", 10), 1), 80);
   const q = (params.q || "").trim().toLowerCase();
+  const skipCache = params.skip_cache === "1" || params.skip_cache === "true";
 
   try {
-    const htmlRes = await fetch(source_url, {
-      headers: { "User-Agent": "Mozilla/5.0 (compatible; GraceDiscover/1.0)" },
-      signal: AbortSignal.timeout(12000),
-    });
-    if (!htmlRes.ok) {
-      return res.status(502).json({ ok: false, error: `Source returned ${htmlRes.status}` });
-    }
-    const html = await htmlRes.text();
-    let items = extractItemsFromHtml(html, limit);
+    const cacheKey = `${source_url}|${limit}`;
+    const now = Date.now();
+    let baseItems = null;
+    let cached = false;
 
+    if (!skipCache) {
+      const hit = listCache.get(cacheKey);
+      if (hit && now - hit.ts < LIST_CACHE_TTL_MS) {
+        baseItems = hit.items;
+        cached = true;
+      }
+    } else {
+      listCache.delete(cacheKey);
+    }
+
+    if (!baseItems) {
+      const htmlRes = await fetch(source_url, {
+        headers: { "User-Agent": "Mozilla/5.0 (compatible; GraceDiscover/1.0)" },
+        signal: AbortSignal.timeout(12000),
+      });
+      if (!htmlRes.ok) {
+        return res.status(502).json({ ok: false, error: `Source returned ${htmlRes.status}` });
+      }
+      const html = await htmlRes.text();
+      baseItems = extractItemsFromHtml(html, limit);
+      listCache.set(cacheKey, { ts: now, items: baseItems });
+    }
+
+    let items = baseItems;
     if (q) {
       items = items.filter(
         (it) =>
@@ -70,6 +93,7 @@ export default async function handler(req, res) {
       source_url,
       count: items.length,
       items,
+      cached,
     });
   } catch (e) {
     return res.status(500).json({ ok: false, error: e.message || "discover_failed" });
