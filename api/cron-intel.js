@@ -9,7 +9,7 @@ function authorizeCron(req) {
 }
 
 /**
- * Scheduled AHackaday ingest + triage + Supabase + Notion.
+ * Scheduled AHackaday ingest + triage + Supabase + Slack sink.
  * Vercel Cron: GET /api/cron-intel (add CRON_SECRET or rely on x-vercel-cron in production).
  */
 export default async function handler(req, res) {

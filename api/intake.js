@@ -1,6 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { persistGraceResults } from "./lib/intelStore.js";
-import { appendNotionFeedFromResults } from "./lib/notionSink.js";
+import { postSlackFeedFromResults } from "./lib/slackSink.js";
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -225,19 +225,19 @@ export default async function handler(req, res) {
   );
 
   let store = null;
-  let notion = null;
+  let slack = null;
   try {
     store = await persistGraceResults(results, "intake");
   } catch (e) {
     store = { error: e.message || String(e) };
   }
-  if (process.env.NOTION_ON_INTAKE === "true") {
+  if (process.env.SLACK_ON_INTAKE === "true") {
     try {
-      notion = await appendNotionFeedFromResults(results, {
+      slack = await postSlackFeedFromResults(results, {
         heading: `Grace — intake (${new Date().toISOString().slice(0, 16)} UTC)`,
       });
     } catch (e) {
-      notion = { error: e.message || String(e) };
+      slack = { error: e.message || String(e) };
     }
   }
 
@@ -247,6 +247,6 @@ export default async function handler(req, res) {
     summary,
     results,
     store,
-    notion,
+    slack,
   });
 }

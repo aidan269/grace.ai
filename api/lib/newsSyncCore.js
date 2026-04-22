@@ -1,6 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { persistGraceResults } from "./intelStore.js";
-import { appendNotionFeedFromResults } from "./notionSink.js";
+import { postSlackFeedFromResults } from "./slackSink.js";
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 const DEFAULT_SOURCE_URL = "https://ahackaday-site.vercel.app/";
@@ -219,12 +219,12 @@ export async function runNewsSync(body = {}) {
     store = { error: e.message || String(e) };
   }
 
-  let notion = null;
-  if (process.env.NOTION_ON_NEWS_SYNC !== "false") {
+  let slack = null;
+  if (process.env.SLACK_ON_NEWS_SYNC !== "false") {
     try {
-      notion = await appendNotionFeedFromResults(results, { heading: `Grace — AHackaday (${new Date().toISOString().slice(0, 10)})` });
+      slack = await postSlackFeedFromResults(results, { heading: `Grace — AHackaday (${new Date().toISOString().slice(0, 10)})` });
     } catch (e) {
-      notion = { error: e.message || String(e) };
+      slack = { error: e.message || String(e) };
     }
   }
 
@@ -235,6 +235,6 @@ export async function runNewsSync(body = {}) {
     summary,
     results,
     store,
-    notion,
+    slack,
   };
 }
