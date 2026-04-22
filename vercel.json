@@ -2,7 +2,7 @@
   "crons": [
     {
       "path": "/api/cron-intel",
-      "schedule": "0 * * * *"
+      "schedule": "0 13 * * *"
     }
   ],
   "functions": {
