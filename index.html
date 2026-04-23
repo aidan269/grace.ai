@@ -307,6 +307,62 @@ nav {
 }
 .health-pill.ok { color: #16a34a; border-color: #86efac; background: #f0fdf4; }
 .health-pill.warn { color: #b45309; border-color: #fcd34d; background: #fffbeb; }
+.plugin-ops {
+  max-width: 820px;
+  margin: 8px auto 6px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: 12px;
+  box-shadow: var(--shadow-sm);
+  padding: 8px 10px;
+}
+.plugin-ops-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.plugin-ops-title {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  color: var(--subtle);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.plugin-ops-list {
+  display: grid;
+  gap: 5px;
+}
+.plugin-ops-item {
+  display: grid;
+  grid-template-columns: 80px 1fr 58px;
+  gap: 8px;
+  align-items: center;
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  color: var(--muted);
+}
+.plugin-ops-age { color: var(--subtle); }
+.plugin-ops-slug {
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.plugin-ops-step {
+  justify-self: end;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 2px 6px;
+  font-size: 0.6rem;
+  color: var(--subtle);
+}
+.plugin-ops-empty {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  color: var(--subtle);
+}
 .source-chips {
   display: flex;
   flex-wrap: wrap;
@@ -1252,6 +1308,7 @@ nav {
   }
   .discover-head { padding-top: 16px; }
   .discover-grid { padding: 4px 10px 14px; }
+  .plugin-ops-item { grid-template-columns: 68px 1fr 52px; font-size: 0.62rem; }
 }
 </style>
 </head>
@@ -1339,6 +1396,13 @@ nav {
       </div>
       <div class="discover-meta">
         <span class="health-pill" id="intelHealthPill">health: checking…</span>
+        <span class="health-pill" id="pluginMonitorPill">plugin monitor: loading…</span>
+      </div>
+      <div class="plugin-ops" id="pluginOpsPanel">
+        <div class="plugin-ops-head">
+          <span class="plugin-ops-title">Plugin Ops - Recent nudges</span>
+        </div>
+        <div class="plugin-ops-list" id="pluginOpsList"></div>
       </div>
       <div class="source-chips" id="discoverSourceChips"></div>
       <div class="discover-status" id="discoverStatus"></div>
@@ -2037,7 +2101,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   loadDiscoverData(false);
   loadIntelHealth();
+  loadPluginMonitor();
   setInterval(loadIntelHealth, 120000);
+  setInterval(loadPluginMonitor, 180000);
   const ds = document.getElementById('discoverSearch');
   let discoverFilterT = null;
   if (ds) {
@@ -2046,6 +2112,18 @@ document.addEventListener('DOMContentLoaded', () => {
       discoverFilterT = setTimeout(() => renderDiscoverGrid(), 120);
     });
   }
+
+  const ed = document.getElementById('pluginEditor');
+  if (ed) {
+    ['input', 'keydown', 'paste'].forEach(evt =>
+      ed.addEventListener(evt, () => resetInactivityNudgeTimer())
+    );
+  }
+  const workspace = document.getElementById('workspace');
+  if (workspace) {
+    workspace.addEventListener('mousemove', () => resetInactivityNudgeTimer());
+  }
+  document.addEventListener('keydown', () => resetInactivityNudgeTimer());
 });
 
 function handleLandingSubmit() {
@@ -2109,6 +2187,48 @@ let discoverQueueNotice = '';
 let discoverSourceCounts = {};
 let discoverSourceFilter = '';
 let intelHealth = { ok: null, text: 'health: checking…' };
+let pluginMonitor = { ok: null, text: 'plugin monitor: loading…' };
+let pluginMonitorItems = [];
+let inactivityNudgeTimer = null;
+let inactivityNudgeLastSentAt = 0;
+const INACTIVITY_NUDGE_MS = 20 * 60 * 1000;
+const INACTIVITY_NUDGE_COOLDOWN_MS = 45 * 60 * 1000;
+
+function shouldTrackInactivityNudge() {
+  const wsVisible = document.getElementById('workspace')?.classList.contains('visible');
+  if (!wsVisible) return false;
+  if (!confirmedSlug) return false;
+  if (!['write', 'review', 'ship'].includes(currentStep)) return false;
+  const content = (document.getElementById('pluginEditor')?.value || '').trim();
+  return content.length > 0;
+}
+
+function queueInactivityNudgeTimer() {
+  if (inactivityNudgeTimer) clearTimeout(inactivityNudgeTimer);
+  if (!shouldTrackInactivityNudge()) return;
+  inactivityNudgeTimer = setTimeout(() => sendInactivityNudge(), INACTIVITY_NUDGE_MS);
+}
+
+function resetInactivityNudgeTimer() {
+  queueInactivityNudgeTimer();
+}
+
+function sendInactivityNudge() {
+  if (!shouldTrackInactivityNudge()) return;
+  if (Date.now() - inactivityNudgeLastSentAt < INACTIVITY_NUDGE_COOLDOWN_MS) return;
+  inactivityNudgeLastSentAt = Date.now();
+  fetch('/api/health/intel', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      action: 'plugin_nudge',
+      slug: confirmedSlug || 'plugin',
+      source_url: runSourceUrl || currentUrl || '',
+      step: currentStep || 'write',
+    }),
+  }).catch(() => {});
+  queueInactivityNudgeTimer();
+}
 
 function setDiscoverTab(tab) {
   discoverTab = tab === 'queue' ? 'queue' : 'ahackaday';
@@ -2134,6 +2254,47 @@ function renderIntelHealth() {
   if (intelHealth.ok === false) pill.classList.add('warn');
 }
 
+function renderPluginMonitor() {
+  const pill = document.getElementById('pluginMonitorPill');
+  if (!pill) return;
+  pill.classList.remove('ok', 'warn');
+  pill.textContent = pluginMonitor.text || 'plugin monitor: loading…';
+  if (pluginMonitor.ok === true) pill.classList.add('ok');
+  if (pluginMonitor.ok === false) pill.classList.add('warn');
+}
+
+function renderPluginOpsPanel() {
+  const list = document.getElementById('pluginOpsList');
+  if (!list) return;
+  list.innerHTML = '';
+  if (!Array.isArray(pluginMonitorItems) || !pluginMonitorItems.length) {
+    const empty = document.createElement('div');
+    empty.className = 'plugin-ops-empty';
+    empty.textContent = 'No nudges yet. Plugin monitor will populate after first inactivity ping.';
+    list.appendChild(empty);
+    return;
+  }
+  pluginMonitorItems.slice(0, 5).forEach((it) => {
+    const row = document.createElement('div');
+    row.className = 'plugin-ops-item';
+    const age = document.createElement('span');
+    age.className = 'plugin-ops-age';
+    const ageMin = Math.max(0, Math.floor((Date.now() - new Date(it.created_at).getTime()) / 60000));
+    age.textContent = `${ageMin}m ago`;
+    const slug = document.createElement('span');
+    slug.className = 'plugin-ops-slug';
+    slug.textContent = it.slug || 'unknown-plugin';
+    slug.title = it.source_url || '';
+    const step = document.createElement('span');
+    step.className = 'plugin-ops-step';
+    step.textContent = it.step || 'write';
+    row.appendChild(age);
+    row.appendChild(slug);
+    row.appendChild(step);
+    list.appendChild(row);
+  });
+}
+
 async function loadIntelHealth() {
   try {
     const r = await fetch('/api/health/intel');
@@ -2147,6 +2308,35 @@ async function loadIntelHealth() {
     intelHealth = { ok: false, text: 'health: unavailable' };
   }
   renderIntelHealth();
+}
+
+async function loadPluginMonitor() {
+  try {
+    const r = await fetch('/api/plugin-monitor?limit=5');
+    const j = await r.json();
+    if (r.ok && j.ok) {
+      pluginMonitorItems = j.items || [];
+      const first = pluginMonitorItems[0];
+      if (!first) {
+        pluginMonitor = { ok: true, text: 'plugin monitor: no nudges yet' };
+      } else {
+        const ageMin = Math.max(0, Math.floor((Date.now() - new Date(first.created_at).getTime()) / 60000));
+        const slug = first.slug || 'unknown-plugin';
+        pluginMonitor = { ok: true, text: `plugin monitor: last nudge ${ageMin}m ago (${slug})` };
+      }
+    } else if (j?.reason === 'supabase_not_configured') {
+      pluginMonitorItems = [];
+      pluginMonitor = { ok: false, text: 'plugin monitor: supabase not configured' };
+    } else {
+      pluginMonitorItems = [];
+      pluginMonitor = { ok: false, text: 'plugin monitor: unavailable' };
+    }
+  } catch {
+    pluginMonitorItems = [];
+    pluginMonitor = { ok: false, text: 'plugin monitor: unavailable' };
+  }
+  renderPluginMonitor();
+  renderPluginOpsPanel();
 }
 
 function renderDiscoverSourceChips() {
@@ -2411,6 +2601,7 @@ function startPluginFromDiscover(url) {
 const STEPS = ['read', 'scope', 'write', 'review', 'ship'];
 function setProgress(current) {
   currentStep = current;
+  resetInactivityNudgeTimer();
   if (!tweaks.progressRail) return;
   const rail = document.getElementById('progressRail');
   rail.classList.add('visible');
@@ -3014,6 +3205,7 @@ async function typeInto(body, text) {
    ============================================================== */
 async function runGrace(url) {
   setLandingView('studio', false);
+  if (inactivityNudgeTimer) clearTimeout(inactivityNudgeTimer);
   const originalUrl = url;
   runSourceUrl = originalUrl;
   currentUrl = url;
@@ -3111,6 +3303,7 @@ async function runGrace(url) {
   });
 
   await fadeToWorkspace();
+  resetInactivityNudgeTimer();
 
   applyGraceMood(viralityScore);
   makeUserBubble(originalUrl);
@@ -3316,6 +3509,7 @@ function tweetInline() {
 
 async function simulateResume(d) {
   // Jump into workspace with draft
+  if (inactivityNudgeTimer) clearTimeout(inactivityNudgeTimer);
   runSourceUrl = d.url || 'https://github.com/advisories/GHSA-shai-hulud-2026';
   currentUrl = d.resolvedUrl || d.url || runSourceUrl;
   confirmedSlug = d.slug;
@@ -3349,6 +3543,7 @@ async function simulateResume(d) {
     },
     onSend: t => { makeUserBubble(t); setBarMode('disabled', { placeholder: 'Revising…' }); },
   });
+  resetInactivityNudgeTimer();
 }
 
 function simulateDemo() {

@@ -1,9 +1,23 @@
-import { supabaseAdmin } from "../../lib/intelStore.js";
+import { savePluginNudge, supabaseAdmin } from "../../lib/intelStore.js";
+const nudgeCooldownMap = new Map();
+const NUDGE_COOLDOWN_MS = 45 * 60 * 1000;
 
 function isAuthorized(req) {
   const secret = process.env.HEALTH_SECRET;
   if (!secret) return true;
   return req.headers.authorization === `Bearer ${secret}`;
+}
+
+function isSameOriginRequest(req) {
+  const origin = req.headers.origin;
+  if (!origin) return true;
+  const host = req.headers["x-forwarded-host"] || req.headers.host || "";
+  if (!host) return false;
+  try {
+    return new URL(origin).host === host;
+  } catch {
+    return false;
+  }
 }
 
 async function checkSupabase() {
@@ -49,8 +63,51 @@ async function pingSlackIfRequested(req) {
 
 export default async function handler(req, res) {
   if (req.method === "OPTIONS") return res.status(200).end();
-  if (req.method !== "GET") return res.status(405).json({ error: "Method not allowed" });
+  if (req.method !== "GET" && req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
   res.setHeader("Access-Control-Allow-Origin", "*");
+
+  if (req.method === "POST" && req.body?.action === "plugin_nudge") {
+    if (!isSameOriginRequest(req)) return res.status(403).json({ ok: false, error: "Forbidden" });
+    const webhook = process.env.SLACK_WEBHOOK_URL;
+    if (!webhook) return res.status(200).json({ ok: false, skipped: true, reason: "slack_not_configured" });
+    const slug = String(req.body?.slug || "plugin").slice(0, 80);
+    const sourceUrl = String(req.body?.source_url || "").slice(0, 600);
+    const step = String(req.body?.step || "write").slice(0, 20);
+    const key = `${slug}|${sourceUrl}|${step}`;
+    const now = Date.now();
+    const last = nudgeCooldownMap.get(key) || 0;
+    if (now - last < NUDGE_COOLDOWN_MS) {
+      return res.status(200).json({ ok: true, skipped: true, reason: "cooldown_active" });
+    }
+    nudgeCooldownMap.set(key, now);
+    try {
+      const text = [
+        `Grace nudge: still working on /cantinasec:${slug}?`,
+        sourceUrl ? `source: ${sourceUrl}` : null,
+        `step: ${step}`,
+        "If yes, keep cooking. If no, ship or defer it so it does not drift.",
+      ]
+        .filter(Boolean)
+        .join("\n");
+      const ping = await fetch(webhook, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text }),
+        signal: AbortSignal.timeout(8000),
+      });
+      if (!ping.ok) {
+        const body = await ping.text().catch(() => "");
+        return res.status(500).json({
+          ok: false,
+          error: `slack_webhook_${ping.status}${body ? `:${body.slice(0, 160)}` : ""}`,
+        });
+      }
+      await savePluginNudge({ slug, sourceUrl, step, reason: "inactivity" });
+      return res.status(200).json({ ok: true, sent: true });
+    } catch (e) {
+      return res.status(500).json({ ok: false, error: e.message || "plugin_nudge_failed" });
+    }
+  }
 
   if (!isAuthorized(req)) {
     return res.status(401).json({ ok: false, error: "Unauthorized" });
