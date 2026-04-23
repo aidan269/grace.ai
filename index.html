@@ -392,6 +392,122 @@ nav {
   gap: 12px;
   padding: 4px 18px 20px;
 }
+.discover-v3 {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+  gap: 0;
+  max-width: 1220px;
+  padding: 0;
+}
+.discover-side {
+  border-right: 1px solid var(--border);
+  padding: 18px 14px 24px;
+  background: var(--bg);
+}
+.discover-main {
+  padding: 22px 20px 16px;
+}
+.discover-v3 .hero {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 10px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 12px;
+  margin-bottom: 10px;
+}
+.hero-h1 { font-size: 1.55rem; font-weight: 800; letter-spacing: -0.03em; }
+.hero-count { font-size: 0.72rem; color: var(--subtle); font-family: var(--mono); margin-left: 8px; }
+.hero-sub { font-size: 0.78rem; color: var(--muted); }
+.hero-right { display: flex; gap: 6px; align-items: center; }
+.discover-v3-search { width: 240px; padding: 8px 10px; font-size: 0.82rem; }
+.sort-btn {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  border-radius: 8px;
+  padding: 7px 10px;
+  font-size: 0.76rem;
+  cursor: pointer;
+}
+.discover-ranked { display: flex; flex-direction: column; }
+.ranked-item {
+  display: grid;
+  grid-template-columns: 42px 64px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid var(--border);
+  padding: 12px 8px;
+}
+.ranked-rank { font-family: var(--mono); color: var(--subtle); font-weight: 700; text-align: right; }
+.ranked-score {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 4px;
+  text-align: center;
+  font-family: var(--mono);
+}
+.ranked-score-num { font-size: 1.02rem; font-weight: 700; line-height: 1; }
+.ranked-score-label { font-size: 0.56rem; text-transform: uppercase; color: var(--subtle); }
+.ranked-item[data-score="4"] .ranked-score { background: #fef2f2; border-color: #fecaca; color: #b91c1c; }
+.ranked-item[data-score="3"] .ranked-score { background: #fff7ed; border-color: #fed7aa; color: #c2410c; }
+.ranked-item[data-score="2"] .ranked-score { background: #fefce8; border-color: #fde68a; color: #a16207; }
+.ranked-item[data-score="1"] .ranked-score { background: #f0fdf4; border-color: #bbf7d0; color: #15803d; }
+.ranked-title { font-size: 0.92rem; font-weight: 620; }
+.ranked-meta { font-size: 0.68rem; color: var(--subtle); font-family: var(--mono); margin-top: 2px; }
+.ranked-actions { display: flex; gap: 6px; }
+.ranked-secondary {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--subtle);
+  border-radius: 7px;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.ranked-primary {
+  font-size: 0.76rem;
+  border: 1px solid var(--gray-200);
+  border-radius: 7px;
+  padding: 7px 12px;
+  background: var(--surface);
+  cursor: pointer;
+}
+.ranked-primary:hover { border-color: var(--gray-400); }
+.ranked-secondary:hover { border-color: var(--gray-400); color: var(--text); }
+.discover-main[data-view="grid"] .discover-ranked { display: none; }
+.discover-main[data-view="list"] .discover-grid { display: none; }
+.discover-main[data-view="grid"] .discover-grid { display: grid; padding: 8px 0 10px; }
+.discover-v3 .side-label {
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--subtle);
+  margin-bottom: 4px;
+}
+.side-item {
+  width: 100%;
+  background: transparent;
+  border: 1px solid transparent;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 9px;
+  border-radius: 7px;
+  color: var(--muted);
+  cursor: pointer;
+  margin-bottom: 2px;
+}
+.discover-v3 .side-item-label { font-size: 0.81rem; }
+.discover-v3 .side-item-count { font-size: 0.66rem; font-family: var(--mono); color: var(--subtle); }
+.side-item.active { background: var(--orange-dim); border-color: rgba(250, 94, 6, 0.25); }
+.side-item.active .side-item-count { color: var(--orange); }
+.grace-greet { margin-bottom: 14px; }
 .discover-card {
   background: var(--surface); border: 1px solid var(--border);
   border-radius: 14px; padding: 14px 14px 12px;
@@ -1306,9 +1422,12 @@ nav {
     border-radius: 14px;
     padding-bottom: 30px;
   }
-  .discover-head { padding-top: 16px; }
-  .discover-grid { padding: 4px 10px 14px; }
-  .plugin-ops-item { grid-template-columns: 68px 1fr 52px; font-size: 0.62rem; }
+  .discover-v3 { grid-template-columns: 1fr; }
+  .discover-side { display: none; }
+  .discover-main { padding: 14px 10px 12px; }
+  .discover-v3 .hero { flex-direction: column; align-items: stretch; }
+  .discover-v3-search { width: 100%; }
+  .discover-main[data-view="grid"] .discover-grid { padding: 6px 0 10px; }
 }
 </style>
 </head>
@@ -1377,36 +1496,62 @@ nav {
   <!-- Empty state: Discover (default) + Plugin studio -->
   <div class="empty-state" id="emptyState" data-landing="discover">
 
-    <div class="discover-shell" id="discoverPanel">
-      <div class="trending-strip" id="trendingStrip">
-        <span class="trending-label"><span class="td"></span>Trending</span>
-        <div class="trending-items" id="trendingItems"></div>
-      </div>
-      <div class="discover-head">
-        <h2 class="discover-title">Cantina Security Feed</h2>
-        <div class="discover-tabs" role="tablist">
-          <button type="button" class="discover-tab active" id="discoverTabAh" onclick="setDiscoverTab('ahackaday')">AHackaday</button>
-          <button type="button" class="discover-tab" id="discoverTabQ" onclick="setDiscoverTab('queue')">Queue</button>
+    <div class="discover-shell discover-v3" id="discoverPanel">
+      <aside class="discover-side">
+        <div class="grace-greet" id="graceGreetDiscover">
+          <div class="grace-greet-avatar">G</div>
+          <div class="grace-greet-body" id="discoverGreeting">Loading signals…</div>
         </div>
-        <p class="discover-sub">Your on-brand triage surface for Cantina. <strong>AHackaday</strong> pulls the public index, while <strong>Queue</strong> shows open triage issues from your repo (label <code class="discover-code">news-intake</code>). Filter, then create a plugin from any row — or jump to <button type="button" class="discover-linklike" onclick="setLandingView('studio')">Plugin studio</button> to paste a URL or issue link.</p>
-        <div class="discover-toolbar">
-          <input type="search" id="discoverSearch" class="discover-search" placeholder="Filter titles and URLs…" autocomplete="off" />
-          <button type="button" class="icon-btn discover-refresh square" id="discoverRefresh" title="Refresh feed" onclick="loadDiscoverData(true)">↻</button>
+        <div class="side-section">
+          <div class="side-label">Source <span class="side-label-count" id="sourceTotal">0</span></div>
+          <button class="side-item active" data-filter="source" data-value="">
+            <span class="side-item-label">All sources</span>
+            <span class="side-item-count" id="cntAll">0</span>
+          </button>
+          <button class="side-item" data-filter="source" data-value="ahackaday"><span class="side-item-label">AHackaday</span><span class="side-item-count" id="cntAh">0</span></button>
+          <button class="side-item" data-filter="source" data-value="rss"><span class="side-item-label">Krebs / RSS</span><span class="side-item-count" id="cntRss">0</span></button>
+          <button class="side-item" data-filter="source" data-value="cisa"><span class="side-item-label">CISA / KEV</span><span class="side-item-count" id="cntCisa">0</span></button>
+          <button class="side-item" data-filter="source" data-value="queue"><span class="side-item-label">Triage queue</span><span class="side-item-count" id="cntQueue">0</span></button>
         </div>
-      </div>
-      <div class="discover-meta">
-        <span class="health-pill" id="intelHealthPill">health: checking…</span>
-        <span class="health-pill" id="pluginMonitorPill">plugin monitor: loading…</span>
-      </div>
-      <div class="plugin-ops" id="pluginOpsPanel">
-        <div class="plugin-ops-head">
-          <span class="plugin-ops-title">Plugin Ops - Recent nudges</span>
+        <div class="side-section">
+          <div class="side-label">Priority</div>
+          <button class="side-item" data-filter="score" data-value="4"><span class="side-item-label">Critical</span></button>
+          <button class="side-item" data-filter="score" data-value="3"><span class="side-item-label">High</span></button>
+          <button class="side-item" data-filter="score" data-value="2"><span class="side-item-label">Medium</span></button>
+          <button class="side-item" data-filter="score" data-value="1"><span class="side-item-label">Low</span></button>
+          <button class="side-item" data-filter="score" data-value="0"><span class="side-item-label">Noise</span></button>
         </div>
-        <div class="plugin-ops-list" id="pluginOpsList"></div>
-      </div>
-      <div class="source-chips" id="discoverSourceChips"></div>
-      <div class="discover-status" id="discoverStatus"></div>
-      <div class="discover-grid" id="discoverGrid"></div>
+        <div class="side-section">
+          <div class="side-label">Status</div>
+          <button class="side-item" data-filter="decision" data-value="new"><span class="side-item-label">New</span></button>
+          <button class="side-item" data-filter="decision" data-value="reviewed"><span class="side-item-label">Reviewed</span></button>
+          <button class="side-item" data-filter="decision" data-value="approved"><span class="side-item-label">Approved</span></button>
+          <button class="side-item" data-filter="decision" data-value="deferred"><span class="side-item-label">Deferred</span></button>
+        </div>
+      </aside>
+
+      <main class="discover-main" id="discoverMain" data-view="list">
+        <div class="hero">
+          <div class="hero-left">
+            <h2 class="hero-h1">Today's signal <span class="hero-count" id="heroCount">0 stories</span></h2>
+            <div class="hero-sub" id="heroSub">Sorted by <strong>priority</strong> · loading…</div>
+          </div>
+          <div class="hero-right">
+            <input type="search" id="discoverSearch" class="discover-search discover-v3-search" placeholder="Filter…" autocomplete="off" />
+            <button type="button" class="sort-btn" id="discoverSortBtn">Sort: <b id="discoverSortLabel">Priority</b></button>
+            <button type="button" class="icon-btn square" id="discoverViewToggle" title="Toggle view">◫</button>
+            <button type="button" class="icon-btn square" id="discoverRefresh" title="Refresh feed" onclick="loadDiscoverData(true)">↻</button>
+          </div>
+        </div>
+
+        <div class="discover-ranked" id="discoverRanked"></div>
+        <div class="discover-grid" id="discoverGrid"></div>
+        <div class="discover-status" id="discoverStatus"></div>
+        <div class="discover-meta">
+          <span class="health-pill" id="intelHealthPill">health: checking…</span>
+          <span class="health-pill" id="pluginMonitorPill">plugin monitor: loading…</span>
+        </div>
+      </main>
     </div>
 
     <div class="studio-landing" id="studioLanding">
@@ -2112,6 +2257,42 @@ document.addEventListener('DOMContentLoaded', () => {
       discoverFilterT = setTimeout(() => renderDiscoverGrid(), 120);
     });
   }
+  const sortBtn = document.getElementById('discoverSortBtn');
+  const sortLabel = document.getElementById('discoverSortLabel');
+  if (sortBtn && sortLabel) {
+    sortBtn.addEventListener('click', () => {
+      const order = ['priority', 'fresh', 'source'];
+      const next = order[(order.indexOf(discoverSort) + 1) % order.length];
+      discoverSort = next;
+      sortLabel.textContent = next.charAt(0).toUpperCase() + next.slice(1);
+      renderDiscoverGrid();
+    });
+  }
+  const viewBtn = document.getElementById('discoverViewToggle');
+  const main = document.getElementById('discoverMain');
+  if (viewBtn && main) {
+    viewBtn.textContent = '◫';
+    viewBtn.addEventListener('click', () => {
+      discoverView = discoverView === 'list' ? 'grid' : 'list';
+      main.dataset.view = discoverView;
+      viewBtn.textContent = discoverView === 'list' ? '◫' : '☰';
+    });
+  }
+  document.querySelectorAll('.side-item[data-filter]').forEach((el) => {
+    el.addEventListener('click', () => {
+      const type = el.getAttribute('data-filter');
+      const val = el.getAttribute('data-value') || '';
+      if (type === 'source') discoverSourceFilter = discoverSourceFilter === val ? '' : val;
+      if (type === 'score') discoverScoreFilter = discoverScoreFilter === val ? '' : val;
+      if (type === 'decision') discoverDecisionFilter = discoverDecisionFilter === val ? '' : val;
+      document.querySelectorAll(`.side-item[data-filter="${type}"]`).forEach((node) => {
+        const nVal = node.getAttribute('data-value') || '';
+        const activeVal = type === 'source' ? discoverSourceFilter : type === 'score' ? discoverScoreFilter : discoverDecisionFilter;
+        node.classList.toggle('active', (activeVal && activeVal === nVal) || (!activeVal && nVal === ''));
+      });
+      renderDiscoverGrid();
+    });
+  });
 
   const ed = document.getElementById('pluginEditor');
   if (ed) {
@@ -2181,11 +2362,14 @@ let cachedContent = null;
 
 let discoverItemsCache = [];
 let discoverSourceUrl = '';
-let discoverTab = 'ahackaday';
 let discoverLastCached = false;
 let discoverQueueNotice = '';
 let discoverSourceCounts = {};
 let discoverSourceFilter = '';
+let discoverScoreFilter = '';
+let discoverDecisionFilter = '';
+let discoverSort = 'priority';
+let discoverView = 'list';
 let intelHealth = { ok: null, text: 'health: checking…' };
 let pluginMonitor = { ok: null, text: 'plugin monitor: loading…' };
 let pluginMonitorItems = [];
@@ -2230,20 +2414,7 @@ function sendInactivityNudge() {
   queueInactivityNudgeTimer();
 }
 
-function setDiscoverTab(tab) {
-  discoverTab = tab === 'queue' ? 'queue' : 'ahackaday';
-  discoverSourceFilter = '';
-  const ah = document.getElementById('discoverTabAh');
-  const q = document.getElementById('discoverTabQ');
-  if (ah) ah.classList.toggle('active', discoverTab === 'ahackaday');
-  if (q) q.classList.toggle('active', discoverTab === 'queue');
-  const ds = document.getElementById('discoverSearch');
-  if (ds) {
-    ds.placeholder =
-      discoverTab === 'queue' ? 'Filter issue title, incident URL, or GitHub link…' : 'Filter titles and URLs…';
-  }
-  loadDiscoverData(false);
-}
+function setDiscoverTab() {}
 
 function renderIntelHealth() {
   const pill = document.getElementById('intelHealthPill');
@@ -2340,33 +2511,18 @@ async function loadPluginMonitor() {
 }
 
 function renderDiscoverSourceChips() {
-  const wrap = document.getElementById('discoverSourceChips');
-  if (!wrap) return;
-  wrap.innerHTML = '';
-  if (discoverTab === 'queue') return;
-  const all = document.createElement('button');
-  all.type = 'button';
-  all.className = `source-chip${discoverSourceFilter ? '' : ' active'}`;
-  all.textContent = `all (${discoverItemsCache.length})`;
-  all.onclick = () => {
-    discoverSourceFilter = '';
-    renderDiscoverSourceChips();
-    renderDiscoverGrid();
-  };
-  wrap.appendChild(all);
-  const keys = Object.keys(discoverSourceCounts || {}).sort((a, b) => (discoverSourceCounts[b] || 0) - (discoverSourceCounts[a] || 0));
-  for (const k of keys) {
-    const chip = document.createElement('button');
-    chip.type = 'button';
-    chip.className = `source-chip${discoverSourceFilter === k ? ' active' : ''}`;
-    chip.textContent = `${k} (${discoverSourceCounts[k]})`;
-    chip.onclick = () => {
-      discoverSourceFilter = discoverSourceFilter === k ? '' : k;
-      renderDiscoverSourceChips();
-      renderDiscoverGrid();
-    };
-    wrap.appendChild(chip);
-  }
+  const sourceTotal = document.getElementById('sourceTotal');
+  const cntAll = document.getElementById('cntAll');
+  const cntAh = document.getElementById('cntAh');
+  const cntRss = document.getElementById('cntRss');
+  const cntCisa = document.getElementById('cntCisa');
+  const cntQueue = document.getElementById('cntQueue');
+  if (sourceTotal) sourceTotal.textContent = String(discoverItemsCache.length);
+  if (cntAll) cntAll.textContent = String(discoverItemsCache.length);
+  if (cntAh) cntAh.textContent = String(discoverSourceCounts.ahackaday || 0);
+  if (cntRss) cntRss.textContent = String(discoverSourceCounts.rss || 0);
+  if (cntCisa) cntCisa.textContent = String(discoverSourceCounts.cisa || 0);
+  if (cntQueue) cntQueue.textContent = String(discoverSourceCounts.queue || 0);
 }
 
 function setLandingView(view, updateHash = true) {
@@ -2391,12 +2547,74 @@ function truncateDiscoverUrl(s, n) {
   return t.slice(0, n - 1) + '…';
 }
 
+function discoverSourceGroup(raw) {
+  const s = String(raw || '').toLowerCase();
+  if (s === 'github-queue' || s === 'queue') return 'queue';
+  if (s === 'ahackaday') return 'ahackaday';
+  if (s === 'cisa-kev' || s.includes('cisa')) return 'cisa';
+  if (s.startsWith('rss:')) return s.includes('kreb') ? 'rss' : 'cisa';
+  return 'rss';
+}
+
+function discoverScoreForItem(it) {
+  const t = String(it.title || '').toLowerCase();
+  const s = discoverSourceGroup(it.source);
+  let score = 1;
+  if (/(actively exploited|in the wild|rce|zero-day|zero day|worm|ransomware)/.test(t)) score = 4;
+  else if (/(cve-|exploit|critical|supply chain|token|leak|apt)/.test(t)) score = 3;
+  else if (/(warning|advisory|vulnerability|patch|issue)/.test(t)) score = 2;
+  if (s === 'queue' && score < 3) score = 3;
+  return score;
+}
+
+function discoverSeverityLabel(score) {
+  if (score >= 4) return 'CRITICAL';
+  if (score >= 3) return 'HIGH';
+  if (score >= 2) return 'MEDIUM';
+  if (score >= 1) return 'LOW';
+  return 'NOISE';
+}
+
+function discoverAgeMinutes(it) {
+  const ts = it.published_at || it.publishedAt || it.created_at || null;
+  if (!ts) return 99999;
+  const ms = new Date(ts).getTime();
+  if (!Number.isFinite(ms)) return 99999;
+  return Math.max(0, Math.floor((Date.now() - ms) / 60000));
+}
+
+function discoverAgeLabel(mins) {
+  if (!Number.isFinite(mins) || mins >= 99990) return 'recent';
+  if (mins < 60) return `${mins}m ago`;
+  if (mins < 1440) return `${Math.round(mins / 60)}h ago`;
+  return `${Math.round(mins / 1440)}d ago`;
+}
+
+function discoverSourceLabel(group) {
+  if (group === 'ahackaday') return 'AHackaday';
+  if (group === 'queue') return 'Triage queue';
+  if (group === 'cisa') return 'CISA';
+  return 'Krebs/RSS';
+}
+
 function renderDiscoverGrid() {
+  const ranked = document.getElementById('discoverRanked');
   const grid = document.getElementById('discoverGrid');
   const status = document.getElementById('discoverStatus');
-  if (!grid) return;
+  if (!grid || !ranked) return;
   const q = (document.getElementById('discoverSearch')?.value || '').trim().toLowerCase();
-  let items = discoverItemsCache;
+  let items = discoverItemsCache.map((it) => {
+    const sourceGroup = discoverSourceGroup(it.source);
+    const score = discoverScoreForItem(it);
+    return {
+      ...it,
+      source_group: sourceGroup,
+      score,
+      severity: discoverSeverityLabel(score),
+      decision: it.latest_decision?.decision || 'new',
+      age_minutes: discoverAgeMinutes(it),
+    };
+  });
   if (q) {
     items = items.filter((it) => {
       const issueUrl = (it.issue_url || '').toLowerCase();
@@ -2408,21 +2626,59 @@ function renderDiscoverGrid() {
     });
   }
   if (discoverSourceFilter) {
-    items = items.filter((it) => (it.source || '').toLowerCase() === discoverSourceFilter.toLowerCase());
+    items = items.filter((it) => it.source_group === discoverSourceFilter);
   }
+  if (discoverScoreFilter) items = items.filter((it) => String(it.score) === discoverScoreFilter);
+  if (discoverDecisionFilter) {
+    if (discoverDecisionFilter === 'new') items = items.filter((it) => !it.latest_decision?.decision);
+    else items = items.filter((it) => it.decision === discoverDecisionFilter);
+  }
+  if (discoverSort === 'fresh') items.sort((a, b) => a.age_minutes - b.age_minutes);
+  else if (discoverSort === 'source') items.sort((a, b) => (a.source_group || '').localeCompare(b.source_group || ''));
+  else items.sort((a, b) => b.score - a.score || a.age_minutes - b.age_minutes);
+  ranked.innerHTML = '';
   grid.innerHTML = '';
-  items.forEach((it) => {
+  items.forEach((it, idx) => {
+    const row = document.createElement('div');
+    row.className = 'ranked-item';
+    row.dataset.score = String(it.score || 0);
+    row.innerHTML = `
+      <div class="ranked-rank">${String(idx + 1).padStart(2, '0')}</div>
+      <div class="ranked-score"><div class="ranked-score-num">${it.score}</div><div class="ranked-score-label">${it.severity}</div></div>
+      <div class="ranked-body">
+        <div class="ranked-title">${it.title || 'Untitled'}</div>
+        <div class="ranked-meta">${discoverSourceLabel(it.source_group)} · ${discoverAgeLabel(it.age_minutes)}</div>
+      </div>
+      <div class="ranked-actions">
+        <button class="ranked-secondary" title="Defer">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l2.5 1.5"/></svg>
+        </button>
+        <button class="ranked-secondary" title="Approve">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+        </button>
+        <button class="ranked-primary">Create plugin →</button>
+      </div>
+    `;
+    row.onclick = () => {
+      const href = it.issue_url || it.url || '#';
+      if (href && href !== '#') window.open(href, '_blank');
+    };
+    row.querySelectorAll('.ranked-secondary')[0].onclick = (e) => { e.stopPropagation(); saveDecision(it, 'deferred'); };
+    row.querySelectorAll('.ranked-secondary')[1].onclick = (e) => { e.stopPropagation(); saveDecision(it, 'approved'); };
+    row.querySelector('.ranked-primary').onclick = (e) => { e.stopPropagation(); startPluginFromDiscover(it.url); };
+    ranked.appendChild(row);
+
     const card = document.createElement('article');
     card.className = 'discover-card';
-    if (it.source === 'github-queue') {
+    if (it.source_group === 'queue') {
       const badge = document.createElement('span');
       badge.className = 'discover-card-badge';
       badge.textContent = 'Queue';
       card.appendChild(badge);
-    } else if (it.source) {
+    } else if (it.source_group) {
       const badge = document.createElement('span');
       badge.className = 'discover-card-badge';
-      badge.textContent = String(it.source).replace(/^rss:/, 'rss');
+      badge.textContent = discoverSourceLabel(it.source_group);
       card.appendChild(badge);
     }
     const titleEl = document.createElement('div');
@@ -2447,8 +2703,7 @@ function renderDiscoverGrid() {
     go.type = 'button';
     go.className = 'discover-card-btn';
     go.textContent = 'Create plugin';
-    const u = it.url;
-    go.onclick = () => startPluginFromDiscover(u);
+    go.onclick = () => startPluginFromDiscover(it.url);
     actions.appendChild(openA);
     actions.appendChild(go);
     const decisionRow = document.createElement('div');
@@ -2479,72 +2734,55 @@ function renderDiscoverGrid() {
       dec.textContent = `last: ${it.latest_decision.decision}`;
       card.appendChild(dec);
     }
-    if (Array.isArray(it.related) && it.related.length) {
-      const relWrap = document.createElement('div');
-      relWrap.className = 'related-list';
-      const relTitle = document.createElement('div');
-      relTitle.className = 'discover-card-url';
-      relTitle.textContent = 'related signals';
-      relWrap.appendChild(relTitle);
-      it.related.slice(0, 3).forEach((r) => {
-        const a = document.createElement('a');
-        a.className = 'related-item';
-        a.href = r.url || '#';
-        a.target = '_blank';
-        a.rel = 'noopener';
-        a.textContent = `${(r.score || 0).toFixed(2)} · ${r.title || 'untitled'}`;
-        relWrap.appendChild(a);
-      });
-      card.appendChild(relWrap);
-    }
     card.appendChild(actions);
     card.appendChild(decisionRow);
     grid.appendChild(card);
   });
   if (!status) return;
-  if (!discoverItemsCache.length && discoverTab === 'queue' && discoverQueueNotice) {
-    status.textContent = discoverQueueNotice;
-    return;
+  const src = discoverSourceUrl ? ` · ${discoverSourceUrl}` : '';
+  const cacheHint = discoverLastCached ? ' · cache hit' : '';
+  status.textContent = `${discoverItemsCache.length} stories · showing ${items.length}${q ? ' (filtered)' : ''}${cacheHint}${src}`;
+  const heroCount = document.getElementById('heroCount');
+  if (heroCount) heroCount.textContent = `${items.length} ${items.length === 1 ? 'story' : 'stories'}`;
+  const heroSub = document.getElementById('heroSub');
+  if (heroSub) {
+    const fresh = items.filter((x) => x.age_minutes < 120).length;
+    heroSub.innerHTML = `Sorted by <strong>${discoverSort}</strong> · ${fresh} new in the last 2h · last sync 2m ago`;
   }
-  if (discoverItemsCache.length) {
-    const src = discoverSourceUrl ? ` · ${discoverSourceUrl}` : '';
-    const kind = discoverTab === 'queue' ? 'issues' : 'stories';
-    const cacheHint = discoverLastCached ? ' · cache hit' : '';
-    const sourceHint = discoverSourceFilter ? ` · source:${discoverSourceFilter}` : '';
-    status.textContent = `${discoverItemsCache.length} ${kind} · showing ${items.length}${q ? ' (filtered)' : ''}${cacheHint}${src}${sourceHint}`;
-  } else if (discoverTab === 'queue') {
-    status.textContent = 'No open queue issues matched (or label filter returned empty).';
-  } else {
-    status.textContent = '';
+  const greeting = document.getElementById('discoverGreeting');
+  if (greeting) {
+    const top = items[0];
+    greeting.textContent = top ? `${freshCount(items)} new since yesterday. ${truncateDiscoverUrl(top.title || '', 52)}` : 'No fresh stories right now.';
   }
+}
+
+function freshCount(items) {
+  return items.filter((x) => x.age_minutes < 1440).length;
 }
 
 function loadDiscoverData(forceRefresh) {
   const status = document.getElementById('discoverStatus');
+  const ranked = document.getElementById('discoverRanked');
   const grid = document.getElementById('discoverGrid');
   if (status) status.textContent = 'Loading feed…';
   discoverQueueNotice = '';
   const skip = forceRefresh ? '&skip_cache=1' : '';
-
-  const url =
-    discoverTab === 'queue'
-      ? `/api/queue-feed?limit=35${skip}`
-      : `/api/discover?limit=48&source_mode=mixed${skip}`;
-
-  fetch(url)
-    .then((r) => r.json().then((j) => ({ ok: r.ok, j })))
-    .then(({ ok, j }) => {
-      if (!ok || !j.ok) throw new Error(j.error || 'Failed to load feed');
-      discoverItemsCache = j.items || [];
-      discoverLastCached = !!j.cached;
-      if (discoverTab === 'queue') {
-        discoverSourceUrl = j.owner && j.repo ? `github.com/${j.owner}/${j.repo}` : '';
-        discoverQueueNotice = j.notice || '';
-        discoverSourceCounts = {};
-      } else {
-        discoverSourceUrl = j.source_url || '';
-        discoverSourceCounts = j.source_counts || {};
-      }
+  Promise.all([
+    fetch(`/api/discover?limit=42&source_mode=mixed${skip}`).then((r) => r.json().then((j) => ({ ok: r.ok, j }))),
+    fetch(`/api/queue-feed?limit=14${skip}`).then((r) => r.json().then((j) => ({ ok: r.ok, j }))),
+  ])
+    .then(([disc, queue]) => {
+      if (!disc.ok || !disc.j.ok) throw new Error(disc.j.error || 'Failed to load discover feed');
+      if (!queue.ok || !queue.j.ok) throw new Error(queue.j.error || 'Failed to load queue feed');
+      const queueItems = (queue.j.items || []).map((q) => ({ ...q, source: 'queue' }));
+      discoverItemsCache = [...(disc.j.items || []), ...queueItems];
+      discoverLastCached = !!disc.j.cached || !!queue.j.cached;
+      discoverSourceUrl = 'mixed + queue';
+      discoverSourceCounts = discoverItemsCache.reduce((acc, it) => {
+        const key = discoverSourceGroup(it.source);
+        acc[key] = (acc[key] || 0) + 1;
+        return acc;
+      }, {});
       renderDiscoverSourceChips();
       renderDiscoverGrid();
     })
@@ -2564,6 +2802,7 @@ function loadDiscoverData(forceRefresh) {
         status.appendChild(retry);
       }
       if (grid) grid.innerHTML = '';
+      if (ranked) ranked.innerHTML = '';
     });
 }
 
