@@ -12,6 +12,30 @@ function pickAll(regex, text) {
   return out;
 }
 
+function normalizeHeadline(raw, maxLen = 118) {
+  const text = String(raw || "")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&amp;/gi, "&")
+    .replace(/&#39;|&rsquo;/gi, "'")
+    .replace(/&quot;/gi, '"')
+    .replace(/\s+/g, " ")
+    .trim();
+  if (!text) return "";
+
+  // Keep only the first sentence/chunk when scraped anchor text includes summaries.
+  const chunks = text.split(/(?<=[.!?])\s+|(?<=\bago)\s+/i).filter(Boolean);
+  let head = chunks[0] || text;
+
+  // Remove repeated clause patterns often seen in scraped article cards.
+  head = head
+    .replace(/\b(.{12,}?)\s+\1\b/gi, "$1")
+    .replace(/\b([A-Z][^.]{20,}?)\s+\1\b/g, "$1")
+    .trim();
+
+  if (head.length <= maxLen) return head;
+  return `${head.slice(0, maxLen - 1).trimEnd()}…`;
+}
+
 function extractItemsFromHtml(html, maxItems = 40) {
   const clean = (s) => (s || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
   const items = [];
@@ -19,7 +43,7 @@ function extractItemsFromHtml(html, maxItems = 40) {
   const linkMatches = pickAll(/<a[^>]+href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/gi, html || "");
   for (const m of linkMatches) {
     const href = m[1];
-    const title = clean(m[2]);
+    const title = normalizeHeadline(clean(m[2]));
     if (!href || !title || title.length < 12) continue;
     if (/apply|feed|calendar|rss|search/i.test(title)) continue;
     if (/^\/$/.test(href)) continue;
@@ -54,7 +78,9 @@ function parseRssItems(xmlText, sourceName, maxItems = 18) {
   const entries = [...String(xmlText || "").matchAll(/<item[\s\S]*?<\/item>/gi)];
   for (const m of entries.slice(0, maxItems)) {
     const block = m[0];
-    const title = decodeXml((block.match(/<title>([\s\S]*?)<\/title>/i) || [,""])[1]).replace(/<[^>]+>/g, " ").trim();
+    const title = normalizeHeadline(
+      decodeXml((block.match(/<title>([\s\S]*?)<\/title>/i) || [,""])[1]).replace(/<[^>]+>/g, " ").trim()
+    );
     const link = decodeXml((block.match(/<link>([\s\S]*?)<\/link>/i) || [,""])[1]).trim();
     if (!title || !link) continue;
     out.push({ source: sourceName, url: link, title });
