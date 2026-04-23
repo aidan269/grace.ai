@@ -455,6 +455,22 @@ nav {
 .ranked-item[data-score="1"] .ranked-score { background: #f0fdf4; border-color: #bbf7d0; color: #15803d; }
 .ranked-title { font-size: 0.92rem; font-weight: 620; }
 .ranked-meta { font-size: 0.68rem; color: var(--subtle); font-family: var(--mono); margin-top: 2px; }
+.ranked-meta .meta-dot { margin: 0 4px; opacity: 0.7; }
+.ranked-meta .meta-age.hot { color: var(--orange); font-weight: 700; }
+.ranked-meta .meta-tag {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 6px;
+  padding: 1px 5px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: var(--gray-100);
+  font-size: 0.62rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.ranked-meta .meta-tag.npm { background: #fef3c7; border-color: #fde68a; color: #92400e; }
+.ranked-meta .meta-tag.wild { background: #fff1f2; border-color: #fecdd3; color: #9f1239; }
 .ranked-actions { display: flex; gap: 6px; }
 .ranked-secondary {
   background: none;
@@ -508,6 +524,14 @@ nav {
 .side-item.active { background: var(--orange-dim); border-color: rgba(250, 94, 6, 0.25); }
 .side-item.active .side-item-count { color: var(--orange); }
 .grace-greet { margin-bottom: 14px; }
+.grace-greet-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 1px solid rgba(250,94,6,0.28);
+}
 .discover-card {
   background: var(--surface); border: 1px solid var(--border);
   border-radius: 14px; padding: 14px 14px 12px;
@@ -1499,7 +1523,7 @@ nav {
     <div class="discover-shell discover-v3" id="discoverPanel">
       <aside class="discover-side">
         <div class="grace-greet" id="graceGreetDiscover">
-          <div class="grace-greet-avatar">G</div>
+          <img class="grace-greet-avatar" src="grace-avatar.png" alt="Grace avatar" />
           <div class="grace-greet-body" id="discoverGreeting">Loading signals…</div>
         </div>
         <div class="side-section">
@@ -2597,6 +2621,15 @@ function discoverSourceLabel(group) {
   return 'Krebs/RSS';
 }
 
+function discoverTagsForItem(it) {
+  const t = String(it.title || '').toLowerCase();
+  const tags = [];
+  if (/cve-\d{4}-\d+/i.test(t)) tags.push({ text: 'CVE', cls: 'cve' });
+  if (/\bnpm\b|package|supply-chain|supply chain/i.test(t)) tags.push({ text: 'NPM', cls: 'npm' });
+  if (/actively exploited|in the wild|exploit-in-wild|zero-day|zero day|worm/i.test(t)) tags.push({ text: 'IN WILD', cls: 'wild' });
+  return tags.slice(0, 2);
+}
+
 function renderDiscoverGrid() {
   const ranked = document.getElementById('discoverRanked');
   const grid = document.getElementById('discoverGrid');
@@ -2639,6 +2672,10 @@ function renderDiscoverGrid() {
   ranked.innerHTML = '';
   grid.innerHTML = '';
   items.forEach((it, idx) => {
+    const tags = discoverTagsForItem(it);
+    const tagsHtml = tags.map((t) => `<span class="meta-tag ${t.cls}">${t.text}</span>`).join('');
+    const ageLabel = discoverAgeLabel(it.age_minutes);
+    const hotAge = it.age_minutes <= 120 ? 'hot' : '';
     const row = document.createElement('div');
     row.className = 'ranked-item';
     row.dataset.score = String(it.score || 0);
@@ -2647,7 +2684,7 @@ function renderDiscoverGrid() {
       <div class="ranked-score"><div class="ranked-score-num">${it.score}</div><div class="ranked-score-label">${it.severity}</div></div>
       <div class="ranked-body">
         <div class="ranked-title">${it.title || 'Untitled'}</div>
-        <div class="ranked-meta">${discoverSourceLabel(it.source_group)} · ${discoverAgeLabel(it.age_minutes)}</div>
+        <div class="ranked-meta">${discoverSourceLabel(it.source_group)} <span class="meta-dot">•</span> <span class="meta-age ${hotAge}">${ageLabel}</span>${tagsHtml}</div>
       </div>
       <div class="ranked-actions">
         <button class="ranked-secondary" title="Defer">
