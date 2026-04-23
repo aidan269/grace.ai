@@ -292,6 +292,43 @@ nav {
   font-family: var(--mono);
   margin-top: 2px;
 }
+.discover-meta {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  margin: 4px 0 0;
+}
+.health-pill {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  border-radius: 999px;
+  padding: 3px 8px;
+}
+.health-pill.ok { color: #16a34a; border-color: #86efac; background: #f0fdf4; }
+.health-pill.warn { color: #b45309; border-color: #fcd34d; background: #fffbeb; }
+.source-chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin: 6px 0 4px;
+}
+.source-chip {
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  border: 1px solid var(--border);
+  background: var(--gray-50);
+  color: var(--muted);
+  border-radius: 999px;
+  padding: 4px 10px;
+  cursor: pointer;
+}
+.source-chip.active {
+  border-color: rgba(250,94,6,0.35);
+  background: var(--orange-dim);
+  color: var(--text);
+}
 .discover-err { color: var(--warn); }
 .discover-grid {
   display: grid;
@@ -322,7 +359,7 @@ nav {
 }
 .discover-card-title {
   font-size: 0.88rem; font-weight: 650; line-height: 1.35;
-  color: var(--text); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+  color: var(--text); display: -webkit-box; line-clamp: 3; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
   padding-right: 56px;
 }
 .discover-card-url {
@@ -331,6 +368,7 @@ nav {
 }
 .discover-card-url:hover { color: var(--orange); }
 .discover-card-actions { display: flex; gap: 8px; margin-top: auto; }
+.discover-card-actions.secondary { margin-top: 6px; }
 .discover-card-btn {
   font-family: inherit; font-size: 0.76rem; font-weight: 700;
   padding: 8px 12px; border-radius: 8px; border: none; cursor: pointer;
@@ -346,6 +384,42 @@ nav {
   display: inline-flex; align-items: center;
 }
 .discover-card-open:hover { border-color: var(--gray-400); color: var(--text); }
+.decision-btn {
+  font-family: inherit;
+  font-size: 0.7rem;
+  font-weight: 600;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--gray-50);
+  color: var(--muted);
+  padding: 5px 8px;
+  cursor: pointer;
+}
+.decision-btn:hover { border-color: var(--gray-400); color: var(--text); }
+.decision-pill {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  font-weight: 700;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 3px 8px;
+  color: var(--subtle);
+  background: var(--gray-50);
+}
+.related-list {
+  margin-top: 4px;
+  border-top: 1px dashed var(--border);
+  padding-top: 6px;
+}
+.related-item {
+  display: block;
+  font-size: 0.68rem;
+  color: var(--muted);
+  text-decoration: none;
+  margin-bottom: 4px;
+}
+.related-item:hover { color: var(--orange); }
 .studio-landing {
   width: 100%; display: flex; flex-direction: column; align-items: center;
 }
@@ -1263,6 +1337,10 @@ nav {
           <button type="button" class="icon-btn discover-refresh square" id="discoverRefresh" title="Refresh feed" onclick="loadDiscoverData(true)">↻</button>
         </div>
       </div>
+      <div class="discover-meta">
+        <span class="health-pill" id="intelHealthPill">health: checking…</span>
+      </div>
+      <div class="source-chips" id="discoverSourceChips"></div>
       <div class="discover-status" id="discoverStatus"></div>
       <div class="discover-grid" id="discoverGrid"></div>
     </div>
@@ -1958,6 +2036,8 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   loadDiscoverData(false);
+  loadIntelHealth();
+  setInterval(loadIntelHealth, 120000);
   const ds = document.getElementById('discoverSearch');
   let discoverFilterT = null;
   if (ds) {
@@ -2026,9 +2106,13 @@ let discoverSourceUrl = '';
 let discoverTab = 'ahackaday';
 let discoverLastCached = false;
 let discoverQueueNotice = '';
+let discoverSourceCounts = {};
+let discoverSourceFilter = '';
+let intelHealth = { ok: null, text: 'health: checking…' };
 
 function setDiscoverTab(tab) {
   discoverTab = tab === 'queue' ? 'queue' : 'ahackaday';
+  discoverSourceFilter = '';
   const ah = document.getElementById('discoverTabAh');
   const q = document.getElementById('discoverTabQ');
   if (ah) ah.classList.toggle('active', discoverTab === 'ahackaday');
@@ -2039,6 +2123,60 @@ function setDiscoverTab(tab) {
       discoverTab === 'queue' ? 'Filter issue title, incident URL, or GitHub link…' : 'Filter titles and URLs…';
   }
   loadDiscoverData(false);
+}
+
+function renderIntelHealth() {
+  const pill = document.getElementById('intelHealthPill');
+  if (!pill) return;
+  pill.classList.remove('ok', 'warn');
+  pill.textContent = intelHealth.text || 'health: checking…';
+  if (intelHealth.ok === true) pill.classList.add('ok');
+  if (intelHealth.ok === false) pill.classList.add('warn');
+}
+
+async function loadIntelHealth() {
+  try {
+    const r = await fetch('/api/health/intel');
+    const j = await r.json();
+    if (r.ok && j.ok) {
+      intelHealth = { ok: true, text: 'health: all systems nominal' };
+    } else {
+      intelHealth = { ok: false, text: 'health: degraded (check intel endpoint)' };
+    }
+  } catch {
+    intelHealth = { ok: false, text: 'health: unavailable' };
+  }
+  renderIntelHealth();
+}
+
+function renderDiscoverSourceChips() {
+  const wrap = document.getElementById('discoverSourceChips');
+  if (!wrap) return;
+  wrap.innerHTML = '';
+  if (discoverTab === 'queue') return;
+  const all = document.createElement('button');
+  all.type = 'button';
+  all.className = `source-chip${discoverSourceFilter ? '' : ' active'}`;
+  all.textContent = `all (${discoverItemsCache.length})`;
+  all.onclick = () => {
+    discoverSourceFilter = '';
+    renderDiscoverSourceChips();
+    renderDiscoverGrid();
+  };
+  wrap.appendChild(all);
+  const keys = Object.keys(discoverSourceCounts || {}).sort((a, b) => (discoverSourceCounts[b] || 0) - (discoverSourceCounts[a] || 0));
+  for (const k of keys) {
+    const chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = `source-chip${discoverSourceFilter === k ? ' active' : ''}`;
+    chip.textContent = `${k} (${discoverSourceCounts[k]})`;
+    chip.onclick = () => {
+      discoverSourceFilter = discoverSourceFilter === k ? '' : k;
+      renderDiscoverSourceChips();
+      renderDiscoverGrid();
+    };
+    wrap.appendChild(chip);
+  }
 }
 
 function setLandingView(view, updateHash = true) {
@@ -2079,6 +2217,9 @@ function renderDiscoverGrid() {
       );
     });
   }
+  if (discoverSourceFilter) {
+    items = items.filter((it) => (it.source || '').toLowerCase() === discoverSourceFilter.toLowerCase());
+  }
   grid.innerHTML = '';
   items.forEach((it) => {
     const card = document.createElement('article');
@@ -2087,6 +2228,11 @@ function renderDiscoverGrid() {
       const badge = document.createElement('span');
       badge.className = 'discover-card-badge';
       badge.textContent = 'Queue';
+      card.appendChild(badge);
+    } else if (it.source) {
+      const badge = document.createElement('span');
+      badge.className = 'discover-card-badge';
+      badge.textContent = String(it.source).replace(/^rss:/, 'rss');
       card.appendChild(badge);
     }
     const titleEl = document.createElement('div');
@@ -2115,9 +2261,54 @@ function renderDiscoverGrid() {
     go.onclick = () => startPluginFromDiscover(u);
     actions.appendChild(openA);
     actions.appendChild(go);
+    const decisionRow = document.createElement('div');
+    decisionRow.className = 'discover-card-actions secondary';
+    const dReviewed = document.createElement('button');
+    dReviewed.type = 'button';
+    dReviewed.className = 'decision-btn';
+    dReviewed.textContent = 'Reviewed';
+    dReviewed.onclick = () => saveDecision(it, 'reviewed');
+    const dApproved = document.createElement('button');
+    dApproved.type = 'button';
+    dApproved.className = 'decision-btn';
+    dApproved.textContent = 'Approve';
+    dApproved.onclick = () => saveDecision(it, 'approved');
+    const dDeferred = document.createElement('button');
+    dDeferred.type = 'button';
+    dDeferred.className = 'decision-btn';
+    dDeferred.textContent = 'Defer';
+    dDeferred.onclick = () => saveDecision(it, 'deferred');
+    decisionRow.appendChild(dReviewed);
+    decisionRow.appendChild(dApproved);
+    decisionRow.appendChild(dDeferred);
     card.appendChild(titleEl);
     card.appendChild(urlEl);
+    if (it.latest_decision?.decision) {
+      const dec = document.createElement('span');
+      dec.className = 'decision-pill';
+      dec.textContent = `last: ${it.latest_decision.decision}`;
+      card.appendChild(dec);
+    }
+    if (Array.isArray(it.related) && it.related.length) {
+      const relWrap = document.createElement('div');
+      relWrap.className = 'related-list';
+      const relTitle = document.createElement('div');
+      relTitle.className = 'discover-card-url';
+      relTitle.textContent = 'related signals';
+      relWrap.appendChild(relTitle);
+      it.related.slice(0, 3).forEach((r) => {
+        const a = document.createElement('a');
+        a.className = 'related-item';
+        a.href = r.url || '#';
+        a.target = '_blank';
+        a.rel = 'noopener';
+        a.textContent = `${(r.score || 0).toFixed(2)} · ${r.title || 'untitled'}`;
+        relWrap.appendChild(a);
+      });
+      card.appendChild(relWrap);
+    }
     card.appendChild(actions);
+    card.appendChild(decisionRow);
     grid.appendChild(card);
   });
   if (!status) return;
@@ -2129,7 +2320,8 @@ function renderDiscoverGrid() {
     const src = discoverSourceUrl ? ` · ${discoverSourceUrl}` : '';
     const kind = discoverTab === 'queue' ? 'issues' : 'stories';
     const cacheHint = discoverLastCached ? ' · cache hit' : '';
-    status.textContent = `${discoverItemsCache.length} ${kind} · showing ${items.length}${q ? ' (filtered)' : ''}${cacheHint}${src}`;
+    const sourceHint = discoverSourceFilter ? ` · source:${discoverSourceFilter}` : '';
+    status.textContent = `${discoverItemsCache.length} ${kind} · showing ${items.length}${q ? ' (filtered)' : ''}${cacheHint}${src}${sourceHint}`;
   } else if (discoverTab === 'queue') {
     status.textContent = 'No open queue issues matched (or label filter returned empty).';
   } else {
@@ -2147,7 +2339,7 @@ function loadDiscoverData(forceRefresh) {
   const url =
     discoverTab === 'queue'
       ? `/api/queue-feed?limit=35${skip}`
-      : `/api/discover?limit=48${skip}`;
+      : `/api/discover?limit=48&source_mode=mixed${skip}`;
 
   fetch(url)
     .then((r) => r.json().then((j) => ({ ok: r.ok, j })))
@@ -2158,9 +2350,12 @@ function loadDiscoverData(forceRefresh) {
       if (discoverTab === 'queue') {
         discoverSourceUrl = j.owner && j.repo ? `github.com/${j.owner}/${j.repo}` : '';
         discoverQueueNotice = j.notice || '';
+        discoverSourceCounts = {};
       } else {
         discoverSourceUrl = j.source_url || '';
+        discoverSourceCounts = j.source_counts || {};
       }
+      renderDiscoverSourceChips();
       renderDiscoverGrid();
     })
     .catch((err) => {
@@ -2180,6 +2375,26 @@ function loadDiscoverData(forceRefresh) {
       }
       if (grid) grid.innerHTML = '';
     });
+}
+
+function saveDecision(item, decision) {
+  fetch('/api/discover', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      action: 'decision',
+      url: item.url,
+      decision,
+      actor: 'grace-ui',
+    }),
+  })
+    .then((r) => r.json().then((j) => ({ ok: r.ok, j })))
+    .then(({ ok, j }) => {
+      if (!ok || !j.ok) throw new Error(j.error || 'Failed');
+      item.latest_decision = { decision, created_at: new Date().toISOString() };
+      renderDiscoverGrid();
+    })
+    .catch(() => {});
 }
 
 function startPluginFromDiscover(url) {

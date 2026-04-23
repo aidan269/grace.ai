@@ -1,5 +1,11 @@
 import Anthropic from "@anthropic-ai/sdk";
-import { persistGraceResults } from "../lib/intelStore.js";
+import {
+  computeAndStoreStoryRelated,
+  persistGraceResults,
+  supabaseAdmin,
+  upsertPromptVersion,
+  writeRunAudit,
+} from "../lib/intelStore.js";
 import { postSlackFeedFromResults } from "../lib/slackSink.js";
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
@@ -23,6 +29,7 @@ Rules:
 
 const DEFAULT_OWNER = process.env.NEWS_QUEUE_REPO_OWNER || "aidan269";
 const DEFAULT_REPO = process.env.NEWS_QUEUE_REPO || "grace.ai";
+const PROMPT_VERSION = "v2.0.0";
 
 async function mapPool(items, concurrency, fn) {
   const results = new Array(items.length);
@@ -163,14 +170,18 @@ export default async function handler(req, res) {
   }
 
   const createIssues = req.body?.create_issue !== false;
+  const run_id = req.body?.run_id || `run_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
   const assess_concurrency = Math.min(Math.max(parseInt(req.body?.assess_concurrency || "3", 10), 1), 8);
   const issue_concurrency = Math.min(Math.max(parseInt(req.body?.issue_concurrency || "3", 10), 1), 8);
+  const failures = { triage: [], issue_create: [], store: [], slack: [] };
+  await upsertPromptVersion("intake_assess_system", PROMPT_VERSION, ASSESS_SYSTEM);
 
   const triaged = await mapPool(items, assess_concurrency, async (item) => {
     try {
       const triage = await assessItem(item);
       return { ok: true, item, triage };
     } catch (err) {
+      failures.triage.push({ title: item.title || null, url: item.url || null, error: err.message || "Failed to triage item" });
       return { ok: false, item, error: err.message || "Failed to triage item" };
     }
   });
@@ -193,6 +204,7 @@ export default async function handler(req, res) {
         issue_url = await createQueueIssue(item, triage);
       } catch (err) {
         issue_error = err.message || "Failed to create issue";
+        failures.issue_create.push({ title: item.title || null, url: item.url || null, error: issue_error });
       }
     }
 
@@ -208,6 +220,7 @@ export default async function handler(req, res) {
       q1: triage.q1,
       q2: triage.q2,
       raw: triage.raw,
+      run_id,
       issue_url,
       issue_error,
     };
@@ -227,9 +240,14 @@ export default async function handler(req, res) {
   let store = null;
   let slack = null;
   try {
-    store = await persistGraceResults(results, "intake");
+    store = await persistGraceResults(results, "intake", run_id);
+    const sb = supabaseAdmin();
+    if (sb && store?.story_ids?.length) {
+      await computeAndStoreStoryRelated(sb, store.story_ids);
+    }
   } catch (e) {
     store = { error: e.message || String(e) };
+    failures.store.push(store.error);
   }
   if (process.env.SLACK_ON_INTAKE === "true") {
     try {
@@ -238,15 +256,23 @@ export default async function handler(req, res) {
       });
     } catch (e) {
       slack = { error: e.message || String(e) };
+      failures.slack.push(slack.error);
     }
   }
+  await writeRunAudit(run_id, "intake", "completed", {
+    input_count: items.length,
+    summary,
+    failure_count: Object.values(failures).reduce((n, arr) => n + arr.length, 0),
+  });
 
   return res.status(200).json({
     ok: true,
+    run_id,
     count: results.length,
     summary,
     results,
     store,
     slack,
+    failures,
   });
 }

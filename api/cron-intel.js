@@ -33,6 +33,7 @@ export default async function handler(req, res) {
       ...body,
       max_items: body.max_items ?? 10,
       create_issue: body.create_issue !== false,
+      source_mode: body.source_mode || "mixed",
     });
     return res.status(200).json(out);
   } catch (e) {
