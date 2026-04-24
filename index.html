@@ -1548,9 +1548,10 @@ nav {
         <div class="side-section">
           <div class="side-label">Status</div>
           <button class="side-item" data-filter="decision" data-value="new"><span class="side-item-label">New</span></button>
-          <button class="side-item" data-filter="decision" data-value="reviewed"><span class="side-item-label">Reviewed</span></button>
-          <button class="side-item" data-filter="decision" data-value="approved"><span class="side-item-label">Approved</span></button>
-          <button class="side-item" data-filter="decision" data-value="deferred"><span class="side-item-label">Deferred</span></button>
+          <button class="side-item" data-filter="decision" data-value="assign"><span class="side-item-label">Assigned</span></button>
+          <button class="side-item" data-filter="decision" data-value="needs_research"><span class="side-item-label">Needs research</span></button>
+          <button class="side-item" data-filter="decision" data-value="ship"><span class="side-item-label">Shipped</span></button>
+          <button class="side-item" data-filter="decision" data-value="defer"><span class="side-item-label">Deferred</span></button>
         </div>
       </aside>
 
@@ -2644,7 +2645,7 @@ function renderDiscoverGrid() {
       source_group: sourceGroup,
       score,
       severity: discoverSeverityLabel(score),
-      decision: it.latest_decision?.decision || 'new',
+      decision: it.latest_operator_action?.action || 'new',
       age_minutes: discoverAgeMinutes(it),
     };
   });
@@ -2663,7 +2664,7 @@ function renderDiscoverGrid() {
   }
   if (discoverScoreFilter) items = items.filter((it) => String(it.score) === discoverScoreFilter);
   if (discoverDecisionFilter) {
-    if (discoverDecisionFilter === 'new') items = items.filter((it) => !it.latest_decision?.decision);
+    if (discoverDecisionFilter === 'new') items = items.filter((it) => !it.latest_operator_action?.action);
     else items = items.filter((it) => it.decision === discoverDecisionFilter);
   }
   if (discoverSort === 'fresh') items.sort((a, b) => a.age_minutes - b.age_minutes);
@@ -2687,10 +2688,13 @@ function renderDiscoverGrid() {
         <div class="ranked-meta">${discoverSourceLabel(it.source_group)} <span class="meta-dot">•</span> <span class="meta-age ${hotAge}">${ageLabel}</span>${tagsHtml}</div>
       </div>
       <div class="ranked-actions">
+        <button class="ranked-secondary" title="Assign">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6M17 11h6"/></svg>
+        </button>
         <button class="ranked-secondary" title="Defer">
           <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l2.5 1.5"/></svg>
         </button>
-        <button class="ranked-secondary" title="Approve">
+        <button class="ranked-secondary" title="Ship">
           <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
         </button>
         <button class="ranked-primary">Create plugin →</button>
@@ -2700,9 +2704,10 @@ function renderDiscoverGrid() {
       const href = it.issue_url || it.url || '#';
       if (href && href !== '#') window.open(href, '_blank');
     };
-    row.querySelectorAll('.ranked-secondary')[0].onclick = (e) => { e.stopPropagation(); saveDecision(it, 'deferred'); };
-    row.querySelectorAll('.ranked-secondary')[1].onclick = (e) => { e.stopPropagation(); saveDecision(it, 'approved'); };
-    row.querySelector('.ranked-primary').onclick = (e) => { e.stopPropagation(); startPluginFromDiscover(it.url); };
+    row.querySelectorAll('.ranked-secondary')[0].onclick = (e) => { e.stopPropagation(); saveOperatorAction(it, 'assign'); };
+    row.querySelectorAll('.ranked-secondary')[1].onclick = (e) => { e.stopPropagation(); saveOperatorAction(it, 'defer'); };
+    row.querySelectorAll('.ranked-secondary')[2].onclick = (e) => { e.stopPropagation(); saveOperatorAction(it, 'ship'); };
+    row.querySelector('.ranked-primary').onclick = (e) => { e.stopPropagation(); saveOperatorAction(it, 'assign'); startPluginFromDiscover(it.url); };
     ranked.appendChild(row);
 
     const card = document.createElement('article');
@@ -2745,30 +2750,36 @@ function renderDiscoverGrid() {
     actions.appendChild(go);
     const decisionRow = document.createElement('div');
     decisionRow.className = 'discover-card-actions secondary';
-    const dReviewed = document.createElement('button');
-    dReviewed.type = 'button';
-    dReviewed.className = 'decision-btn';
-    dReviewed.textContent = 'Reviewed';
-    dReviewed.onclick = () => saveDecision(it, 'reviewed');
-    const dApproved = document.createElement('button');
-    dApproved.type = 'button';
-    dApproved.className = 'decision-btn';
-    dApproved.textContent = 'Approve';
-    dApproved.onclick = () => saveDecision(it, 'approved');
-    const dDeferred = document.createElement('button');
-    dDeferred.type = 'button';
-    dDeferred.className = 'decision-btn';
-    dDeferred.textContent = 'Defer';
-    dDeferred.onclick = () => saveDecision(it, 'deferred');
-    decisionRow.appendChild(dReviewed);
-    decisionRow.appendChild(dApproved);
-    decisionRow.appendChild(dDeferred);
+    const dAssign = document.createElement('button');
+    dAssign.type = 'button';
+    dAssign.className = 'decision-btn';
+    dAssign.textContent = 'Assign';
+    dAssign.onclick = () => saveOperatorAction(it, 'assign');
+    const dResearch = document.createElement('button');
+    dResearch.type = 'button';
+    dResearch.className = 'decision-btn';
+    dResearch.textContent = 'Research';
+    dResearch.onclick = () => saveOperatorAction(it, 'needs_research');
+    const dShip = document.createElement('button');
+    dShip.type = 'button';
+    dShip.className = 'decision-btn';
+    dShip.textContent = 'Ship';
+    dShip.onclick = () => saveOperatorAction(it, 'ship');
+    const dDefer = document.createElement('button');
+    dDefer.type = 'button';
+    dDefer.className = 'decision-btn';
+    dDefer.textContent = 'Defer';
+    dDefer.onclick = () => saveOperatorAction(it, 'defer');
+    decisionRow.appendChild(dAssign);
+    decisionRow.appendChild(dResearch);
+    decisionRow.appendChild(dShip);
+    decisionRow.appendChild(dDefer);
     card.appendChild(titleEl);
     card.appendChild(urlEl);
-    if (it.latest_decision?.decision) {
+    if (it.latest_operator_action?.action) {
       const dec = document.createElement('span');
       dec.className = 'decision-pill';
-      dec.textContent = `last: ${it.latest_decision.decision}`;
+      dec.textContent = `state: ${it.latest_operator_action.action}`;
       card.appendChild(dec);
     }
     card.appendChild(actions);
@@ -2843,21 +2854,21 @@ function loadDiscoverData(forceRefresh) {
     });
 }
 
-function saveDecision(item, decision) {
+function saveOperatorAction(item, operatorAction) {
   fetch('/api/discover', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      action: 'decision',
+      action: 'operator_action',
       url: item.url,
-      decision,
+      operator_action: operatorAction,
       actor: 'grace-ui',
     }),
   })
     .then((r) => r.json().then((j) => ({ ok: r.ok, j })))
     .then(({ ok, j }) => {
       if (!ok || !j.ok) throw new Error(j.error || 'Failed');
-      item.latest_decision = { decision, created_at: new Date().toISOString() };
+      item.latest_operator_action = { action: operatorAction, created_at: new Date().toISOString(), actor: 'grace-ui' };
       renderDiscoverGrid();
     })
     .catch(() => {});

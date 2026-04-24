@@ -1,4 +1,4 @@
-import { savePublishDecisionByUrl, supabaseAdmin } from "../lib/intelStore.js";
+import { saveOperatorActionByUrl, savePublishDecisionByUrl, supabaseAdmin } from "../lib/intelStore.js";
 
 const DEFAULT_SOURCE_URL = "https://ahackaday-site.vercel.app/";
 const LIST_CACHE_TTL_MS = 90_000;
@@ -148,6 +148,22 @@ export default async function handler(req, res) {
     if (out.error) return res.status(500).json({ ok: false, error: out.error });
     return res.status(200).json({ ok: true, ...out });
   }
+  if (req.method === "POST" && params.action === "operator_action") {
+    const action = String(params.operator_action || "").toLowerCase();
+    if (!["assign", "needs_research", "ship", "defer"].includes(action)) {
+      return res.status(400).json({ ok: false, error: "operator_action must be assign|needs_research|ship|defer" });
+    }
+    if (!params.url) return res.status(400).json({ ok: false, error: "url is required" });
+    const out = await saveOperatorActionByUrl({
+      url: params.url,
+      action,
+      note: params.note || null,
+      actor: params.actor || null,
+      assignee: params.assignee || null,
+    });
+    if (out.error) return res.status(500).json({ ok: false, error: out.error });
+    return res.status(200).json({ ok: true, ...out });
+  }
 
   const source_url = params.source_url || DEFAULT_SOURCE_URL;
   const source_mode = (params.source_mode || "ahackaday").toLowerCase();
@@ -234,6 +250,7 @@ export default async function handler(req, res) {
     const sb = supabaseAdmin();
     let relatedByUrl = {};
     let decisionsByUrl = {};
+    let operatorByUrl = {};
     if (sb) {
       const urls = items.map((i) => i.url).filter(Boolean).slice(0, 60);
       if (urls.length) {
@@ -281,6 +298,26 @@ export default async function handler(req, res) {
           const u = idToUrl[storyId];
           if (u) decisionsByUrl[u] = { decision: row.decision, created_at: row.created_at };
         }
+        const { data: operatorRows } = await sb
+          .from("operator_actions")
+          .select("action,created_at,story_id,actor,assignee")
+          .order("created_at", { ascending: false })
+          .limit(400);
+        const latestOpByStory = {};
+        for (const r of operatorRows || []) {
+          if (!latestOpByStory[r.story_id]) latestOpByStory[r.story_id] = r;
+        }
+        for (const [storyId, row] of Object.entries(latestOpByStory)) {
+          const u = idToUrl[storyId];
+          if (u) {
+            operatorByUrl[u] = {
+              action: row.action,
+              created_at: row.created_at,
+              actor: row.actor || null,
+              assignee: row.assignee || null,
+            };
+          }
+        }
       }
     }
 
@@ -288,6 +325,7 @@ export default async function handler(req, res) {
       ...it,
       related: (relatedByUrl[it.url] || []).slice(0, 3),
       latest_decision: decisionsByUrl[it.url] || null,
+      latest_operator_action: operatorByUrl[it.url] || null,
     }));
 
     return res.status(200).json({
