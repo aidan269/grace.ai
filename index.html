@@ -2653,6 +2653,16 @@ function cleanDisplayTitle(raw, maxLen = 124) {
   return `${head.slice(0, maxLen - 1).trimEnd()}…`;
 }
 
+function escapeHtml(s) {
+  return String(s || "").replace(/[&<>"']/g, (c) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;",
+  })[c]);
+}
+
 function renderDiscoverGrid() {
   const ranked = document.getElementById('discoverRanked');
   const grid = document.getElementById('discoverGrid');
