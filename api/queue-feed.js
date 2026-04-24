@@ -21,6 +21,26 @@ function pickExternalUrlFromText(text) {
   return null;
 }
 
+function normalizeQueueTitle(raw, maxLen = 118) {
+  const text = String(raw || "")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&amp;/gi, "&")
+    .replace(/&#39;|&rsquo;/gi, "'")
+    .replace(/&quot;/gi, '"')
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  if (!text) return "Untitled";
+  const noLabel = text.replace(/^\[[^\]]+\]\s*/i, "").trim();
+  const deduped = noLabel
+    .replace(/\b(.{16,}?)\s+\1\b/gi, "$1")
+    .replace(/\b([A-Z][^.]{22,}?)\s+\1\b/g, "$1")
+    .trim();
+  const head = deduped.split(/(?<=[.!?])\s+|(?<=\bago)\s+/i).filter(Boolean)[0] || deduped;
+  if (head.length <= maxLen) return head;
+  return `${head.slice(0, maxLen - 1).trimEnd()}…`;
+}
+
 export default async function handler(req, res) {
   if (req.method === "OPTIONS") return res.status(200).end();
   if (req.method !== "GET" && req.method !== "POST") {
@@ -102,7 +122,7 @@ export default async function handler(req, res) {
       const incident = pickExternalUrlFromText(hay);
       const row = {
         source: "github-queue",
-        title: (issue.title || "Untitled").replace(/^\[[^\]]+\]\s*/i, "").trim() || issue.title || "Untitled",
+        title: normalizeQueueTitle(issue.title || "Untitled"),
         url: incident || issue.html_url,
         issue_url: issue.html_url,
       };
