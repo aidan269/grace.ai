@@ -2986,7 +2986,7 @@ function loadRegistryData(force) {
   const loading = document.getElementById('registryLoading');
   if (loading) loading.style.display = '';
   if (body) body.innerHTML = '<div class="registry-loading" id="registryLoading">Loading registry…</div>';
-  fetch('/api/audit?limit=30')
+  fetch('/api/health/intel?type=audit&limit=30')
     .then((r) => r.json())
     .then((j) => {
       if (!j.ok) throw new Error(j.error || 'audit_failed');
