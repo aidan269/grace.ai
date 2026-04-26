@@ -479,6 +479,8 @@ nav {
 }
 .ranked-meta .meta-tag.npm { background: #fef3c7; border-color: #fde68a; color: #92400e; }
 .ranked-meta .meta-tag.wild { background: #fff1f2; border-color: #fecdd3; color: #9f1239; }
+.ranked-meta .meta-tag.seen { background: #eff6ff; border-color: #bfdbfe; color: #1d4ed8; text-transform: none; }
+.ranked-meta .meta-tag.decided { background: #f0fdf4; border-color: #bbf7d0; color: #166534; }
 .ranked-actions { display: flex; gap: 6px; }
 .ranked-secondary {
   background: none;
@@ -1543,6 +1545,8 @@ nav {
           <button class="side-item" data-filter="source" data-value="ahackaday"><span class="side-item-label">AHackaday</span><span class="side-item-count" id="cntAh">0</span></button>
           <button class="side-item" data-filter="source" data-value="rss"><span class="side-item-label">Krebs / RSS</span><span class="side-item-count" id="cntRss">0</span></button>
           <button class="side-item" data-filter="source" data-value="cisa"><span class="side-item-label">CISA / KEV</span><span class="side-item-count" id="cntCisa">0</span></button>
+          <button class="side-item" data-filter="source" data-value="nvd"><span class="side-item-label">NVD CVEs</span><span class="side-item-count" id="cntNvd">0</span></button>
+          <button class="side-item" data-filter="source" data-value="reddit"><span class="side-item-label">Reddit / Social</span><span class="side-item-count" id="cntReddit">0</span></button>
           <button class="side-item" data-filter="source" data-value="queue"><span class="side-item-label">Triage queue</span><span class="side-item-count" id="cntQueue">0</span></button>
         </div>
         <div class="side-section">
@@ -2549,12 +2553,16 @@ function renderDiscoverSourceChips() {
   const cntAh = document.getElementById('cntAh');
   const cntRss = document.getElementById('cntRss');
   const cntCisa = document.getElementById('cntCisa');
+  const cntNvd = document.getElementById('cntNvd');
+  const cntReddit = document.getElementById('cntReddit');
   const cntQueue = document.getElementById('cntQueue');
   if (sourceTotal) sourceTotal.textContent = String(discoverItemsCache.length);
   if (cntAll) cntAll.textContent = String(discoverItemsCache.length);
   if (cntAh) cntAh.textContent = String(discoverSourceCounts.ahackaday || 0);
   if (cntRss) cntRss.textContent = String(discoverSourceCounts.rss || 0);
   if (cntCisa) cntCisa.textContent = String(discoverSourceCounts.cisa || 0);
+  if (cntNvd) cntNvd.textContent = String(discoverSourceCounts.nvd || 0);
+  if (cntReddit) cntReddit.textContent = String(discoverSourceCounts.reddit || 0);
   if (cntQueue) cntQueue.textContent = String(discoverSourceCounts.queue || 0);
 }
 
@@ -2585,7 +2593,9 @@ function discoverSourceGroup(raw) {
   if (s === 'github-queue' || s === 'queue') return 'queue';
   if (s === 'ahackaday') return 'ahackaday';
   if (s === 'cisa-kev' || s.includes('cisa')) return 'cisa';
-  if (s.startsWith('rss:')) return s.includes('kreb') ? 'rss' : 'cisa';
+  if (s === 'nvd') return 'nvd';
+  if (s.startsWith('reddit:') || s === 'social' || s === 'reddit') return 'reddit';
+  if (s.startsWith('rss:')) return 'rss';
   return 'rss';
 }
 
@@ -2626,17 +2636,21 @@ function discoverAgeLabel(mins) {
 function discoverSourceLabel(group) {
   if (group === 'ahackaday') return 'AHackaday';
   if (group === 'queue') return 'Triage queue';
-  if (group === 'cisa') return 'CISA';
+  if (group === 'cisa') return 'CISA/KEV';
+  if (group === 'nvd') return 'NVD';
+  if (group === 'reddit') return 'Reddit';
   return 'Krebs/RSS';
 }
 
 function discoverTagsForItem(it) {
   const t = String(it.title || '').toLowerCase();
   const tags = [];
-  if (/cve-\d{4}-\d+/i.test(t)) tags.push({ text: 'CVE', cls: 'cve' });
+  if (/cve-\d{4}-\d+/i.test(t) || it.source === 'nvd' || it.source_group === 'nvd') tags.push({ text: 'CVE', cls: 'cve' });
   if (/\bnpm\b|package|supply-chain|supply chain/i.test(t)) tags.push({ text: 'NPM', cls: 'npm' });
   if (/actively exploited|in the wild|exploit-in-wild|zero-day|zero day|worm/i.test(t)) tags.push({ text: 'IN WILD', cls: 'wild' });
-  return tags.slice(0, 2);
+  if ((it.related || []).length > 0) tags.push({ text: `🔗 ${it.related.length} seen before`, cls: 'seen' });
+  if (it.latest_decision?.decision) tags.push({ text: it.latest_decision.decision, cls: 'decided' });
+  return tags.slice(0, 4);
 }
 
 function cleanDisplayTitle(raw, maxLen = 124) {

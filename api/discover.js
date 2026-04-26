@@ -90,12 +90,83 @@ function parseRssItems(xmlText, sourceName, maxItems = 18) {
   return out;
 }
 
+async function fetchNvdItems(maxItems = 20) {
+  const now = new Date();
+  const since = new Date(now - 7 * 24 * 60 * 60 * 1000);
+  const fmt = (d) => d.toISOString().slice(0, 19) + ".000";
+  const url = `https://services.nvd.nist.gov/rest/json/cves/2.0?pubStartDate=${fmt(since)}&pubEndDate=${fmt(now)}&resultsPerPage=${maxItems}&cvssV3Severity=HIGH`;
+  try {
+    const res = await fetch(url, {
+      headers: { "User-Agent": "Mozilla/5.0 (compatible; GraceDiscover/1.0)" },
+      signal: AbortSignal.timeout(14000),
+    });
+    if (!res.ok) return [];
+    const json = await res.json();
+    return (json?.vulnerabilities || []).slice(0, maxItems).map((entry) => {
+      const cve = entry.cve || {};
+      const cveId = cve.id || "CVE-????-?????";
+      const desc = ((cve.descriptions || []).find((d) => d.lang === "en") || {}).value || "";
+      const title = `${cveId} ${desc.slice(0, 120)}`.trim();
+      const cvssScore = cve.metrics?.cvssMetricV31?.[0]?.cvssData?.baseScore
+        ?? cve.metrics?.cvssMetricV30?.[0]?.cvssData?.baseScore
+        ?? null;
+      return {
+        source: "nvd",
+        url: `https://nvd.nist.gov/vuln/detail/${cveId}`,
+        title,
+        summary: desc.slice(0, 900),
+        severity: cvssScore >= 9 ? "critical" : cvssScore >= 7 ? "high" : "medium",
+        type: "cve",
+        published_at: cve.published || null,
+      };
+    });
+  } catch {
+    return [];
+  }
+}
+
+async function fetchRedditItems(maxItems = 20) {
+  const subs = ["netsec", "cybersecurity"];
+  const perSub = Math.ceil(maxItems / subs.length);
+  const items = [];
+  for (const sub of subs) {
+    try {
+      const res = await fetch(`https://www.reddit.com/r/${sub}/new.json?limit=${perSub}`, {
+        headers: { "User-Agent": "Mozilla/5.0 (compatible; GraceDiscover/1.0)" },
+        signal: AbortSignal.timeout(10000),
+      });
+      if (!res.ok) continue;
+      const json = await res.json();
+      for (const child of (json?.data?.children || []).slice(0, perSub)) {
+        const post = child.data || {};
+        if (!post.title || post.is_self === false && !post.url) continue;
+        const score = post.score || 0;
+        if (score < 10) continue;
+        items.push({
+          source: `reddit:${sub}`,
+          url: post.url && !post.url.includes("reddit.com") ? post.url : `https://www.reddit.com${post.permalink}`,
+          title: String(post.title || "").trim(),
+          summary: post.selftext ? post.selftext.slice(0, 400) : "",
+          type: "social",
+          published_at: post.created_utc ? new Date(post.created_utc * 1000).toISOString() : null,
+        });
+      }
+    } catch {}
+  }
+  return items.slice(0, maxItems);
+}
+
 async function fetchRssItems(maxItems = 24) {
   const feeds = [
     "https://www.cisa.gov/news-events/cybersecurity-advisories/all.xml",
     "https://krebsonsecurity.com/feed/",
+    "https://blog.talosintelligence.com/rss/",
+    "https://unit42.paloaltonetworks.com/feed/",
+    "https://feeds.feedburner.com/TheHackersNews",
+    "https://www.bleepingcomputer.com/feed/",
+    "https://isc.sans.edu/rssfeed_full.xml",
   ];
-  const each = Math.max(4, Math.ceil(maxItems / feeds.length));
+  const each = Math.max(3, Math.ceil(maxItems / feeds.length));
   const items = [];
   for (const feed of feeds) {
     try {
@@ -195,8 +266,12 @@ export default async function handler(req, res) {
         baseItems = await fetchRssItems(limit);
       } else if (source_mode === "kev") {
         baseItems = await fetchKevItems(limit);
+      } else if (source_mode === "nvd") {
+        baseItems = await fetchNvdItems(limit);
+      } else if (source_mode === "reddit" || source_mode === "social") {
+        baseItems = await fetchRedditItems(limit);
       } else if (source_mode === "mixed") {
-        const [ah, rss, kev] = await Promise.all([
+        const [ah, rss, kev, nvd, reddit] = await Promise.all([
           (async () => {
             const htmlRes = await fetch(source_url, {
               headers: { "User-Agent": "Mozilla/5.0 (compatible; GraceDiscover/1.0)" },
@@ -204,12 +279,14 @@ export default async function handler(req, res) {
             });
             if (!htmlRes.ok) return [];
             const html = await htmlRes.text();
-            return extractItemsFromHtml(html, Math.ceil(limit * 0.45));
+            return extractItemsFromHtml(html, Math.ceil(limit * 0.30));
           })(),
-          fetchRssItems(Math.ceil(limit * 0.35)),
-          fetchKevItems(Math.ceil(limit * 0.2)),
+          fetchRssItems(Math.ceil(limit * 0.30)),
+          fetchKevItems(Math.ceil(limit * 0.15)),
+          fetchNvdItems(Math.ceil(limit * 0.15)),
+          fetchRedditItems(Math.ceil(limit * 0.10)),
         ]);
-        baseItems = [...ah, ...rss, ...kev];
+        baseItems = [...ah, ...rss, ...kev, ...nvd, ...reddit];
       } else {
         const htmlRes = await fetch(source_url, {
           headers: { "User-Agent": "Mozilla/5.0 (compatible; GraceDiscover/1.0)" },

@@ -31,7 +31,7 @@ export default async function handler(req, res) {
     const body = typeof req.body === "object" && req.body ? req.body : {};
     const out = await runNewsSync({
       ...body,
-      max_items: body.max_items ?? 10,
+      max_items: body.max_items ?? 20,
       create_issue: body.create_issue !== false,
       source_mode: body.source_mode || "mixed",
     });
