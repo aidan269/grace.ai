@@ -1730,7 +1730,7 @@ nav {
     </div>
 
     <!-- Registry panel -->
-    <div class="registry-shell" id="registryPanel" style="display:none">
+    <div class="registry-shell" id="registryPanel">
       <div class="registry-header">
         <div class="registry-title">Prompt Registry &amp; Audit Trail</div>
         <div class="registry-sub">Versioned prompts · run history · publish decisions</div>
@@ -3031,7 +3031,7 @@ function renderRegistry(data) {
         <span class="registry-section-label">Prompt Registry</span>
         <span class="registry-section-count">${promptNames.length} prompts</span>
       </div>
-      ${promptRows ? `<table class="registry-table"><thead><tr><th>Name</th><th>Version</th><th>Saved</th><th>Preview</th></tr></thead><tbody>${promptRows}</tbody></table>` : '<div class="registry-empty">No prompt versions recorded yet — prompts are versioned on first news sync run.</div>'}
+      ${promptRows ? `<table class="registry-table"><thead><tr><th>Name</th><th>Version</th><th>Saved</th><th>Preview</th></tr></thead><tbody>${promptRows}</tbody></table>` : '<div class="registry-empty">Prompts are versioned automatically on each news sync run.<br>Trigger a sync or wait for the daily cron to populate this.</div>'}
     </div>`);
 
   // Run History
@@ -3057,7 +3057,7 @@ function renderRegistry(data) {
         <span class="registry-section-label">Run History</span>
         <span class="registry-section-count">${runs.length} runs</span>
       </div>
-      ${runRows ? `<table class="registry-table"><thead><tr><th>Run ID</th><th>Status</th><th>Mode</th><th>Triage</th><th>Errors</th><th>Time</th></tr></thead><tbody>${runRows}</tbody></table>` : '<div class="registry-empty">No runs recorded yet.</div>'}
+      ${runRows ? `<table class="registry-table"><thead><tr><th>Run ID</th><th>Status</th><th>Mode</th><th>Triage</th><th>Errors</th><th>Time</th></tr></thead><tbody>${runRows}</tbody></table>` : '<div class="registry-empty">Every news sync run logs here — source mode, triage summary (🔥👀🗂️), and any errors.<br>Runs daily at 1 PM UTC via cron, or trigger one manually via <code>/api/news-sync</code>.</div>'}
     </div>`);
 
   // Publish Decisions
@@ -3082,7 +3082,7 @@ function renderRegistry(data) {
         <span class="registry-section-label">Publish Decisions</span>
         <span class="registry-section-count">${decisions.length} decisions</span>
       </div>
-      ${decRows ? `<table class="registry-table"><thead><tr><th>Story</th><th>Decision</th><th>Actor</th><th>Note</th><th>Time</th></tr></thead><tbody>${decRows}</tbody></table>` : '<div class="registry-empty">No publish decisions recorded yet.</div>'}
+      ${decRows ? `<table class="registry-table"><thead><tr><th>Story</th><th>Decision</th><th>Actor</th><th>Note</th><th>Time</th></tr></thead><tbody>${decRows}</tbody></table>` : '<div class="registry-empty">When you hit Ship, Defer, or Assign on a story in Discover, those decisions are logged here as an audit trail.</div>'}
     </div>`);
 
   body.innerHTML = sections.join('');
