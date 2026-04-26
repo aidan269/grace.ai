@@ -216,6 +216,9 @@ nav {
 /* Discover (data + search landing) */
 .empty-state[data-landing="discover"] .studio-landing { display: none !important; }
 .empty-state[data-landing="studio"] .discover-shell { display: none !important; }
+.empty-state[data-landing="registry"] .discover-shell { display: none !important; }
+.empty-state[data-landing="registry"] .studio-landing { display: none !important; }
+.empty-state:not([data-landing="registry"]) .registry-shell { display: none !important; }
 .discover-shell {
   width: 100%; max-width: 1020px; margin: 0 auto;
   padding: 0 20px 56px;
@@ -629,6 +632,59 @@ nav {
 .studio-landing {
   width: 100%; display: flex; flex-direction: column; align-items: center;
 }
+
+/* ── Registry panel ── */
+.registry-shell {
+  width: 100%; max-width: 1020px; margin: 0 auto;
+  padding: 0 0 56px;
+  display: flex; flex-direction: column; gap: 24px;
+}
+.registry-header {
+  text-align: center; padding: 28px 0 0;
+}
+.registry-title { font-size: 1.4rem; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 4px; }
+.registry-sub { font-size: 0.88rem; color: var(--muted); }
+.registry-loading { text-align: center; color: var(--subtle); font-size: 0.85rem; padding: 40px; font-family: var(--mono); }
+.registry-body { display: flex; flex-direction: column; gap: 20px; }
+.registry-section {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; overflow: hidden;
+  box-shadow: var(--shadow);
+}
+.registry-section-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 16px; border-bottom: 1px solid var(--border);
+  background: var(--gray-50);
+}
+.registry-section-label { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.registry-section-count { font-family: var(--mono); font-size: 0.7rem; color: var(--subtle); }
+.registry-table { width: 100%; border-collapse: collapse; }
+.registry-table th { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--subtle); padding: 8px 16px; text-align: left; border-bottom: 1px solid var(--border); background: var(--gray-50); }
+.registry-table td { font-size: 0.8rem; padding: 9px 16px; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: top; }
+.registry-table tr:last-child td { border-bottom: none; }
+.registry-table tr:hover td { background: var(--gray-50); }
+.registry-mono { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); }
+.registry-pill {
+  display: inline-block; font-size: 0.62rem; font-weight: 700; font-family: var(--mono);
+  padding: 2px 7px; border-radius: 4px; border: 1px solid var(--border);
+  background: var(--gray-100); color: var(--muted);
+}
+.registry-pill.promote { background: #fff7ed; border-color: #fed7aa; color: #c2410c; }
+.registry-pill.review { background: #fefce8; border-color: #fef08a; color: #a16207; }
+.registry-pill.approved { background: #f0fdf4; border-color: #bbf7d0; color: #166534; }
+.registry-pill.deferred { background: #f8fafc; border-color: #cbd5e1; color: #475569; }
+.registry-pill.completed { background: #f0fdf4; border-color: #bbf7d0; color: #166534; }
+.registry-pill.failed { background: #fff1f2; border-color: #fecdd3; color: #9f1239; }
+.registry-prompt-preview {
+  font-family: var(--mono); font-size: 0.7rem; color: var(--muted);
+  white-space: pre-wrap; word-break: break-word;
+  max-height: 60px; overflow: hidden;
+  background: var(--gray-50); padding: 6px 8px; border-radius: 4px;
+  border: 1px solid var(--border); margin-top: 4px;
+  cursor: pointer; transition: max-height 0.2s ease;
+}
+.registry-prompt-preview.expanded { max-height: 400px; }
+.registry-empty { text-align: center; padding: 24px; color: var(--subtle); font-size: 0.8rem; font-family: var(--mono); }
 
 /* Loading area with virality */
 .loading-meter {
@@ -1474,6 +1530,7 @@ nav {
   <div class="nav-pills">
     <button type="button" class="nav-pill active" id="navDiscover" onclick="setLandingView('discover')">Discover</button>
     <button type="button" class="nav-pill" id="navStudio" onclick="setLandingView('studio')">Plugin studio</button>
+    <button type="button" class="nav-pill" id="navRegistry" onclick="setLandingView('registry')">Registry</button>
   </div>
   <div class="nav-right">
     <span class="plugins-live"><span class="plugins-live-dot"></span><span id="pluginsCount">27</span> plugins live</span>
@@ -1670,6 +1727,21 @@ nav {
         <div class="scoping-alt">or type below and press Enter</div>
       </div>
     </div>
+    </div>
+
+    <!-- Registry panel -->
+    <div class="registry-shell" id="registryPanel" style="display:none">
+      <div class="registry-header">
+        <div class="registry-title">Prompt Registry &amp; Audit Trail</div>
+        <div class="registry-sub">Versioned prompts · run history · publish decisions</div>
+        <button class="icon-btn" style="margin-top:10px" onclick="loadRegistryData(true)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          Refresh
+        </button>
+      </div>
+      <div class="registry-body" id="registryBody">
+        <div class="registry-loading" id="registryLoading">Loading registry…</div>
+      </div>
     </div>
   </div>
 
@@ -2271,13 +2343,14 @@ document.addEventListener('DOMContentLoaded', () => {
   installKbdShortcuts();
   renderTrending();
 
-  const fromHash = window.location.hash === '#studio' ? 'studio' : 'discover';
+  const fromHash = window.location.hash === '#studio' ? 'studio' : window.location.hash === '#registry' ? 'registry' : 'discover';
   setLandingView(fromHash, false);
   if (!window.location.hash || window.location.hash === '#') {
     history.replaceState(null, '', '#discover');
   }
   window.addEventListener('hashchange', () => {
     if (window.location.hash === '#studio') setLandingView('studio', false);
+    else if (window.location.hash === '#registry') setLandingView('registry', false);
     else setLandingView('discover', false);
   });
 
@@ -2569,15 +2642,18 @@ function renderDiscoverSourceChips() {
 function setLandingView(view, updateHash = true) {
   const es = document.getElementById('emptyState');
   if (!es) return;
-  const v = view === 'studio' ? 'studio' : 'discover';
+  const v = view === 'studio' ? 'studio' : view === 'registry' ? 'registry' : 'discover';
   es.setAttribute('data-landing', v);
   const nd = document.getElementById('navDiscover');
   const ns = document.getElementById('navStudio');
+  const nr = document.getElementById('navRegistry');
   if (nd) nd.classList.toggle('active', v === 'discover');
   if (ns) ns.classList.toggle('active', v === 'studio');
-  document.title = v === 'studio' ? 'Grace — Plugin studio' : 'Grace — Discover';
+  if (nr) nr.classList.toggle('active', v === 'registry');
+  if (v === 'registry') loadRegistryData(false);
+  document.title = v === 'studio' ? 'Grace — Plugin studio' : v === 'registry' ? 'Grace — Registry' : 'Grace — Discover';
   if (updateHash) {
-    const hash = v === 'studio' ? '#studio' : '#discover';
+    const hash = v === 'studio' ? '#studio' : v === 'registry' ? '#registry' : '#discover';
     if (window.location.hash !== hash) history.replaceState(null, '', hash);
   }
 }
@@ -2901,6 +2977,115 @@ function loadDiscoverData(forceRefresh) {
       if (grid) grid.innerHTML = '';
       if (ranked) ranked.innerHTML = '';
     });
+}
+
+let registryLoaded = false;
+function loadRegistryData(force) {
+  if (registryLoaded && !force) return;
+  const body = document.getElementById('registryBody');
+  const loading = document.getElementById('registryLoading');
+  if (loading) loading.style.display = '';
+  if (body) body.innerHTML = '<div class="registry-loading" id="registryLoading">Loading registry…</div>';
+  fetch('/api/audit?limit=30')
+    .then((r) => r.json())
+    .then((j) => {
+      if (!j.ok) throw new Error(j.error || 'audit_failed');
+      registryLoaded = true;
+      renderRegistry(j);
+    })
+    .catch((err) => {
+      if (body) body.innerHTML = `<div class="registry-empty">Failed to load: ${escapeHtml(err.message)}</div>`;
+    });
+}
+
+function fmtDate(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  if (!Number.isFinite(d.getTime())) return '—';
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false });
+}
+
+function renderRegistry(data) {
+  const body = document.getElementById('registryBody');
+  if (!body) return;
+  const sections = [];
+
+  // Prompt Registry
+  const registry = data.prompt_registry || {};
+  const promptNames = Object.keys(registry);
+  let promptRows = '';
+  for (const name of promptNames) {
+    const versions = registry[name] || [];
+    for (const v of versions) {
+      promptRows += `<tr>
+        <td><span class="registry-mono">${escapeHtml(v.name)}</span></td>
+        <td><span class="registry-pill">${escapeHtml(v.version)}</span></td>
+        <td class="registry-mono">${fmtDate(v.created_at)}</td>
+        <td><div class="registry-prompt-preview" onclick="this.classList.toggle('expanded')">${escapeHtml((v.prompt_text || '').slice(0, 500))}</div></td>
+      </tr>`;
+    }
+  }
+  sections.push(`
+    <div class="registry-section">
+      <div class="registry-section-head">
+        <span class="registry-section-label">Prompt Registry</span>
+        <span class="registry-section-count">${promptNames.length} prompts</span>
+      </div>
+      ${promptRows ? `<table class="registry-table"><thead><tr><th>Name</th><th>Version</th><th>Saved</th><th>Preview</th></tr></thead><tbody>${promptRows}</tbody></table>` : '<div class="registry-empty">No prompt versions recorded yet — prompts are versioned on first news sync run.</div>'}
+    </div>`);
+
+  // Run History
+  const runs = data.runs || [];
+  let runRows = '';
+  for (const r of runs) {
+    const d = r.detail || {};
+    const summary = d.summary ? `${d.summary.promote || 0}🔥 ${d.summary.review || 0}👀 ${d.summary.archive || 0}🗂️` : '—';
+    const failCount = d.failure_count || 0;
+    const statusCls = r.status === 'completed' ? 'completed' : r.status === 'failed' ? 'failed' : '';
+    runRows += `<tr>
+      <td class="registry-mono">${escapeHtml(r.run_id || '—').slice(0, 24)}</td>
+      <td><span class="registry-pill ${statusCls}">${escapeHtml(r.status || '—')}</span></td>
+      <td class="registry-mono">${escapeHtml(d.source_mode || r.pipeline || '—')}</td>
+      <td>${summary}</td>
+      <td class="registry-mono">${failCount > 0 ? `<span style="color:var(--orange)">${failCount} fail</span>` : '—'}</td>
+      <td class="registry-mono">${fmtDate(r.created_at)}</td>
+    </tr>`;
+  }
+  sections.push(`
+    <div class="registry-section">
+      <div class="registry-section-head">
+        <span class="registry-section-label">Run History</span>
+        <span class="registry-section-count">${runs.length} runs</span>
+      </div>
+      ${runRows ? `<table class="registry-table"><thead><tr><th>Run ID</th><th>Status</th><th>Mode</th><th>Triage</th><th>Errors</th><th>Time</th></tr></thead><tbody>${runRows}</tbody></table>` : '<div class="registry-empty">No runs recorded yet.</div>'}
+    </div>`);
+
+  // Publish Decisions
+  const decisions = data.decisions || [];
+  let decRows = '';
+  for (const d of decisions) {
+    const story = d.story || {};
+    const decCls = d.decision === 'approved' ? 'approved' : d.decision === 'deferred' ? 'deferred' : '';
+    const titleText = story.title ? escapeHtml(story.title.slice(0, 80)) : '<span class="registry-mono">unknown story</span>';
+    const titleEl = story.url ? `<a href="${escapeHtml(story.url)}" target="_blank" rel="noopener" style="color:var(--orange);text-decoration:none">${titleText}</a>` : titleText;
+    decRows += `<tr>
+      <td>${titleEl}</td>
+      <td><span class="registry-pill ${decCls}">${escapeHtml(d.decision || '—')}</span></td>
+      <td class="registry-mono">${escapeHtml(d.actor || '—')}</td>
+      <td class="registry-mono">${escapeHtml((d.note || '').slice(0, 60) || '—')}</td>
+      <td class="registry-mono">${fmtDate(d.created_at)}</td>
+    </tr>`;
+  }
+  sections.push(`
+    <div class="registry-section">
+      <div class="registry-section-head">
+        <span class="registry-section-label">Publish Decisions</span>
+        <span class="registry-section-count">${decisions.length} decisions</span>
+      </div>
+      ${decRows ? `<table class="registry-table"><thead><tr><th>Story</th><th>Decision</th><th>Actor</th><th>Note</th><th>Time</th></tr></thead><tbody>${decRows}</tbody></table>` : '<div class="registry-empty">No publish decisions recorded yet.</div>'}
+    </div>`);
+
+  body.innerHTML = sections.join('');
 }
 
 function saveOperatorAction(item, operatorAction) {
