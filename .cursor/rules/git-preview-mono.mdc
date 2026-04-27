@@ -1,0 +1,13 @@
+---
+description: Use mono branch for preview; main only when shipping to production
+alwaysApply: true
+---
+
+# Git: preview vs production
+
+For **`grace.ai`** and **`ahackaday-site`** (when working in those repos):
+
+- **Default push target:** branch **`mono`** — gives Vercel/GitHub preview before production.
+- **Push to `main` only** when the user explicitly asks to deploy / ship to production / merge to prod.
+
+Workflow: commit on `mono` (or checkout `mono`, merge work, push `origin mono`). Production merges: `mono` → `main` when ready.
