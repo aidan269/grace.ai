@@ -10,7 +10,8 @@ function authorizeCron(req) {
 
 /**
  * Scheduled AHackaday ingest + triage + Supabase + Slack sink.
- * Vercel Cron: GET /api/cron-intel (add CRON_SECRET or rely on x-vercel-cron in production).
+ * Vercel Cron: GET /api/cron-intel every 6 hours (see vercel.json).
+ * Auth: CRON_SECRET Bearer or x-vercel-cron in production.
  */
 export default async function handler(req, res) {
   if (req.method === "OPTIONS") return res.status(200).end();

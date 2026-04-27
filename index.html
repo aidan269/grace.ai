@@ -3060,7 +3060,7 @@ function renderRegistry(data) {
         <span class="registry-section-label">Prompt Registry</span>
         <span class="registry-section-count">${promptNames.length} prompts</span>
       </div>
-      ${promptRows ? `<table class="registry-table"><thead><tr><th>Name</th><th>Version</th><th>Saved</th><th>Preview</th></tr></thead><tbody>${promptRows}</tbody></table>` : '<div class="registry-empty">Prompts are versioned automatically on each news sync run.<br>Trigger a sync or wait for the daily cron to populate this.</div>'}
+      ${promptRows ? `<table class="registry-table"><thead><tr><th>Name</th><th>Version</th><th>Saved</th><th>Preview</th></tr></thead><tbody>${promptRows}</tbody></table>` : '<div class="registry-empty">Prompts are versioned automatically on each news sync run.<br>Trigger a sync or wait for the scheduled cron (every 6h UTC) to populate this.</div>'}
     </div>`);
 
   // Run History
@@ -3086,7 +3086,7 @@ function renderRegistry(data) {
         <span class="registry-section-label">Run History</span>
         <span class="registry-section-count">${runs.length} runs</span>
       </div>
-      ${runRows ? `<table class="registry-table"><thead><tr><th>Run ID</th><th>Status</th><th>Mode</th><th>Triage</th><th>Errors</th><th>Time</th></tr></thead><tbody>${runRows}</tbody></table>` : '<div class="registry-empty">Every news sync run logs here — source mode, triage summary (🔥👀🗂️), and any errors.<br>Runs daily at 1 PM UTC via cron, or trigger one manually via <code>/api/news-sync</code>.</div>'}
+      ${runRows ? `<table class="registry-table"><thead><tr><th>Run ID</th><th>Status</th><th>Mode</th><th>Triage</th><th>Errors</th><th>Time</th></tr></thead><tbody>${runRows}</tbody></table>` : '<div class="registry-empty">Every news sync run logs here — source mode, triage summary (🔥👀🗂️), and any errors.<br>Runs every 6 hours on the hour (UTC) via cron, or trigger one manually via <code>/api/news-sync</code>.</div>'}
     </div>`);
 
   // Publish Decisions
