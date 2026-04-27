@@ -2343,10 +2343,38 @@ document.addEventListener('DOMContentLoaded', () => {
   installKbdShortcuts();
   renderTrending();
 
-  const fromHash = window.location.hash === '#studio' ? 'studio' : window.location.hash === '#registry' ? 'registry' : 'discover';
-  setLandingView(fromHash, false);
-  if (!window.location.hash || window.location.hash === '#') {
-    history.replaceState(null, '', '#discover');
+  const rawHash = window.location.hash || '';
+  const hashPath = rawHash.split('?')[0];
+  const fromHash =
+    hashPath === '#studio' ? 'studio' : hashPath === '#registry' ? 'registry' : 'discover';
+  const bootParams = new URLSearchParams(window.location.search);
+  let bootUrl = (bootParams.get('url') || '').trim();
+  // If ?url= was placed after # (e.g. #discover/?url=… or #studio?url=…), recover from the fragment.
+  if (!bootUrl && rawHash.includes('?')) {
+    const q = rawHash.indexOf('?');
+    bootUrl = (new URLSearchParams(rawHash.slice(q + 1)).get('url') || '').trim();
+  }
+  if (bootUrl) {
+    const h = bootUrl.indexOf('#');
+    if (h !== -1) {
+      const frag = bootUrl.slice(h + 1);
+      if (/^(studio|discover)$/i.test(frag)) bootUrl = bootUrl.slice(0, h).trim();
+    }
+  }
+  if (bootUrl) {
+    setLandingView('studio', false);
+    const qs = bootParams.toString();
+    const normalized =
+      qs && bootParams.get('url')
+        ? `${window.location.pathname}?${qs}#studio`
+        : `${window.location.pathname}?url=${encodeURIComponent(bootUrl)}#studio`;
+    history.replaceState(null, '', normalized);
+    startPluginFromDiscover(bootUrl);
+  } else {
+    setLandingView(fromHash, false);
+    if (!window.location.hash || window.location.hash === '#') {
+      history.replaceState(null, '', '#discover');
+    }
   }
   window.addEventListener('hashchange', () => {
     if (window.location.hash === '#studio') setLandingView('studio', false);
