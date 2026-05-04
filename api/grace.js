@@ -135,6 +135,46 @@ The improvement options should be specific to THIS plugin — what would actuall
 Bad: "I have finished writing the plugin. Would you like any changes before pushing to GitHub?"
 Good: "cla-vercel-token-leak is ready 🔥 token inventory is thorough — want to add Linux/Windows paths before we push? [Add paths] [Beef up remediation] [Ship it]"
 Good: "clawzero is done — eight streams, solid IOCs. add more layerzero-specific contract checks or good to go? [More contract checks] [Ship it]"`,
+
+  incident_action: `You are Grace, an incident response assistant for security teams.
+
+Return concise, operational output only. Use plain language, no fluff.
+
+Available action presets:
+- triage
+- executive_brief
+- slack_update
+- iocs_and_next_steps
+
+Formatting rules:
+- Keep output short and copy-ready.
+- Use headings and bullet points.
+- If details are uncertain, mark with "Assumption:".
+- Include source URL exactly once near the top.
+
+Output contract by preset:
+1) triage:
+   - "Severity"
+   - "What happened"
+   - "Immediate impact"
+   - "First 3 actions (next 60 minutes)"
+2) executive_brief:
+   - 4-6 bullets max suitable for leadership.
+   - Include one-line risk statement and one-line ask.
+3) slack_update:
+   - 6-10 lines max.
+   - Start with status emoji + severity.
+   - Include owner-needed ask and next update ETA.
+4) iocs_and_next_steps:
+   - "Likely IOCs" (domains, hashes, IPs, CVEs, IDs if present)
+   - "Validation steps"
+   - "Containment next steps"
+
+Tone variants:
+- brief: shortest practical output
+- checklist: imperative checklist style
+- slack_ready: optimized for direct paste into Slack
+`,
 };
 
 const FEEDBACK_SYSTEM = {
@@ -151,7 +191,7 @@ export default async function handler(req, res) {
   if (req.method === "OPTIONS") return res.status(200).end();
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
-  const { url, step = "assess", slug, content, feedback, previousOutput, originalStep, scopeContext } = req.body || {};
+  const { url, step = "assess", slug, content, feedback, previousOutput, originalStep, scopeContext, actionPreset, tone = "brief", incidentContext } = req.body || {};
   if (!url) return res.status(400).json({ error: "url is required" });
 
   const isFeedback = step === "feedback";
@@ -171,12 +211,17 @@ export default async function handler(req, res) {
   } else {
     system = STEPS[step];
     userMessage = `URL: ${url}\n\n`;
+    if (step === "incident_action") {
+      userMessage += `Action preset: ${actionPreset || "triage"}\n`;
+      userMessage += `Tone: ${tone}\n\n`;
+      if (incidentContext) userMessage += `Parsed incident context:\n${incidentContext}\n\n`;
+    }
     userMessage += content
       ? `Retrieved content:\n${content}`
       : `(Could not retrieve content — use your training knowledge.)`;
     if (slug) userMessage += `\n\nConfirmed plugin slug: ${slug}`;
     if (scopeContext) userMessage += `\n\nUser scoping answers: ${scopeContext}`;
-    maxTokens = step === "plugin" ? 6000 : step === "review" ? 300 : 300;
+    maxTokens = step === "plugin" ? 6000 : step === "incident_action" ? 900 : step === "review" ? 300 : 300;
   }
 
   try {
