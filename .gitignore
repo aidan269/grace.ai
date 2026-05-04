@@ -1,0 +1,11 @@
+# Dependencies
+node_modules/
+
+# Local env (secrets live here — never commit)
+.env
+.env.*
+!.env.example
+
+# OS / editor
+.DS_Store
+.claude/
