@@ -1,7 +1,7 @@
 import { normalizeEnvValue } from "../lib/envNormalize.js";
 
-const DEFAULT_OWNER = process.env.NEWS_QUEUE_REPO_OWNER || "aidan269";
-const DEFAULT_REPO = process.env.NEWS_QUEUE_REPO || "grace.ai";
+const DEFAULT_OWNER = normalizeEnvValue(process.env.NEWS_QUEUE_REPO_OWNER) || "aidan269";
+const DEFAULT_REPO = normalizeEnvValue(process.env.NEWS_QUEUE_REPO) || "grace.ai";
 const CACHE_TTL_MS = 45_000;
 const issueListCache = new Map();
 
@@ -55,8 +55,8 @@ export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
 
   const params = req.method === "GET" ? req.query || {} : req.body || {};
-  const owner = params.owner || DEFAULT_OWNER;
-  const repo = params.repo || DEFAULT_REPO;
+  const owner = normalizeEnvValue(params.owner) || DEFAULT_OWNER;
+  const repo = normalizeEnvValue(params.repo) || DEFAULT_REPO;
   const limit = Math.min(Math.max(parseInt(params.limit || "30", 10), 1), 50);
   const q = (params.q || "").trim().toLowerCase();
   const skipCache = params.skip_cache === "1" || params.skip_cache === "true";
@@ -112,9 +112,13 @@ export default async function handler(req, res) {
 
       const ghRes = await fetch(apiUrl, { headers, signal: AbortSignal.timeout(12000) });
       if (!ghRes.ok) {
+        const suffix =
+          ghRes.status === 404
+            ? ` — repo ${owner}/${repo} not found or token cannot access it (check NEWS_QUEUE_REPO / NEWS_QUEUE_REPO_OWNER and GITHUB_TOKEN scopes)`
+            : "";
         return res.status(502).json({
           ok: false,
-          error: `GitHub API ${ghRes.status}`,
+          error: `GitHub API ${ghRes.status}${suffix}`,
         });
       }
       rawIssues = await ghRes.json();

@@ -28,8 +28,8 @@ Rules:
 - score 3-4 => promote
 - slug must be 3-6 words, include the attack vector or affected tech`;
 
-const DEFAULT_OWNER = process.env.NEWS_QUEUE_REPO_OWNER || "aidan269";
-const DEFAULT_REPO = process.env.NEWS_QUEUE_REPO || "grace.ai";
+const DEFAULT_OWNER = normalizeEnvValue(process.env.NEWS_QUEUE_REPO_OWNER) || "aidan269";
+const DEFAULT_REPO = normalizeEnvValue(process.env.NEWS_QUEUE_REPO) || "grace.ai";
 const PROMPT_VERSION = "v2.0.0";
 
 async function mapPool(items, concurrency, fn) {
