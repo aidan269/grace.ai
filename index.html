@@ -633,6 +633,92 @@ nav {
 .studio-landing {
   width: 100%; display: flex; flex-direction: column; align-items: center;
 }
+.incident-shell {
+  width: 100%;
+  max-width: 760px;
+  margin: 4px auto 14px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  padding: 14px;
+  text-align: left;
+}
+.incident-shell-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.incident-shell-title { font-weight: 700; font-size: 0.9rem; }
+.incident-confidence {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 3px 8px;
+  color: var(--muted);
+}
+.incident-confidence.partial { color: #a16207; border-color: #fde68a; background: #fffbeb; }
+.incident-confidence.high { color: #166534; border-color: #bbf7d0; background: #f0fdf4; }
+.incident-meta { font-size: 0.76rem; color: var(--subtle); margin-bottom: 8px; }
+.incident-summary { font-size: 0.82rem; color: var(--muted); line-height: 1.45; margin-bottom: 10px; }
+.incident-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.incident-action {
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--gray-50);
+  color: var(--text);
+  padding: 8px 10px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.incident-action:hover { border-color: var(--orange); }
+.incident-output {
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto 12px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  padding: 12px 14px;
+  display: none;
+}
+.incident-output.visible { display: block; }
+.incident-output pre {
+  white-space: pre-wrap;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 0.83rem;
+  line-height: 1.5;
+  color: var(--muted);
+}
+.incident-output-bar {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+.incident-copy-btn {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 0.72rem;
+  background: var(--gray-50);
+  cursor: pointer;
+}
+.advanced-tools-label {
+  width: 100%;
+  max-width: 560px;
+  text-align: left;
+  font-family: var(--mono);
+  color: var(--subtle);
+  font-size: 0.66rem;
+  text-transform: uppercase;
+  margin: 8px 0 6px;
+}
 
 /* ── Registry panel ── */
 .registry-shell {
@@ -1650,6 +1736,30 @@ nav {
     </div>
 
     <div class="studio-landing" id="studioLanding">
+    <div class="incident-shell" id="incidentShell" style="display:none;">
+      <div class="incident-shell-head">
+        <div class="incident-shell-title">Ask Grace about this incident</div>
+        <span class="incident-confidence" id="incidentConfidence">confidence: low</span>
+      </div>
+      <div class="incident-meta" id="incidentMeta">Waiting for incident URL…</div>
+      <div class="incident-summary" id="incidentSummary"></div>
+      <div class="incident-actions">
+        <button class="incident-action" data-action="triage">Triage</button>
+        <button class="incident-action" data-action="executive_brief">Executive brief</button>
+        <button class="incident-action" data-action="slack_update">Slack-ready update</button>
+        <button class="incident-action" data-action="iocs_and_next_steps">IOC extraction</button>
+      </div>
+    </div>
+    <div class="incident-output" id="incidentOutput">
+      <pre id="incidentOutputText"></pre>
+      <div class="incident-output-bar">
+        <button class="incident-copy-btn" id="copySlackBtn">Copy Slack</button>
+        <button class="incident-copy-btn" id="copyTextBtn">Copy plain text</button>
+        <button class="incident-copy-btn" id="copyChecklistBtn">Copy checklist</button>
+        <button class="incident-copy-btn" id="rerunToneBtn">Re-run with different tone</button>
+      </div>
+    </div>
+    <div class="advanced-tools-label" id="advancedToolsLabel" style="display:none;">Advanced tools: plugin studio</div>
     <!-- How-it-works strip -->
     <div class="how-strip" id="howStrip">
       <button class="how-close" onclick="dismissHow()" title="Dismiss">
@@ -2340,6 +2450,29 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('urlInput').addEventListener('keydown', e => {
     if (e.key === 'Enter') { e.preventDefault(); handleMainBtn(); }
   });
+  document.querySelectorAll(".incident-action").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const action = btn.getAttribute("data-action") || "triage";
+      await runIncidentAction(action, currentIncidentTone);
+    });
+  });
+  document.getElementById("copySlackBtn")?.addEventListener("click", () => {
+    const t = document.getElementById("incidentOutputText")?.textContent || "";
+    navigator.clipboard.writeText(t).then(() => trackFunnelEvent("copied_output", { format: "slack" }));
+  });
+  document.getElementById("copyTextBtn")?.addEventListener("click", () => {
+    const t = document.getElementById("incidentOutputText")?.textContent || "";
+    navigator.clipboard.writeText(t).then(() => trackFunnelEvent("copied_output", { format: "plain_text" }));
+  });
+  document.getElementById("copyChecklistBtn")?.addEventListener("click", async () => {
+    await runIncidentAction(currentIncidentAction || "triage", "checklist");
+    const t = document.getElementById("incidentOutputText")?.textContent || "";
+    navigator.clipboard.writeText(t).then(() => trackFunnelEvent("copied_output", { format: "checklist" }));
+  });
+  document.getElementById("rerunToneBtn")?.addEventListener("click", async () => {
+    const next = currentIncidentTone === "brief" ? "slack_ready" : currentIncidentTone === "slack_ready" ? "checklist" : "brief";
+    await runIncidentAction(currentIncidentAction || "triage", next);
+  });
 
   installKbdShortcuts();
   renderTrending();
@@ -2370,7 +2503,14 @@ document.addEventListener('DOMContentLoaded', () => {
         ? `${window.location.pathname}?${qs}#studio`
         : `${window.location.pathname}?url=${encodeURIComponent(bootUrl)}#studio`;
     history.replaceState(null, '', normalized);
-    startPluginFromDiscover(bootUrl);
+    trackFunnelEvent("opened_with_url", { hasUrl: true });
+    if (AHACKADAY_FIRST_FLOW && isAhackadayContextUrl(bootUrl)) {
+      startIncidentAssistant(bootUrl).then((ok) => {
+        if (!ok) startPluginFromDiscover(bootUrl);
+      });
+    } else {
+      startPluginFromDiscover(bootUrl);
+    }
   } else {
     setLandingView(fromHash, false);
     if (!window.location.hash || window.location.hash === '#') {
@@ -2448,7 +2588,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function handleLandingSubmit() {
   const url = document.getElementById('landingInput').value.trim();
-  if (url) runGrace(url);
+  if (!url) return;
+  if (AHACKADAY_FIRST_FLOW && isAhackadayContextUrl(url)) {
+    trackFunnelEvent("opened_with_url", { hasUrl: true, source: "manual_input" });
+    startIncidentAssistant(url).then((ok) => {
+      if (!ok) runGrace(url);
+    });
+    return;
+  }
+  runGrace(url);
 }
 
 /* ==============================================================
@@ -2516,6 +2664,14 @@ let inactivityNudgeTimer = null;
 let inactivityNudgeLastSentAt = 0;
 const INACTIVITY_NUDGE_MS = 20 * 60 * 1000;
 const INACTIVITY_NUDGE_COOLDOWN_MS = 45 * 60 * 1000;
+const AHACKADAY_FIRST_FLOW = (() => {
+  const v = new URLSearchParams(window.location.search).get("AHACKADAY_FIRST_FLOW");
+  if (v == null) return true;
+  return /^(1|true|yes)$/i.test(v);
+})();
+let currentIncidentContext = null;
+let currentIncidentAction = "triage";
+let currentIncidentTone = "brief";
 
 function shouldTrackInactivityNudge() {
   const wsVisible = document.getElementById('workspace')?.classList.contains('visible');
@@ -3142,7 +3298,7 @@ function startPluginFromDiscover(url) {
   setLandingView('studio', false);
   const li = document.getElementById('landingInput');
   if (li) li.value = url;
-  handleLandingSubmit();
+  runGrace(url);
 }
 
 /* ==============================================================
@@ -3603,6 +3759,116 @@ async function fetchPreview(url) {
   } catch {
     return null;
   }
+}
+
+function trackFunnelEvent(name, data = {}) {
+  try {
+    const key = "grace_ah_funnel_v1";
+    const events = JSON.parse(localStorage.getItem(key) || "[]");
+    events.push({ name, data, ts: new Date().toISOString() });
+    localStorage.setItem(key, JSON.stringify(events.slice(-120)));
+  } catch {}
+}
+
+function stringifyIncidentContext(ctx) {
+  if (!ctx) return "";
+  return [
+    `Title: ${ctx.title || ""}`,
+    `Severity: ${ctx.severity || "unknown"}`,
+    `Type: ${ctx.incidentType || "incident"}`,
+    `Source URL: ${ctx.sourceUrl || ""}`,
+    `Summary: ${ctx.summary || ""}`,
+    ctx.cves?.length ? `CVEs: ${ctx.cves.join(", ")}` : "",
+    ctx.ghsas?.length ? `GHSAs: ${ctx.ghsas.join(", ")}` : "",
+    ctx.trackingIds?.length ? `Tracking IDs: ${ctx.trackingIds.join(", ")}` : "",
+  ].filter(Boolean).join("\n");
+}
+
+function isAhackadayContextUrl(url) {
+  const t = String(url || "").toLowerCase();
+  return t.includes("ahackaday") || t.includes("ahackday") || /\/incident\/|\/feed\//.test(t);
+}
+
+function renderIncidentContext(ctx) {
+  const shell = document.getElementById("incidentShell");
+  if (!shell) return;
+  shell.style.display = "block";
+  document.getElementById("advancedToolsLabel").style.display = "block";
+  const conf = document.getElementById("incidentConfidence");
+  conf.textContent = `confidence: ${ctx.confidence || "low"}`;
+  conf.classList.remove("high", "partial");
+  if (ctx.confidence === "high") conf.classList.add("high");
+  if (ctx.confidence === "partial") conf.classList.add("partial");
+  document.getElementById("incidentMeta").textContent =
+    `${(ctx.severity || "unknown").toUpperCase()} · ${(ctx.incidentType || "incident").replace(/_/g, " ")} · ${ctx.sourceHost || "source"}`;
+  document.getElementById("incidentSummary").textContent = ctx.summary || "No summary available.";
+}
+
+async function fetchIncidentContext(url) {
+  const preview = await fetchPreview(url);
+  const r = await fetch("/api/context", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      url,
+      title: preview?.title || "",
+      description: preview?.description || "",
+    }),
+  });
+  if (!r.ok) return null;
+  const j = await r.json();
+  return j?.context || null;
+}
+
+async function runIncidentAction(action, tone = "brief") {
+  if (!currentIncidentContext || !currentUrl) return;
+  currentIncidentAction = action;
+  currentIncidentTone = tone;
+  trackFunnelEvent("action_selected", { action, tone });
+  const out = await streamToBuffer("incident_action", {
+    actionPreset: action,
+    tone,
+    incidentContext: stringifyIncidentContext(currentIncidentContext),
+  });
+  const text = (out || "").trim();
+  if (!text) return;
+  const output = document.getElementById("incidentOutput");
+  output.classList.add("visible");
+  document.getElementById("incidentOutputText").textContent = text;
+  trackFunnelEvent("response_generated", { action, tone, chars: text.length });
+}
+
+async function startIncidentAssistant(url) {
+  let parsed = null;
+  try { parsed = new URL(url); } catch {}
+  if (!parsed) {
+    const shell = document.getElementById("incidentShell");
+    if (shell) {
+      shell.style.display = "block";
+      document.getElementById("advancedToolsLabel").style.display = "block";
+      document.getElementById("incidentMeta").textContent = "Invalid URL";
+      document.getElementById("incidentSummary").textContent = "Paste a full AHackaday incident/feed URL to begin.";
+    }
+    return false;
+  }
+  currentUrl = url;
+  runSourceUrl = url;
+  setLandingView("studio", false);
+  const context = await fetchIncidentContext(url);
+  if (!context) {
+    const shell = document.getElementById("incidentShell");
+    if (shell) {
+      shell.style.display = "block";
+      document.getElementById("advancedToolsLabel").style.display = "block";
+      document.getElementById("incidentMeta").textContent = "Context unavailable";
+      document.getElementById("incidentSummary").textContent = "Could not parse incident details. You can still use Advanced tools below.";
+    }
+    return false;
+  }
+  currentIncidentContext = context;
+  renderIncidentContext(context);
+  trackFunnelEvent("context_parsed", { confidence: context.confidence, severity: context.severity });
+  return true;
 }
 
 function extractSlug(raw) {

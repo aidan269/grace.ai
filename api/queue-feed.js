@@ -12,7 +12,9 @@ function pickExternalUrlFromText(text) {
   const urls = extractUrls(text);
   if (!urls.length) return null;
 
-  const ah = urls.filter((u) => /ahackaday-site\.vercel\.app\/incident\//i.test(u));
+  const ah = urls.filter((u) =>
+    /(ahackaday\.news|ahackaday-site\.vercel\.app)\/incident\//i.test(u)
+  );
   if (ah.length) return ah[0];
 
   const nonGh = urls.filter((u) => !/^https?:\/\/(www\.)?github\.com\//i.test(u));

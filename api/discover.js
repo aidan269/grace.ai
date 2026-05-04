@@ -1,6 +1,6 @@
 import { saveOperatorActionByUrl, savePublishDecisionByUrl, supabaseAdmin } from "../lib/intelStore.js";
 
-const DEFAULT_SOURCE_URL = "https://ahackaday-site.vercel.app/";
+const DEFAULT_SOURCE_URL = "https://www.ahackaday.news/";
 const LIST_CACHE_TTL_MS = 90_000;
 /** In-process cache (best-effort on warm serverless invocations). */
 const listCache = new Map();
@@ -51,7 +51,7 @@ function extractItemsFromHtml(html, maxItems = 40) {
     if (/^\/$/.test(href)) continue;
     const url = href.startsWith("http")
       ? href
-      : `https://ahackaday-site.vercel.app${href.startsWith("/") ? "" : "/"}${href}`;
+      : `https://www.ahackaday.news${href.startsWith("/") ? "" : "/"}${href}`;
     items.push({ source: "ahackaday", url, title });
     if (items.length >= maxItems) break;
   }
