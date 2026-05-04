@@ -1,3 +1,5 @@
+import { normalizeEnvValue } from "../lib/envNormalize.js";
+
 const DEFAULT_OWNER = process.env.NEWS_QUEUE_REPO_OWNER || "aidan269";
 const DEFAULT_REPO = process.env.NEWS_QUEUE_REPO || "grace.ai";
 const CACHE_TTL_MS = 45_000;
@@ -63,7 +65,7 @@ export default async function handler(req, res) {
   if (labels === undefined || labels === null) labels = "news-intake";
   if (labels === "all" || labels === "*") labels = "";
 
-  const ghToken = process.env.GITHUB_TOKEN;
+  const ghToken = normalizeEnvValue(process.env.GITHUB_TOKEN);
   if (!ghToken) {
     return res.status(200).json({
       ok: true,

@@ -1,4 +1,6 @@
-const BRAVE_KEY = process.env.BRAVE_API_KEY;
+import { normalizeEnvValue } from "../lib/envNormalize.js";
+
+const BRAVE_KEY = normalizeEnvValue(process.env.BRAVE_API_KEY);
 const TWITTER_RE = /^https?:\/\/(x\.com|twitter\.com)\//i;
 const GITHUB_ISSUE_RE =
   /^https?:\/\/(www\.)?github\.com\/([^/]+)\/([^/]+)\/issues\/(\d+)/i;
@@ -32,7 +34,7 @@ async function resolveGitHubIssueUrl(issueUrl) {
   const repo = m[3];
   const issue_number = m[4];
 
-  const ghToken = process.env.GITHUB_TOKEN;
+  const ghToken = normalizeEnvValue(process.env.GITHUB_TOKEN);
   const apiUrl = `https://api.github.com/repos/${owner}/${repo}/issues/${issue_number}`;
   const headers = {
     Accept: "application/vnd.github+json",

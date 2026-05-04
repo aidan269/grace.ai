@@ -7,6 +7,7 @@ import {
   writeRunAudit,
 } from "../lib/intelStore.js";
 import { postSlackFeedFromResults } from "../lib/slackSink.js";
+import { normalizeEnvValue } from "../lib/envNormalize.js";
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -108,7 +109,7 @@ async function assessItem(item) {
 }
 
 async function createQueueIssue(item, triage) {
-  const ghToken = process.env.GITHUB_TOKEN;
+  const ghToken = normalizeEnvValue(process.env.GITHUB_TOKEN);
   if (!ghToken) return null;
 
   const { Octokit } = await import("@octokit/rest");

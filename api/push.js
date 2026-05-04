@@ -1,3 +1,5 @@
+import { normalizeEnvValue } from "../lib/envNormalize.js";
+
 export default async function handler(req, res) {
   if (req.method === "OPTIONS") return res.status(200).end();
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
@@ -6,7 +8,7 @@ export default async function handler(req, res) {
   if (!slug || !content) return res.status(400).json({ error: "slug and content are required" });
   if (!/^[a-z0-9-]{3,60}$/.test(slug)) return res.status(400).json({ error: "Invalid slug format" });
 
-  const ghToken = process.env.GITHUB_TOKEN;
+  const ghToken = normalizeEnvValue(process.env.GITHUB_TOKEN);
   if (!ghToken) return res.status(500).json({ error: "GITHUB_TOKEN not configured" });
 
   const encode = (str) => Buffer.from(str).toString("base64");

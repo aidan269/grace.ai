@@ -1,3 +1,5 @@
+import { normalizeEnvValue } from "../lib/envNormalize.js";
+
 export default async function handler(req, res) {
   if (req.method === "OPTIONS") return res.status(200).end();
   if (req.method !== "POST") return res.status(405).end();
@@ -6,7 +8,7 @@ export default async function handler(req, res) {
   const { slug, content } = req.body || {};
   if (!slug || !content) return res.status(400).json({ error: "slug and content required" });
 
-  const ghToken = process.env.GITHUB_TOKEN;
+  const ghToken = normalizeEnvValue(process.env.GITHUB_TOKEN);
   if (!ghToken) return res.status(500).json({ error: "GITHUB_TOKEN not configured" });
 
   try {
