@@ -1617,9 +1617,9 @@ nav {
   </a>
   <div class="nav-pills">
     <button type="button" class="nav-pill active" id="navDiscover" onclick="setLandingView('discover')">Discover</button>
+    <button type="button" class="nav-pill" id="navOps" onclick="window.location.href='grace-ops.html'">Grace Ops</button>
     <button type="button" class="nav-pill" id="navStudio" onclick="setLandingView('studio')">Plugin studio</button>
     <button type="button" class="nav-pill" id="navRegistry" onclick="setLandingView('registry')">Registry</button>
-    <button type="button" class="nav-pill" id="navOps" onclick="window.location.href='grace-ops.html'">Grace Ops</button>
   </div>
   <div class="nav-right">
     <span class="plugins-live"><span class="plugins-live-dot"></span><span id="pluginsCount">27</span> plugins live</span>
@@ -1683,20 +1683,20 @@ nav {
           <div class="grace-greet-body" id="discoverGreeting">Loading signals…</div>
         </div>
         <div class="side-section">
-          <div class="side-label">Source <span class="side-label-count" id="sourceTotal">0</span></div>
+          <div class="side-label">Monitor streams <span class="side-label-count" id="sourceTotal">0</span></div>
           <button class="side-item active" data-filter="source" data-value="">
-            <span class="side-item-label">All sources</span>
+            <span class="side-item-label">All mentions</span>
             <span class="side-item-count" id="cntAll">0</span>
           </button>
-          <button class="side-item" data-filter="source" data-value="ahackaday"><span class="side-item-label">AHackaday</span><span class="side-item-count" id="cntAh">0</span></button>
-          <button class="side-item" data-filter="source" data-value="rss"><span class="side-item-label">Krebs / RSS</span><span class="side-item-count" id="cntRss">0</span></button>
-          <button class="side-item" data-filter="source" data-value="cisa"><span class="side-item-label">CISA / KEV</span><span class="side-item-count" id="cntCisa">0</span></button>
-          <button class="side-item" data-filter="source" data-value="nvd"><span class="side-item-label">NVD CVEs</span><span class="side-item-count" id="cntNvd">0</span></button>
-          <button class="side-item" data-filter="source" data-value="reddit"><span class="side-item-label">Reddit / Social</span><span class="side-item-count" id="cntReddit">0</span></button>
-          <button class="side-item" data-filter="source" data-value="queue"><span class="side-item-label">Triage queue</span><span class="side-item-count" id="cntQueue">0</span></button>
+          <button class="side-item" data-filter="source" data-value="ahackaday"><span class="side-item-label">AHackaday editorial</span><span class="side-item-count" id="cntAh">0</span></button>
+          <button class="side-item" data-filter="source" data-value="rss"><span class="side-item-label">Amplification feed</span><span class="side-item-count" id="cntRss">0</span></button>
+          <button class="side-item" data-filter="source" data-value="cisa"><span class="side-item-label">Regulatory context</span><span class="side-item-count" id="cntCisa">0</span></button>
+          <button class="side-item" data-filter="source" data-value="nvd"><span class="side-item-label">Technical references</span><span class="side-item-count" id="cntNvd">0</span></button>
+          <button class="side-item" data-filter="source" data-value="reddit"><span class="side-item-label">Social pickup</span><span class="side-item-count" id="cntReddit">0</span></button>
+          <button class="side-item" data-filter="source" data-value="queue"><span class="side-item-label">Operator queue</span><span class="side-item-count" id="cntQueue">0</span></button>
         </div>
         <div class="side-section">
-          <div class="side-label">Priority</div>
+          <div class="side-label">Impact score</div>
           <button class="side-item" data-filter="score" data-value="4"><span class="side-item-label">Critical</span></button>
           <button class="side-item" data-filter="score" data-value="3"><span class="side-item-label">High</span></button>
           <button class="side-item" data-filter="score" data-value="2"><span class="side-item-label">Medium</span></button>
@@ -1704,7 +1704,7 @@ nav {
           <button class="side-item" data-filter="score" data-value="0"><span class="side-item-label">Noise</span></button>
         </div>
         <div class="side-section">
-          <div class="side-label">Status</div>
+          <div class="side-label">Workflow state</div>
           <button class="side-item" data-filter="decision" data-value="new"><span class="side-item-label">New</span></button>
           <button class="side-item" data-filter="decision" data-value="assign"><span class="side-item-label">Assigned</span></button>
           <button class="side-item" data-filter="decision" data-value="needs_research"><span class="side-item-label">Needs research</span></button>
@@ -1716,12 +1716,12 @@ nav {
       <main class="discover-main" id="discoverMain" data-view="list">
         <div class="hero">
           <div class="hero-left">
-            <h2 class="hero-h1">Today's signal <span class="hero-count" id="heroCount">0 stories</span></h2>
-            <div class="hero-sub" id="heroSub">Sorted by <strong>priority</strong> · loading…</div>
+            <h2 class="hero-h1">AHackaday monitor <span class="hero-count" id="heroCount">0 mentions</span></h2>
+            <div class="hero-sub" id="heroSub">Meltwater-style stream · loading AHackaday feed…</div>
           </div>
           <div class="hero-right">
-            <input type="search" id="discoverSearch" class="discover-search discover-v3-search" placeholder="Filter…" autocomplete="off" />
-            <button type="button" class="sort-btn" id="discoverSortBtn">Sort: <b id="discoverSortLabel">Priority</b></button>
+            <input type="search" id="discoverSearch" class="discover-search discover-v3-search" placeholder="Filter mentions…" autocomplete="off" />
+            <button type="button" class="sort-btn" id="discoverSortBtn">Sort: <b id="discoverSortLabel">Impact</b></button>
             <button type="button" class="icon-btn square" id="discoverViewToggle" title="Toggle view">◫</button>
             <button type="button" class="icon-btn square" id="discoverRefresh" title="Refresh feed" onclick="loadDiscoverData(true)">↻</button>
           </div>
@@ -1845,8 +1845,9 @@ nav {
     <!-- Registry panel -->
     <div class="registry-shell" id="registryPanel">
       <div class="registry-header">
-        <div class="registry-title">Prompt Registry &amp; Audit Trail</div>
-        <div class="registry-sub">Versioned prompts · run history · publish decisions</div>
+        <div class="registry-title">Grace PromptLayer Wrapper</div>
+        <div class="registry-sub">Version, test, and monitor Grace prompts and runs in one operator view</div>
+        <div class="registry-sub">PromptLayer-style control plane powered by Grace's native prompt registry</div>
         <button class="icon-btn" style="margin-top:10px" onclick="loadRegistryData(true)">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
           Refresh
@@ -2897,21 +2898,22 @@ function discoverAgeLabel(mins) {
 }
 
 function discoverSourceLabel(group) {
-  if (group === 'ahackaday') return 'AHackaday';
-  if (group === 'queue') return 'Triage queue';
-  if (group === 'cisa') return 'CISA/KEV';
-  if (group === 'nvd') return 'NVD';
-  if (group === 'reddit') return 'Reddit';
-  return 'Krebs/RSS';
+  if (group === 'ahackaday') return 'AHackaday editorial';
+  if (group === 'queue') return 'Operator queue';
+  if (group === 'cisa') return 'Regulatory context';
+  if (group === 'nvd') return 'Technical references';
+  if (group === 'reddit') return 'Social pickup';
+  return 'Amplification feed';
 }
 
 function discoverTagsForItem(it) {
   const t = String(it.title || '').toLowerCase();
   const tags = [];
+  tags.push({ text: 'AHACKADAY MONITOR', cls: 'seen' });
   if (/cve-\d{4}-\d+/i.test(t) || it.source === 'nvd' || it.source_group === 'nvd') tags.push({ text: 'CVE', cls: 'cve' });
   if (/\bnpm\b|package|supply-chain|supply chain/i.test(t)) tags.push({ text: 'NPM', cls: 'npm' });
   if (/actively exploited|in the wild|exploit-in-wild|zero-day|zero day|worm/i.test(t)) tags.push({ text: 'IN WILD', cls: 'wild' });
-  if ((it.related || []).length > 0) tags.push({ text: `🔗 ${it.related.length} seen before`, cls: 'seen' });
+  if ((it.related || []).length > 0) tags.push({ text: `🔗 ${it.related.length} prior mentions`, cls: 'seen' });
   if (it.latest_decision?.decision) tags.push({ text: it.latest_decision.decision, cls: 'decided' });
   return tags.slice(0, 4);
 }
@@ -3107,7 +3109,7 @@ function renderDiscoverGrid() {
   const heroSub = document.getElementById('heroSub');
   if (heroSub) {
     const fresh = items.filter((x) => x.age_minutes < 120).length;
-    heroSub.innerHTML = `Sorted by <strong>${discoverSort}</strong> · ${fresh} new in the last 2h · last sync 2m ago`;
+    heroSub.innerHTML = `Sorted by <strong>${discoverSort}</strong> · ${fresh} new AHackaday mentions in the last 2h · last sync 2m ago`;
   }
   const greeting = document.getElementById('discoverGreeting');
   if (greeting) {
@@ -3124,11 +3126,11 @@ function loadDiscoverData(forceRefresh) {
   const status = document.getElementById('discoverStatus');
   const ranked = document.getElementById('discoverRanked');
   const grid = document.getElementById('discoverGrid');
-  if (status) status.textContent = 'Loading feed…';
+  if (status) status.textContent = 'Loading AHackaday monitor…';
   discoverQueueNotice = '';
   const skip = forceRefresh ? '&skip_cache=1' : '';
   Promise.all([
-    fetch(`/api/discover?limit=42&source_mode=mixed${skip}`).then((r) => r.json().then((j) => ({ ok: r.ok, j }))),
+    fetch(`/api/discover?limit=42&source_mode=ahackaday${skip}`).then((r) => r.json().then((j) => ({ ok: r.ok, j }))),
     fetch(`/api/queue-feed?limit=14${skip}`).then((r) => r.json().then((j) => ({ ok: r.ok, j }))),
   ])
     .then(([disc, queue]) => {
@@ -3137,7 +3139,7 @@ function loadDiscoverData(forceRefresh) {
       const queueItems = (queue.j.items || []).map((q) => ({ ...q, source: 'queue' }));
       discoverItemsCache = [...(disc.j.items || []), ...queueItems];
       discoverLastCached = !!disc.j.cached || !!queue.j.cached;
-      discoverSourceUrl = 'mixed + queue';
+      discoverSourceUrl = 'AHackaday + queue';
       discoverSourceCounts = discoverItemsCache.reduce((acc, it) => {
         const key = discoverSourceGroup(it.source);
         acc[key] = (acc[key] || 0) + 1;
@@ -3197,7 +3199,7 @@ function renderRegistry(data) {
   if (!body) return;
   const sections = [];
 
-  // Prompt Registry
+  // Prompt versions (PromptLayer-style wrapper)
   const registry = data.prompt_registry || {};
   const promptNames = Object.keys(registry);
   let promptRows = '';
@@ -3215,13 +3217,13 @@ function renderRegistry(data) {
   sections.push(`
     <div class="registry-section">
       <div class="registry-section-head">
-        <span class="registry-section-label">Prompt Registry</span>
-        <span class="registry-section-count">${promptNames.length} prompts</span>
+        <span class="registry-section-label">Prompt Versions</span>
+        <span class="registry-section-count">${promptNames.length} tracked prompts</span>
       </div>
-      ${promptRows ? `<table class="registry-table"><thead><tr><th>Name</th><th>Version</th><th>Saved</th><th>Preview</th></tr></thead><tbody>${promptRows}</tbody></table>` : '<div class="registry-empty">Prompts are versioned automatically on each news sync run.<br>Trigger a sync or wait for the daily cron (1 PM UTC on Hobby) to populate this.</div>'}
+      ${promptRows ? `<table class="registry-table"><thead><tr><th>Prompt Name</th><th>Version</th><th>Captured</th><th>Prompt Preview</th></tr></thead><tbody>${promptRows}</tbody></table>` : '<div class="registry-empty">No prompt versions captured yet.<br>Run a sync or wait for cron to populate your prompt history.</div>'}
     </div>`);
 
-  // Run History
+  // Traces and run monitoring
   const runs = data.runs || [];
   let runRows = '';
   for (const r of runs) {
@@ -3241,13 +3243,13 @@ function renderRegistry(data) {
   sections.push(`
     <div class="registry-section">
       <div class="registry-section-head">
-        <span class="registry-section-label">Run History</span>
-        <span class="registry-section-count">${runs.length} runs</span>
+        <span class="registry-section-label">Run Traces</span>
+        <span class="registry-section-count">${runs.length} traced runs</span>
       </div>
-      ${runRows ? `<table class="registry-table"><thead><tr><th>Run ID</th><th>Status</th><th>Mode</th><th>Triage</th><th>Errors</th><th>Time</th></tr></thead><tbody>${runRows}</tbody></table>` : '<div class="registry-empty">Every news sync run logs here — source mode, triage summary (🔥👀🗂️), and any errors.<br>Runs once daily via Vercel cron (1 PM UTC), or trigger one manually via <code>/api/news-sync</code>.</div>'}
+      ${runRows ? `<table class="registry-table"><thead><tr><th>Trace ID</th><th>Status</th><th>Pipeline</th><th>Triage Mix</th><th>Errors</th><th>Timestamp</th></tr></thead><tbody>${runRows}</tbody></table>` : '<div class="registry-empty">No traces yet.<br>Each sync run appears here with triage mix and error counts for monitoring.</div>'}
     </div>`);
 
-  // Publish Decisions
+  // Human review decisions
   const decisions = data.decisions || [];
   let decRows = '';
   for (const d of decisions) {
@@ -3266,10 +3268,10 @@ function renderRegistry(data) {
   sections.push(`
     <div class="registry-section">
       <div class="registry-section-head">
-        <span class="registry-section-label">Publish Decisions</span>
-        <span class="registry-section-count">${decisions.length} decisions</span>
+        <span class="registry-section-label">Review Decisions</span>
+        <span class="registry-section-count">${decisions.length} logged decisions</span>
       </div>
-      ${decRows ? `<table class="registry-table"><thead><tr><th>Story</th><th>Decision</th><th>Actor</th><th>Note</th><th>Time</th></tr></thead><tbody>${decRows}</tbody></table>` : '<div class="registry-empty">When you hit Ship, Defer, or Assign on a story in Discover, those decisions are logged here as an audit trail.</div>'}
+      ${decRows ? `<table class="registry-table"><thead><tr><th>Item</th><th>Decision</th><th>Reviewer</th><th>Note</th><th>Timestamp</th></tr></thead><tbody>${decRows}</tbody></table>` : '<div class="registry-empty">No review decisions yet.<br>Ship, Defer, and Assign actions from Discover are recorded here for auditability.</div>'}
     </div>`);
 
   body.innerHTML = sections.join('');
