@@ -22,6 +22,8 @@ export default async function handler(req, res) {
     ? {
         incident_key: bridgeMeta?.incident_key || body.incident_key || null,
         incident_url: bridgeMeta?.incident_url || body.incident_url || body.source_url || body.url || null,
+        incident_title: bridgeMeta?.incident_title || body.incident_title || body.title || null,
+        incident_summary: bridgeMeta?.incident_summary || body.incident_summary || body.summary || body.description || null,
         source: bridgeMeta?.source || body.source || "ahackaday",
         extracted_indicators: Array.isArray(bridgeMeta?.extracted_indicators)
           ? bridgeMeta.extracted_indicators.slice(0, 80)
