@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Grace Ops Dashboard</title>
+  <style>
+    body { font-family: Inter, system-ui, sans-serif; margin: 0; background: #0b1020; color: #e5e7eb; }
+    .wrap { max-width: 1120px; margin: 0 auto; padding: 24px; }
+    h1 { margin: 0 0 16px; font-size: 1.4rem; }
+    .controls { display: flex; gap: 10px; margin-bottom: 18px; }
+    input, button { border-radius: 8px; border: 1px solid #334155; padding: 10px 12px; background: #111827; color: #e5e7eb; }
+    button { cursor: pointer; background: #1d4ed8; border-color: #1d4ed8; }
+    .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-bottom: 18px; }
+    .card { background: #111827; border: 1px solid #1f2937; border-radius: 12px; padding: 12px; }
+    .card h2 { font-size: 0.95rem; margin: 0 0 8px; }
+    .value { font-size: 1.25rem; font-weight: 700; }
+    .sections { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    ul { margin: 0; padding-left: 18px; }
+    li { margin-bottom: 8px; }
+    pre { white-space: pre-wrap; background: #030712; border: 1px solid #1f2937; border-radius: 10px; padding: 10px; max-height: 300px; overflow: auto; }
+    .muted { color: #94a3b8; font-size: 0.82rem; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Grace Ops: Overview + Weekly Actions + Workbench</h1>
+    <div class="controls">
+      <input id="workspaceId" placeholder="workspace_id" style="min-width:300px;" />
+      <button id="loadBtn">Load report</button>
+    </div>
+
+    <div class="grid">
+      <div class="card"><h2>North-star score</h2><div class="value" id="northStar">-</div></div>
+      <div class="card"><h2>Answer inclusion</h2><div class="value" id="answerRate">-</div></div>
+      <div class="card"><h2>Content freshness</h2><div class="value" id="freshness">-</div></div>
+    </div>
+
+    <div class="sections">
+      <div class="card">
+        <h2>Weekly Actions</h2>
+        <div class="muted">Top ranked recommendations</div>
+        <ul id="weeklyActions"></ul>
+      </div>
+      <div class="card">
+        <h2>Workbench</h2>
+        <div class="muted">Model consensus and score evidence (raw)</div>
+        <pre id="workbenchJson">{}</pre>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    async function loadReport() {
+      const workspaceId = document.getElementById("workspaceId").value.trim();
+      if (!workspaceId) return;
+      const res = await fetch(`/api/grace-report?workspace_id=${encodeURIComponent(workspaceId)}`);
+      const json = await res.json();
+      if (!json.ok) {
+        alert(json.error || "Failed to load report");
+        return;
+      }
+      const metric = json.overview?.latestMetric || {};
+      document.getElementById("northStar").textContent = `${Number(metric.north_star_score || 0).toFixed(1)}%`;
+      document.getElementById("answerRate").textContent = `${Number(metric.answer_inclusion_rate || 0).toFixed(1)}%`;
+      document.getElementById("freshness").textContent = `${Number(metric.content_freshness_ratio || 0).toFixed(1)}%`;
+
+      const weekly = json.weeklyActions || [];
+      const ul = document.getElementById("weeklyActions");
+      ul.innerHTML = "";
+      for (const item of weekly) {
+        const li = document.createElement("li");
+        li.textContent = `${item.title} (${item.recommendation_type}) · priority ${Number(item.priority_score || 0).toFixed(1)} · ${item.status}`;
+        ul.appendChild(li);
+      }
+      document.getElementById("workbenchJson").textContent = JSON.stringify(json.workbench || {}, null, 2);
+    }
+    document.getElementById("loadBtn").addEventListener("click", loadReport);
+  </script>
+</body>
+</html>
