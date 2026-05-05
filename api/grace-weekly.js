@@ -18,18 +18,18 @@ export default async function handler(req, res) {
   const runId = body.run_id || `weekly_${Date.now().toString(36)}`;
   const bridgeMeta = body.bridge_meta && typeof body.bridge_meta === "object" ? body.bridge_meta : null;
   const runOrigin = bridgeMeta?.origin || body.origin || "direct";
-const normalizedBridge = bridgeMeta
-  ? {
-      incident_key: bridgeMeta.incident_key || null,
-      incident_url: bridgeMeta.incident_url || null,
-      source: bridgeMeta.source || null,
-      extracted_indicators: Array.isArray(bridgeMeta.extracted_indicators)
-        ? bridgeMeta.extracted_indicators.slice(0, 80)
-        : [],
-      selected_count: Number(bridgeMeta.selected_count || 0),
-      mapping_summary: bridgeMeta.mapping_summary || null,
-    }
-  : null;
+  const normalizedBridge = bridgeMeta || body.incident_key || body.incident_url || body.source_url || body.url
+    ? {
+        incident_key: bridgeMeta?.incident_key || body.incident_key || null,
+        incident_url: bridgeMeta?.incident_url || body.incident_url || body.source_url || body.url || null,
+        source: bridgeMeta?.source || body.source || "ahackaday",
+        extracted_indicators: Array.isArray(bridgeMeta?.extracted_indicators)
+          ? bridgeMeta.extracted_indicators.slice(0, 80)
+          : [],
+        selected_count: Number(bridgeMeta?.selected_count || 0),
+        mapping_summary: bridgeMeta?.mapping_summary || null,
+      }
+    : null;
 
 function normalizeUrl(raw) {
   try {
@@ -37,6 +37,14 @@ function normalizeUrl(raw) {
   } catch {
     return null;
   }
+}
+
+function extractIndicatorsFromText(text = "") {
+  const raw = String(text || "");
+  const urls = [...raw.matchAll(/https?:\/\/[^\s)]+/gi)].map((m) => m[0]);
+  const cves = [...raw.matchAll(/\bCVE-\d{4}-\d{4,}\b/gi)].map((m) => m[0].toUpperCase());
+  const domains = [...raw.matchAll(/\b(?:[a-z0-9-]+\.)+[a-z]{2,}\b/gi)].map((m) => m[0].toLowerCase());
+  return [...new Set([...urls, ...cves, ...domains])];
 }
 
   try {
@@ -69,6 +77,15 @@ function normalizeUrl(raw) {
     );
     const hasAnyUrls =
       websiteUrls.length || landingPageUrls.length || blogUrls.length || competitorUrls.length;
+    if (normalizedBridge && normalizedBridge.extracted_indicators.length === 0) {
+      normalizedBridge.extracted_indicators = extractIndicatorsFromText(
+        [
+          normalizedBridge.incident_url || "",
+          body.incident_title || body.title || "",
+          body.incident_summary || body.description || "",
+        ].join("\n")
+      ).slice(0, 80);
+    }
 
     const graph = await buildCanonicalGraph({
       websiteUrls,
@@ -100,10 +117,49 @@ function normalizeUrl(raw) {
       });
     }
 
+    const nodesForScoring =
+      nodes.length > 0
+        ? nodes
+        : [
+            {
+              id: null,
+              node_type: "blog_page",
+              url: fallbackIncidentUrl || normalizedBridge?.incident_url || null,
+              title: body.incident_title || body.title || normalizedBridge?.incident_key || "incident",
+              topic_cluster: body.topic_cluster || "incident-ops",
+              entity_tags: [],
+              location_tag: body.location_tag || null,
+              source_system: normalizedBridge?.source || "ahackaday",
+              content_text: [
+                body.incident_summary || "",
+                body.description || "",
+                normalizedBridge?.incident_key || "",
+                fallbackIncidentUrl || "",
+              ]
+                .filter(Boolean)
+                .join("\n")
+                .slice(0, 8000),
+            },
+          ];
+
     const nodeScores = [];
-    for (const node of nodes) {
+    for (const node of nodesForScoring) {
       const score = await scoreContentNode(node);
-      const recs = recommendationsFromScore(node, score);
+      let recs = recommendationsFromScore(node, score);
+      if (!recs.length) {
+        recs = [
+          {
+            recommendation_type: "create_topic",
+            title: "Create incident response topic update",
+            details: "Publish an incident-focused explainer and mitigation page from this AHackaday signal.",
+            expected_impact: 68,
+            confidence_score: 62,
+            effort_score: 35,
+            priority_score: 72,
+            evidence: score.evidence,
+          },
+        ];
+      }
       nodeScores.push({ node, score, recs });
     }
 
