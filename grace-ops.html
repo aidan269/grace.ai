@@ -3,79 +3,561 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Grace Ops Dashboard</title>
+  <title>Grace Ops Command Center</title>
   <style>
-    body { font-family: Inter, system-ui, sans-serif; margin: 0; background: #0b1020; color: #e5e7eb; }
-    .wrap { max-width: 1120px; margin: 0 auto; padding: 24px; }
-    h1 { margin: 0 0 16px; font-size: 1.4rem; }
-    .controls { display: flex; gap: 10px; margin-bottom: 18px; }
-    input, button { border-radius: 8px; border: 1px solid #334155; padding: 10px 12px; background: #111827; color: #e5e7eb; }
-    button { cursor: pointer; background: #1d4ed8; border-color: #1d4ed8; }
-    .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-bottom: 18px; }
-    .card { background: #111827; border: 1px solid #1f2937; border-radius: 12px; padding: 12px; }
-    .card h2 { font-size: 0.95rem; margin: 0 0 8px; }
-    .value { font-size: 1.25rem; font-weight: 700; }
-    .sections { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    ul { margin: 0; padding-left: 18px; }
-    li { margin-bottom: 8px; }
-    pre { white-space: pre-wrap; background: #030712; border: 1px solid #1f2937; border-radius: 10px; padding: 10px; max-height: 300px; overflow: auto; }
-    .muted { color: #94a3b8; font-size: 0.82rem; }
+    :root {
+      color-scheme: dark;
+      --bg: #05070f;
+      --surface: #0f1426;
+      --surface-2: #121a31;
+      --line: #1f2a4a;
+      --text: #e8ecf9;
+      --muted: #95a2c6;
+      --brand: #5d8bff;
+      --brand-soft: #2d3f73;
+      --good: #31c48d;
+      --warn: #f5a524;
+      --bad: #f87171;
+      --radius: 14px;
+      --font: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--font);
+      background: radial-gradient(1200px 700px at 15% -20%, #1a2550, transparent), var(--bg);
+      color: var(--text);
+    }
+    .wrap { max-width: 1260px; margin: 0 auto; padding: 20px; }
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, #10182e, #0d1427);
+      margin-bottom: 16px;
+    }
+    .topbar h1 { margin: 0; font-size: 1.05rem; letter-spacing: 0.01em; }
+    .sub { color: var(--muted); font-size: 0.86rem; }
+    .tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+    .tab {
+      border: 1px solid var(--line);
+      background: transparent;
+      color: var(--muted);
+      padding: 8px 10px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 0.82rem;
+    }
+    .tab.active { color: var(--text); border-color: #3251a8; background: #152045; }
+    .layout {
+      display: grid;
+      grid-template-columns: 330px 1fr;
+      gap: 14px;
+    }
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      padding: 14px;
+    }
+    .panel h2 { margin: 0 0 10px; font-size: 0.95rem; }
+    .onboarding label {
+      display: block;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      margin-top: 10px;
+      margin-bottom: 5px;
+    }
+    input, textarea, select, button {
+      width: 100%;
+      border: 1px solid #2a385f;
+      background: var(--surface-2);
+      color: var(--text);
+      border-radius: 10px;
+      padding: 9px 10px;
+      font: inherit;
+      font-size: 0.85rem;
+    }
+    textarea { min-height: 65px; resize: vertical; }
+    .row { display: grid; gap: 8px; grid-template-columns: 1fr 1fr; }
+    .btn {
+      margin-top: 10px;
+      background: linear-gradient(180deg, #4d78ee, #3556b0);
+      border-color: #3d5cae;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .btn.secondary { background: transparent; }
+    .hint { font-size: 0.77rem; color: var(--muted); margin-top: 8px; }
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .metric {
+      background: var(--surface-2);
+      border: 1px solid #243355;
+      border-radius: 12px;
+      padding: 10px;
+    }
+    .metric .k { color: var(--muted); font-size: 0.73rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    .metric .v { margin-top: 6px; font-size: 1.15rem; font-weight: 700; }
+    .section-title { margin: 0 0 10px; font-size: 0.9rem; color: #cfd8f8; }
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .card {
+      border: 1px solid #223458;
+      background: #0f1730;
+      border-radius: 12px;
+      padding: 10px;
+      min-height: 124px;
+    }
+    .card h3 { margin: 0 0 7px; font-size: 0.84rem; }
+    .pill {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 0.69rem;
+      border: 1px solid #38589c;
+      color: #c9d6ff;
+      background: #15244d;
+      margin-right: 6px;
+      margin-top: 6px;
+    }
+    .status-draft { color: #f7ce67; }
+    .status-review { color: #93c5fd; }
+    .status-approved, .status-executed, .status-measured { color: var(--good); }
+    .list { margin: 0; padding: 0; list-style: none; }
+    .list li {
+      border: 1px solid #233355;
+      border-radius: 11px;
+      padding: 10px;
+      background: #0f1832;
+      margin-bottom: 8px;
+      display: grid;
+      gap: 8px;
+      grid-template-columns: 1fr auto;
+      align-items: start;
+    }
+    .li-title { font-size: 0.86rem; font-weight: 600; line-height: 1.35; }
+    .li-meta { font-size: 0.75rem; color: var(--muted); margin-top: 4px; }
+    .li-actions {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      max-width: 260px;
+    }
+    .small-btn {
+      width: auto;
+      border-radius: 8px;
+      padding: 6px 8px;
+      font-size: 0.72rem;
+      cursor: pointer;
+      background: #162245;
+    }
+    .small-btn.primary { background: #2448a7; border-color: #345ec9; }
+    .small-btn.success { background: #164f3a; border-color: #1f7a58; }
+    .small-btn.warn { background: #5d4415; border-color: #9b6f22; }
+    .agent-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .agent {
+      border: 1px solid #283a66;
+      border-radius: 12px;
+      background: #0f1833;
+      padding: 10px;
+    }
+    .agent .run-agent {
+      margin-top: 8px;
+      padding: 7px 9px;
+      background: #17316f;
+      cursor: pointer;
+      border-radius: 8px;
+      border: 1px solid #2a4e9e;
+    }
+    .hidden { display: none; }
+    .feedback {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 0.78rem;
+      white-space: pre-wrap;
+      border-top: 1px dashed #294075;
+      padding-top: 10px;
+    }
+    @media (max-width: 1020px) {
+      .layout { grid-template-columns: 1fr; }
+      .metric-grid, .cards, .agent-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 680px) {
+      .metric-grid, .cards, .agent-grid { grid-template-columns: 1fr; }
+      .row { grid-template-columns: 1fr; }
+      .list li { grid-template-columns: 1fr; }
+      .li-actions { justify-content: flex-start; }
+    }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <h1>Grace Ops: Overview + Weekly Actions + Workbench</h1>
-    <div class="controls">
-      <input id="workspaceId" placeholder="workspace_id" style="min-width:300px;" />
-      <button id="loadBtn">Load report</button>
+    <div class="topbar">
+      <div>
+        <h1>Grace Ops Command Center</h1>
+        <div class="sub">First-principles AEO stack: Monitor, Create, Agents, Analytics</div>
+      </div>
+      <div class="tabs">
+        <button class="tab active" data-view="monitor">Monitor</button>
+        <button class="tab" data-view="create">Create</button>
+        <button class="tab" data-view="agents">Agents</button>
+        <button class="tab" data-view="analytics">Analytics</button>
+      </div>
     </div>
 
-    <div class="grid">
-      <div class="card"><h2>North-star score</h2><div class="value" id="northStar">-</div></div>
-      <div class="card"><h2>Answer inclusion</h2><div class="value" id="answerRate">-</div></div>
-      <div class="card"><h2>Content freshness</h2><div class="value" id="freshness">-</div></div>
-    </div>
+    <div class="layout">
+      <aside class="panel onboarding">
+        <h2>Workspace Setup</h2>
+        <label>Workspace ID</label>
+        <input id="workspaceId" placeholder="uuid from weekly run" />
 
-    <div class="sections">
-      <div class="card">
-        <h2>Weekly Actions</h2>
-        <div class="muted">Top ranked recommendations</div>
-        <ul id="weeklyActions"></ul>
-      </div>
-      <div class="card">
-        <h2>Workbench</h2>
-        <div class="muted">Model consensus and score evidence (raw)</div>
-        <pre id="workbenchJson">{}</pre>
-      </div>
+        <label>Domain</label>
+        <input id="domainInput" placeholder="example.com" />
+
+        <div class="row">
+          <div>
+            <label>Workspace Name</label>
+            <input id="workspaceNameInput" placeholder="Example Brand" />
+          </div>
+          <div>
+            <label>Timezone</label>
+            <input id="timezoneInput" placeholder="America/New_York" value="America/New_York" />
+          </div>
+        </div>
+
+        <label>Website URLs (one per line)</label>
+        <textarea id="websiteUrlsInput" placeholder="https://example.com"></textarea>
+        <label>Landing URLs</label>
+        <textarea id="landingUrlsInput" placeholder="https://example.com/ai-search"></textarea>
+        <label>Blog URLs</label>
+        <textarea id="blogUrlsInput" placeholder="https://example.com/blog/geo"></textarea>
+        <label>Competitor URLs</label>
+        <textarea id="competitorUrlsInput" placeholder="https://competitor.com/ai-search"></textarea>
+
+        <button id="runWeeklyBtn" class="btn">Run Weekly Command Center Cycle</button>
+        <button id="loadReportBtn" class="btn secondary">Load Existing Workspace Report</button>
+        <div class="hint">Run cycle ingests + scores + recommends. Load report reads current state only.</div>
+        <div id="leftFeedback" class="feedback"></div>
+      </aside>
+
+      <main>
+        <section id="view-monitor">
+          <div class="metric-grid">
+            <div class="metric"><div class="k">North-Star</div><div class="v" id="northStar">-</div></div>
+            <div class="metric"><div class="k">Answer Inclusion</div><div class="v" id="answerRate">-</div></div>
+            <div class="metric"><div class="k">Content Freshness</div><div class="v" id="freshness">-</div></div>
+            <div class="metric"><div class="k">Open Actions</div><div class="v" id="openActions">-</div></div>
+          </div>
+          <div class="panel">
+            <div class="section-title">Answer Engine Insights (top recommendations)</div>
+            <ul id="monitorList" class="list"></ul>
+          </div>
+        </section>
+
+        <section id="view-create" class="hidden">
+          <div class="panel">
+            <div class="section-title">Create Queue (content production briefs)</div>
+            <div class="cards" id="createCards"></div>
+          </div>
+        </section>
+
+        <section id="view-agents" class="hidden">
+          <div class="panel">
+            <div class="section-title">Agent Templates (runbooks)</div>
+            <div class="agent-grid" id="agentGrid"></div>
+          </div>
+        </section>
+
+        <section id="view-analytics" class="hidden">
+          <div class="panel">
+            <div class="section-title">Agent Analytics & Prompt Volumes (derived)</div>
+            <div class="cards" id="analyticsCards"></div>
+            <pre id="analyticsRaw" style="margin-top:10px;background:#091127;border:1px solid #21325a;border-radius:10px;padding:10px;max-height:280px;overflow:auto;"></pre>
+          </div>
+        </section>
+      </main>
     </div>
   </div>
 
   <script>
-    async function loadReport() {
-      const workspaceId = document.getElementById("workspaceId").value.trim();
-      if (!workspaceId) return;
-      const res = await fetch(`/api/grace-report?workspace_id=${encodeURIComponent(workspaceId)}`);
-      const json = await res.json();
-      if (!json.ok) {
-        alert(json.error || "Failed to load report");
+    const AGENTS = [
+      {
+        id: "aeo_faq_agent",
+        title: "AEO FAQ Generator",
+        desc: "Generate concise answer blocks and FAQ schema from top recommendation clusters.",
+        action: "Queue FAQ generation tasks"
+      },
+      {
+        id: "competitor_gap_agent",
+        title: "Competitor Gap Agent",
+        desc: "Expand topic opportunities from repeated create_topic recommendations.",
+        action: "Build topic gap matrix"
+      },
+      {
+        id: "local_geo_agent",
+        title: "Local GEO Agent",
+        desc: "Prioritize GBP and local-intent updates for geo-readiness uplift.",
+        action: "Draft local action plan"
+      }
+    ];
+
+    let currentWorkspaceId = localStorage.getItem("grace_ops_workspace_id") || "";
+    let latestReport = null;
+    let latestRun = null;
+
+    function parseLines(text) {
+      return String(text || "")
+        .split("\n")
+        .map((x) => x.trim())
+        .filter(Boolean);
+    }
+
+    function setFeedback(text) {
+      document.getElementById("leftFeedback").textContent = text;
+    }
+
+    function fmtPct(value) {
+      return `${Number(value || 0).toFixed(1)}%`;
+    }
+
+    function renderMonitor(report) {
+      const metric = report?.overview?.latestMetric || {};
+      const actions = report?.weeklyActions || [];
+      document.getElementById("northStar").textContent = fmtPct(metric.north_star_score);
+      document.getElementById("answerRate").textContent = fmtPct(metric.answer_inclusion_rate);
+      document.getElementById("freshness").textContent = fmtPct(metric.content_freshness_ratio);
+      document.getElementById("openActions").textContent = String(actions.filter((a) => !["executed", "measured"].includes(a.status)).length);
+
+      const list = document.getElementById("monitorList");
+      list.innerHTML = "";
+      actions.slice(0, 16).forEach((item) => {
+        const li = document.createElement("li");
+        li.innerHTML = `
+          <div>
+            <div class="li-title">${item.title}</div>
+            <div class="li-meta">
+              ${item.recommendation_type} · priority ${Number(item.priority_score || 0).toFixed(1)} ·
+              confidence ${Number(item.confidence_score || 0).toFixed(0)} ·
+              <span class="status-${item.status}">${item.status}</span>
+            </div>
+          </div>
+          <div class="li-actions">
+            <button class="small-btn" data-id="${item.id}" data-next="review">Move to review</button>
+            <button class="small-btn primary" data-id="${item.id}" data-next="approved">Approve</button>
+            <button class="small-btn success" data-id="${item.id}" data-next="executed">Mark executed</button>
+            <button class="small-btn warn" data-id="${item.id}" data-next="deferred">Defer</button>
+          </div>
+        `;
+        list.appendChild(li);
+      });
+
+      list.querySelectorAll("button[data-id]").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          if (!currentWorkspaceId) return;
+          const recommendationId = btn.getAttribute("data-id");
+          const nextStatus = btn.getAttribute("data-next");
+          btn.disabled = true;
+          try {
+            const res = await fetch("/api/grace-approvals", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                workspace_id: currentWorkspaceId,
+                recommendation_id: recommendationId,
+                next_status: nextStatus,
+                actor: "grace-ops-ui"
+              })
+            });
+            const json = await res.json();
+            if (!json.ok) throw new Error(json.error || "status update failed");
+            await loadReport(currentWorkspaceId);
+            setFeedback(`Updated recommendation ${recommendationId.slice(0, 8)} to ${nextStatus}.`);
+          } catch (err) {
+            setFeedback(`Status update failed: ${err.message}`);
+          } finally {
+            btn.disabled = false;
+          }
+        });
+      });
+    }
+
+    function renderCreate(report) {
+      const cards = document.getElementById("createCards");
+      cards.innerHTML = "";
+      const byType = {};
+      (report?.weeklyActions || []).forEach((x) => {
+        byType[x.recommendation_type] = byType[x.recommendation_type] || [];
+        byType[x.recommendation_type].push(x);
+      });
+      Object.entries(byType).forEach(([type, items]) => {
+        const top = items[0];
+        const card = document.createElement("article");
+        card.className = "card";
+        card.innerHTML = `
+          <h3>${type}</h3>
+          <div class="sub">${items.length} queued recommendations</div>
+          <div style="margin-top:8px;font-size:0.82rem;line-height:1.35">${top.title}</div>
+          <span class="pill">Top priority ${Number(top.priority_score || 0).toFixed(1)}</span>
+          <span class="pill">Confidence ${Number(top.confidence_score || 0).toFixed(0)}</span>
+          <span class="pill">Effort ${Number(top.effort_score || 0).toFixed(0)}</span>
+        `;
+        cards.appendChild(card);
+      });
+      if (!cards.children.length) {
+        cards.innerHTML = `<article class="card"><h3>No create queue yet</h3><div class="sub">Run a weekly cycle to populate recommendations.</div></article>`;
+      }
+    }
+
+    function renderAgents(report) {
+      const grid = document.getElementById("agentGrid");
+      grid.innerHTML = "";
+      AGENTS.forEach((agent) => {
+        const article = document.createElement("article");
+        article.className = "agent";
+        article.innerHTML = `
+          <h3 style="margin:0 0 6px">${agent.title}</h3>
+          <div class="sub">${agent.desc}</div>
+          <button class="run-agent">${agent.action}</button>
+        `;
+        article.querySelector("button").addEventListener("click", () => {
+          const recommendationCount = (report?.weeklyActions || []).length;
+          setFeedback(`${agent.title}: prepared draft workflow using ${recommendationCount} current recommendations.`);
+        });
+        grid.appendChild(article);
+      });
+    }
+
+    function renderAnalytics(report) {
+      const cards = document.getElementById("analyticsCards");
+      cards.innerHTML = "";
+      const recommendations = report?.workbench?.recommendations || [];
+      const scoreRows = report?.workbench?.scores || [];
+      const promptVolumeProxy = recommendations.length * 3;
+      const runInterpretation = scoreRows.length;
+      const consensusCoverage = scoreRows.filter((x) => x.model_consensus && Object.keys(x.model_consensus).length > 0).length;
+      const cardData = [
+        { title: "Prompt Volumes (proxy)", value: String(promptVolumeProxy), sub: "Derived from recommendation throughput" },
+        { title: "Agent Analytics rows", value: String(runInterpretation), sub: "Stored score interpretations" },
+        { title: "Consensus coverage", value: `${consensusCoverage}/${scoreRows.length || 0}`, sub: "Rows with model consensus payload" }
+      ];
+      cardData.forEach((item) => {
+        const card = document.createElement("article");
+        card.className = "card";
+        card.innerHTML = `<h3>${item.title}</h3><div class="v" style="font-size:1.1rem;font-weight:700">${item.value}</div><div class="sub">${item.sub}</div>`;
+        cards.appendChild(card);
+      });
+      document.getElementById("analyticsRaw").textContent = JSON.stringify(report?.workbench || {}, null, 2);
+    }
+
+    function renderAll(report) {
+      latestReport = report;
+      renderMonitor(report);
+      renderCreate(report);
+      renderAgents(report);
+      renderAnalytics(report);
+    }
+
+    async function loadReport(workspaceId) {
+      if (!workspaceId) {
+        setFeedback("Enter a workspace id or run a weekly cycle first.");
         return;
       }
-      const metric = json.overview?.latestMetric || {};
-      document.getElementById("northStar").textContent = `${Number(metric.north_star_score || 0).toFixed(1)}%`;
-      document.getElementById("answerRate").textContent = `${Number(metric.answer_inclusion_rate || 0).toFixed(1)}%`;
-      document.getElementById("freshness").textContent = `${Number(metric.content_freshness_ratio || 0).toFixed(1)}%`;
-
-      const weekly = json.weeklyActions || [];
-      const ul = document.getElementById("weeklyActions");
-      ul.innerHTML = "";
-      for (const item of weekly) {
-        const li = document.createElement("li");
-        li.textContent = `${item.title} (${item.recommendation_type}) · priority ${Number(item.priority_score || 0).toFixed(1)} · ${item.status}`;
-        ul.appendChild(li);
-      }
-      document.getElementById("workbenchJson").textContent = JSON.stringify(json.workbench || {}, null, 2);
+      const res = await fetch(`/api/grace-report?workspace_id=${encodeURIComponent(workspaceId)}`);
+      const json = await res.json();
+      if (!json.ok) throw new Error(json.error || "report load failed");
+      renderAll(json);
     }
-    document.getElementById("loadBtn").addEventListener("click", loadReport);
+
+    async function runWeekly() {
+      const domain = document.getElementById("domainInput").value.trim();
+      if (!domain) {
+        setFeedback("Domain is required.");
+        return;
+      }
+      const payload = {
+        domain,
+        workspace_name: document.getElementById("workspaceNameInput").value.trim() || domain,
+        timezone: document.getElementById("timezoneInput").value.trim() || "UTC",
+        website_urls: parseLines(document.getElementById("websiteUrlsInput").value),
+        landing_page_urls: parseLines(document.getElementById("landingUrlsInput").value),
+        blog_urls: parseLines(document.getElementById("blogUrlsInput").value),
+        competitor_urls: parseLines(document.getElementById("competitorUrlsInput").value)
+      };
+      setFeedback("Running weekly cycle...");
+      const btn = document.getElementById("runWeeklyBtn");
+      btn.disabled = true;
+      try {
+        const res = await fetch("/api/grace-weekly", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        const json = await res.json();
+        if (!json.ok) throw new Error(json.error || "weekly run failed");
+        latestRun = json;
+        currentWorkspaceId = json.workspace?.id || "";
+        document.getElementById("workspaceId").value = currentWorkspaceId;
+        localStorage.setItem("grace_ops_workspace_id", currentWorkspaceId);
+        setFeedback(`Weekly run ${json.run_id} complete.\nWorkspace: ${currentWorkspaceId}\nRecommendations: ${json.recommendation_count}`);
+        await loadReport(currentWorkspaceId);
+      } catch (err) {
+        setFeedback(`Weekly run failed: ${err.message}`);
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    function wireTabs() {
+      document.querySelectorAll(".tab").forEach((tab) => {
+        tab.addEventListener("click", () => {
+          document.querySelectorAll(".tab").forEach((x) => x.classList.remove("active"));
+          tab.classList.add("active");
+          const view = tab.getAttribute("data-view");
+          ["monitor", "create", "agents", "analytics"].forEach((name) => {
+            document.getElementById(`view-${name}`).classList.toggle("hidden", name !== view);
+          });
+        });
+      });
+    }
+
+    document.getElementById("runWeeklyBtn").addEventListener("click", runWeekly);
+    document.getElementById("loadReportBtn").addEventListener("click", async () => {
+      const ws = document.getElementById("workspaceId").value.trim();
+      currentWorkspaceId = ws;
+      localStorage.setItem("grace_ops_workspace_id", ws);
+      setFeedback("Loading workspace report...");
+      try {
+        await loadReport(ws);
+        setFeedback(`Loaded report for workspace ${ws}.`);
+      } catch (err) {
+        setFeedback(`Report load failed: ${err.message}`);
+      }
+    });
+
+    wireTabs();
+    if (currentWorkspaceId) {
+      document.getElementById("workspaceId").value = currentWorkspaceId;
+      loadReport(currentWorkspaceId).catch((err) => setFeedback(`Auto-load failed: ${err.message}`));
+    }
   </script>
 </body>
 </html>
