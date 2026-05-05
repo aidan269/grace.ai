@@ -1,4 +1,5 @@
 import { saveOperatorActionByUrl, savePublishDecisionByUrl, supabaseAdmin } from "../lib/intelStore.js";
+import { resolveWorkspaceId } from "../lib/graceStore.js";
 
 const DEFAULT_SOURCE_URL = "https://www.ahackaday.news/";
 const LIST_CACHE_TTL_MS = 90_000;
@@ -240,6 +241,8 @@ export default async function handler(req, res) {
 
   const source_url = params.source_url || DEFAULT_SOURCE_URL;
   const source_mode = (params.source_mode || "ahackaday").toLowerCase();
+  const workspaceRef = String(params.workspace_id || params.workspace_ref || "default");
+  const tenantRef = String(params.tenant || params.source || "ahackaday");
   const limit = Math.min(Math.max(parseInt(params.limit || "45", 10), 1), 80);
   const q = (params.q || "").trim().toLowerCase();
   const source_filter = (params.source_filter || "").trim().toLowerCase();
@@ -407,6 +410,13 @@ export default async function handler(req, res) {
       latest_operator_action: operatorByUrl[it.url] || null,
     }));
 
+    let resolvedWorkspaceId = null;
+    try {
+      resolvedWorkspaceId = await resolveWorkspaceId(workspaceRef, { source: tenantRef });
+    } catch {
+      resolvedWorkspaceId = null;
+    }
+
     return res.status(200).json({
       ok: true,
       source_url,
@@ -415,6 +425,9 @@ export default async function handler(req, res) {
       items,
       cached,
       source_counts,
+      workspace: resolvedWorkspaceId
+        ? { id: resolvedWorkspaceId, ref: workspaceRef, source: tenantRef }
+        : null,
     });
   } catch (e) {
     return res.status(500).json({ ok: false, error: e.message || "discover_failed" });
