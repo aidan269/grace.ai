@@ -18,6 +18,17 @@ export default async function handler(req, res) {
   const runId = body.run_id || `weekly_${Date.now().toString(36)}`;
   const bridgeMeta = body.bridge_meta && typeof body.bridge_meta === "object" ? body.bridge_meta : null;
   const runOrigin = bridgeMeta?.origin || body.origin || "direct";
+const normalizedBridge = bridgeMeta
+  ? {
+      incident_key: bridgeMeta.incident_key || null,
+      source: bridgeMeta.source || null,
+      extracted_indicators: Array.isArray(bridgeMeta.extracted_indicators)
+        ? bridgeMeta.extracted_indicators.slice(0, 80)
+        : [],
+      selected_count: Number(bridgeMeta.selected_count || 0),
+      mapping_summary: bridgeMeta.mapping_summary || null,
+    }
+  : null;
 
   try {
     const workspace = await ensureWorkspace({
@@ -33,12 +44,7 @@ export default async function handler(req, res) {
       detail: {
         phase: "ingest",
         origin: runOrigin,
-        bridge: bridgeMeta
-          ? {
-              selected_count: Number(bridgeMeta.selected_count || 0),
-              mapping_summary: bridgeMeta.mapping_summary || null,
-            }
-          : null,
+        bridge: normalizedBridge,
       },
     });
 
@@ -83,6 +89,11 @@ export default async function handler(req, res) {
       workspaceId: workspace.id,
       runId,
       nodeScores,
+      context: {
+        incident_key: normalizedBridge?.incident_key || null,
+        origin: runOrigin,
+        source: normalizedBridge?.source || null,
+      },
     });
 
     const prioritized = recommendations
@@ -104,12 +115,7 @@ export default async function handler(req, res) {
           priority_score: x.priority_score,
           confidence_score: x.confidence_score,
         })),
-        bridge: bridgeMeta
-          ? {
-              selected_count: Number(bridgeMeta.selected_count || 0),
-              mapping_summary: bridgeMeta.mapping_summary || null,
-            }
-          : null,
+        bridge: normalizedBridge,
       },
     });
 
@@ -134,12 +140,7 @@ export default async function handler(req, res) {
           detail: {
             error: e.message || "unknown_error",
             origin: runOrigin,
-            bridge: bridgeMeta
-              ? {
-                  selected_count: Number(bridgeMeta.selected_count || 0),
-                  mapping_summary: bridgeMeta.mapping_summary || null,
-                }
-              : null,
+            bridge: normalizedBridge,
           },
         });
       }
