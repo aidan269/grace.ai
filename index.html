@@ -747,6 +747,28 @@ nav {
   cursor: pointer;
 }
 .decision-btn:hover { border-color: var(--gray-400); color: var(--text); }
+
+.ops-include-btn {
+  font-family: inherit;
+  font-size: 0.7rem;
+  font-weight: 700;
+  border: 1px solid rgba(37, 99, 235, 0.35);
+  border-radius: 7px;
+  background: #eff6ff;
+  color: #1e40af;
+  padding: 5px 8px;
+  cursor: pointer;
+}
+.ops-include-btn:hover { border-color: #2563eb; background: #dbeafe; color: #1d4ed8; }
+.ops-include-btn.included { border-color: #2563eb; background: #dbeafe; color: #1d4ed8; }
+
+.discover-ops-compact .ranked-secondary,
+.discover-ops-compact .ranked-primary { display: none; }
+
+.discover-ops-compact .decision-btn,
+.discover-ops-compact .discover-card-btn { display: none; }
+
+.discover-ops-compact .ranked-select { width: 86px; }
 .decision-pill {
   display: inline-block;
   font-family: var(--mono);
@@ -1876,10 +1898,10 @@ nav {
             <div class="ops-bridge-meta" id="opsBridgeMeta">Select mentions to build an Ops-ready payload.</div>
           </div>
           <div class="ops-buckets">
-            <div class="ops-bucket"><div class="ops-bucket-label">website_urls</div><div class="ops-bucket-count" id="opsCntWebsite">0</div></div>
-            <div class="ops-bucket"><div class="ops-bucket-label">landing_page_urls</div><div class="ops-bucket-count" id="opsCntLanding">0</div></div>
-            <div class="ops-bucket"><div class="ops-bucket-label">blog_urls</div><div class="ops-bucket-count" id="opsCntBlog">0</div></div>
-            <div class="ops-bucket"><div class="ops-bucket-label">competitor_urls</div><div class="ops-bucket-count" id="opsCntCompetitor">0</div></div>
+            <div class="ops-bucket"><div class="ops-bucket-label">Owned site URLs</div><div class="ops-bucket-count" id="opsCntWebsite">0</div></div>
+            <div class="ops-bucket"><div class="ops-bucket-label">Owned landing pages</div><div class="ops-bucket-count" id="opsCntLanding">0</div></div>
+            <div class="ops-bucket"><div class="ops-bucket-label">Content targets</div><div class="ops-bucket-count" id="opsCntBlog">0</div></div>
+            <div class="ops-bucket"><div class="ops-bucket-label">Competitor candidates</div><div class="ops-bucket-count" id="opsCntCompetitor">0</div></div>
           </div>
           <div class="ops-bridge-actions">
             <button type="button" class="ops-bridge-action" id="opsSelectTopBtn">Select top 8</button>
@@ -2719,6 +2741,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const viewBtn = document.getElementById('discoverViewToggle');
   const main = document.getElementById('discoverMain');
   if (viewBtn && main) {
+    // Keep the stream selection UI simple: hide workflow triage buttons.
+    main.classList.add('discover-ops-compact');
     viewBtn.textContent = '◫';
     viewBtn.addEventListener('click', () => {
       discoverView = discoverView === 'list' ? 'grid' : 'list';
@@ -3163,7 +3187,14 @@ function escapeHtml(s) {
 }
 
 function discoverItemKey(it) {
-  return String(it.url || it.issue_url || it.title || Math.random().toString(36).slice(2));
+  // Stable key so selection doesn't reset across rerenders.
+  // Prefer URL/issue_url; fall back to a deterministic title+source.
+  const url = String(it.url || it.issue_url || "").trim();
+  if (url) return url;
+  const t = String(it.title || "").toLowerCase().trim();
+  const s = String(it.source || "").toLowerCase().trim();
+  if (t || s) return `${t || "untitled"}__${s || "unknown_source"}`;
+  return "unknown__item";
 }
 
 function guessOpsBucket(it) {
@@ -3252,6 +3283,12 @@ function buildOpsPayloadFromDiscover() {
   }
   const domain = inferOpsDomain(selected);
   const highCount = selected.filter((it) => discoverScoreForItem(it) >= 3).length;
+  const freshCount = selected.filter((it) => discoverAgeMinutes(it) < 1440).length;
+  const trackedQueries = Math.max(20, selected.length * 3);
+  const favorableAnswers = Math.min(trackedQueries, Math.max(highCount, Math.round(selected.length * 0.6)));
+  const answerInclusionProxy = trackedQueries > 0 ? Math.round((favorableAnswers / trackedQueries) * 100) : 0;
+  const freshnessProxy = selected.length > 0 ? Math.round((freshCount / selected.length) * 100) : 0;
+  const entityCoverageProxy = Math.min(100, 40 + selected.length * 3);
   const payload = {
     domain,
     workspace_name: `Discover Ops - ${domain}`,
@@ -3267,14 +3304,14 @@ function buildOpsPayloadFromDiscover() {
       { source: "discover", source_breakdown: selected.reduce((acc, it) => { const g = discoverSourceGroup(it.source); acc[g] = (acc[g] || 0) + 1; return acc; }, {}) }
     ],
     metrics: {
-      favorable_answers: 0,
-      tracked_priority_queries: Math.max(20, selected.length * 3),
-      entity_coverage_score: 0,
+      favorable_answers: favorableAnswers,
+      tracked_priority_queries: trackedQueries,
+      entity_coverage_score: entityCoverageProxy,
       citation_frequency: 0,
-      answer_inclusion_rate: 0,
+      answer_inclusion_rate: answerInclusionProxy,
       local_profile_completeness: 0,
-      content_freshness_ratio: 0,
-      notes: "Auto-generated from Discover bridge selection"
+      content_freshness_ratio: freshnessProxy,
+      notes: "Auto-generated proxy metrics from Discover bridge selection"
     },
     bridge_meta: {
       origin: "discover",
@@ -3393,8 +3430,7 @@ function renderDiscoverGrid() {
         <div class="ranked-meta">${discoverSourceLabel(it.source_group)} <span class="meta-dot">•</span> <span class="meta-age ${hotAge}">${ageLabel}</span>${tagsHtml}</div>
       </div>
       <div class="ranked-actions">
-        <button class="ranked-select ${selected ? 'active' : ''}" title="Select for Ops">${selected ? 'Selected' : 'Select'}</button>
-        <button class="ranked-select active" title="Cycle Ops bucket">${bucket.replace('_urls','')}</button>
+        <button class="ranked-select ${selected ? 'active' : ''}" title="Include for Ops">${selected ? 'Included' : 'Include'}</button>
         <button class="ranked-secondary" title="Assign">
           <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6M17 11h6"/></svg>
         </button>
@@ -3412,7 +3448,6 @@ function renderDiscoverGrid() {
       if (href && href !== '#') window.open(href, '_blank');
     };
     row.querySelectorAll('.ranked-select')[0].onclick = (e) => { e.stopPropagation(); toggleDiscoverSelection(it); };
-    row.querySelectorAll('.ranked-select')[1].onclick = (e) => { e.stopPropagation(); cycleDiscoverBucket(it); };
     row.querySelectorAll('.ranked-secondary')[0].onclick = (e) => { e.stopPropagation(); saveOperatorAction(it, 'assign'); };
     row.querySelectorAll('.ranked-secondary')[1].onclick = (e) => { e.stopPropagation(); saveOperatorAction(it, 'defer'); };
     row.querySelectorAll('.ranked-secondary')[2].onclick = (e) => { e.stopPropagation(); saveOperatorAction(it, 'ship'); };
@@ -3461,15 +3496,10 @@ function renderDiscoverGrid() {
     decisionRow.className = 'discover-card-actions secondary';
     const dSelect = document.createElement('button');
     dSelect.type = 'button';
-    dSelect.className = 'decision-btn';
-    dSelect.textContent = selected ? 'Selected' : 'Select';
-    if (selected) dSelect.style.borderColor = '#2563eb';
+    dSelect.className = 'ops-include-btn';
+    dSelect.textContent = selected ? 'Included' : 'Include';
+    dSelect.classList.toggle('included', selected);
     dSelect.onclick = () => toggleDiscoverSelection(it);
-    const dBucket = document.createElement('button');
-    dBucket.type = 'button';
-    dBucket.className = 'decision-btn';
-    dBucket.textContent = bucket.replace('_urls', '');
-    dBucket.onclick = () => cycleDiscoverBucket(it);
     const dAssign = document.createElement('button');
     dAssign.type = 'button';
     dAssign.className = 'decision-btn';
@@ -3491,7 +3521,6 @@ function renderDiscoverGrid() {
     dDefer.textContent = 'Defer';
     dDefer.onclick = () => saveOperatorAction(it, 'defer');
     decisionRow.appendChild(dSelect);
-    decisionRow.appendChild(dBucket);
     decisionRow.appendChild(dAssign);
     decisionRow.appendChild(dResearch);
     decisionRow.appendChild(dShip);
