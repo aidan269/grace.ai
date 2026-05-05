@@ -603,6 +603,138 @@ nav {
   display: inline-flex; align-items: center;
 }
 .discover-card-open:hover { border-color: var(--gray-400); color: var(--text); }
+.ops-bridge-btn {
+  border: 1px solid rgba(37, 99, 235, 0.35);
+  background: linear-gradient(180deg, #eff6ff, #dbeafe);
+  color: #1e40af;
+  border-radius: 7px;
+  padding: 7px 10px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.14s ease, box-shadow 0.14s ease, border-color 0.14s ease, background 0.14s ease;
+}
+.ops-bridge-btn:hover { border-color: #2563eb; background: linear-gradient(180deg, #dbeafe, #bfdbfe); box-shadow: 0 6px 20px rgba(37, 99, 235, 0.14); }
+.ops-bridge-btn:active { transform: translateY(1px); }
+.ops-bridge-btn[disabled], .ops-bridge-action[disabled] { opacity: 0.55; cursor: wait; }
+.ops-bridge-panel {
+  border: 1px solid var(--border);
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 10px;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.04);
+}
+.ops-bridge-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+.ops-bridge-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--subtle);
+}
+.ops-bridge-meta { font-size: 0.68rem; color: var(--muted); }
+.ops-bridge-submeta {
+  margin-top: 6px;
+  font-size: 0.65rem;
+  color: var(--subtle);
+  font-family: var(--mono);
+}
+.ops-buckets { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 8px 0; }
+.ops-bucket {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: rgba(255,255,255,0.9);
+  padding: 8px;
+  transition: border-color 0.14s ease, transform 0.14s ease, box-shadow 0.14s ease;
+}
+.ops-bucket.has-items {
+  border-color: rgba(37, 99, 235, 0.28);
+  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.08);
+}
+.ops-bucket-label {
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  color: var(--subtle);
+  margin-bottom: 4px;
+  font-family: var(--mono);
+}
+.ops-bucket-count { font-size: 0.82rem; font-weight: 700; color: var(--text); }
+.ops-bridge-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.ops-bridge-action {
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 6px 9px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  background: var(--gray-50);
+  color: var(--muted);
+  cursor: pointer;
+  transition: transform 0.14s ease, border-color 0.14s ease, box-shadow 0.14s ease;
+}
+.ops-bridge-action.primary {
+  border-color: #2563eb;
+  background: #2563eb;
+  color: #fff;
+}
+.ops-bridge-action:hover { border-color: var(--gray-400); box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06); }
+.ops-bridge-action.primary:hover { border-color: #1d4ed8; background: #1d4ed8; }
+.ops-bridge-action:active { transform: translateY(1px); }
+.ops-bridge-warning {
+  margin-top: 8px;
+  padding: 7px 9px;
+  border-radius: 8px;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  color: #9a3412;
+  font-size: 0.67rem;
+  display: none;
+}
+.ops-bridge-json {
+  margin-top: 8px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #f8fafc;
+  color: #334155;
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  padding: 8px;
+  max-height: 160px;
+  overflow: auto;
+  display: none;
+}
+.ops-selected {
+  border-color: #2563eb !important;
+  box-shadow: 0 0 0 1px rgba(37,99,235,0.18);
+  background: linear-gradient(180deg, rgba(239,246,255,0.9), rgba(255,255,255,0.95));
+}
+.ranked-select {
+  border: 1px solid var(--border);
+  background: var(--gray-50);
+  border-radius: 6px;
+  font-size: 0.62rem;
+  padding: 4px 7px;
+  color: var(--muted);
+  cursor: pointer;
+  transition: border-color 0.14s ease, background 0.14s ease, color 0.14s ease;
+}
+.ranked-select.active {
+  border-color: #2563eb;
+  background: #dbeafe;
+  color: #1e3a8a;
+}
+@media (max-width: 980px) {
+  .hero-right { flex-wrap: wrap; justify-content: flex-end; }
+  .discover-v3-search { width: min(260px, 100%); }
+  .ops-buckets { grid-template-columns: 1fr; }
+}
 .decision-btn {
   font-family: inherit;
   font-size: 0.7rem;
@@ -1730,9 +1862,35 @@ nav {
           <div class="hero-right">
             <input type="search" id="discoverSearch" class="discover-search discover-v3-search" placeholder="Filter mentions…" autocomplete="off" />
             <button type="button" class="sort-btn" id="discoverSortBtn">Sort: <b id="discoverSortLabel">Impact</b></button>
+            <button type="button" class="ops-bridge-btn" id="discoverToOpsBtn" title="Compile selected mentions and run Grace Ops cycle">Send selected to Ops</button>
             <button type="button" class="icon-btn square" id="discoverViewToggle" title="Toggle view">◫</button>
             <button type="button" class="icon-btn square" id="discoverRefresh" title="Refresh feed" onclick="loadDiscoverData(true)">↻</button>
           </div>
+        </div>
+        <div class="ops-bridge-panel" id="discoverOpsBridgePanel">
+          <div class="ops-bridge-head">
+            <div>
+              <div class="ops-bridge-title">Ops prep</div>
+              <div class="ops-bridge-submeta">Bridge Discover selections directly into the weekly Grace Ops cycle.</div>
+            </div>
+            <div class="ops-bridge-meta" id="opsBridgeMeta">Select mentions to build an Ops-ready payload.</div>
+          </div>
+          <div class="ops-buckets">
+            <div class="ops-bucket"><div class="ops-bucket-label">website_urls</div><div class="ops-bucket-count" id="opsCntWebsite">0</div></div>
+            <div class="ops-bucket"><div class="ops-bucket-label">landing_page_urls</div><div class="ops-bucket-count" id="opsCntLanding">0</div></div>
+            <div class="ops-bucket"><div class="ops-bucket-label">blog_urls</div><div class="ops-bucket-count" id="opsCntBlog">0</div></div>
+            <div class="ops-bucket"><div class="ops-bucket-label">competitor_urls</div><div class="ops-bucket-count" id="opsCntCompetitor">0</div></div>
+          </div>
+          <div class="ops-bridge-actions">
+            <button type="button" class="ops-bridge-action" id="opsSelectTopBtn">Select top 8</button>
+            <button type="button" class="ops-bridge-action" id="opsClearBtn">Clear selection</button>
+            <button type="button" class="ops-bridge-action" id="opsPreviewBtn">Preview JSON</button>
+            <button type="button" class="ops-bridge-action" id="opsCopyBtn">Copy JSON</button>
+            <button type="button" class="ops-bridge-action primary" id="opsRunBtn">Run weekly cycle</button>
+            <button type="button" class="ops-bridge-action primary" id="opsOpenBtn" style="display:none;">Open in Grace Ops</button>
+          </div>
+          <div class="ops-bridge-warning" id="opsBridgeWarning"></div>
+          <pre class="ops-bridge-json" id="opsBridgeJson"></pre>
         </div>
 
         <div class="discover-ranked" id="discoverRanked"></div>
@@ -2568,6 +2726,53 @@ document.addEventListener('DOMContentLoaded', () => {
       viewBtn.textContent = discoverView === 'list' ? '◫' : '☰';
     });
   }
+  document.getElementById("discoverToOpsBtn")?.addEventListener("click", runDiscoverToOpsCycle);
+  document.getElementById("opsRunBtn")?.addEventListener("click", runDiscoverToOpsCycle);
+  document.getElementById("opsSelectTopBtn")?.addEventListener("click", () => {
+    discoverSelectedKeys = new Set();
+    discoverOpsIntentByKey = {};
+    discoverItemsCache
+      .map((it) => ({ ...it, score: discoverScoreForItem(it) }))
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 8)
+      .forEach((it) => {
+        const key = discoverItemKey(it);
+        discoverSelectedKeys.add(key);
+        discoverOpsIntentByKey[key] = guessOpsBucket(it);
+      });
+    renderDiscoverGrid();
+  });
+  document.getElementById("opsClearBtn")?.addEventListener("click", () => {
+    discoverSelectedKeys = new Set();
+    discoverOpsIntentByKey = {};
+    discoverOpsLastRun = null;
+    renderDiscoverGrid();
+  });
+  document.getElementById("opsPreviewBtn")?.addEventListener("click", () => {
+    const pre = document.getElementById("opsBridgeJson");
+    if (!pre) return;
+    pre.style.display = pre.style.display === "block" ? "none" : "block";
+  });
+  document.getElementById("opsCopyBtn")?.addEventListener("click", async () => {
+    const payload = buildOpsPayloadFromDiscover();
+    const meta = document.getElementById("opsBridgeMeta");
+    try {
+      await navigator.clipboard.writeText(JSON.stringify(payload, null, 2));
+      if (meta) meta.textContent = `${selectedDiscoverItems().length} selected · payload copied`;
+    } catch {
+      if (meta) meta.textContent = `${selectedDiscoverItems().length} selected · copy failed`;
+    }
+    setTimeout(() => renderDiscoverOpsBridge(), 1200);
+  });
+  document.getElementById("opsOpenBtn")?.addEventListener("click", () => {
+    if (!discoverOpsLastRun?.workspace_id) return;
+    const qs = new URLSearchParams({
+      workspace_id: discoverOpsLastRun.workspace_id,
+      run_id: discoverOpsLastRun.run_id || "",
+      origin: "discover"
+    });
+    window.location.href = `grace-ops.html?${qs.toString()}`;
+  });
   document.querySelectorAll('.side-item[data-filter]').forEach((el) => {
     el.addEventListener('click', () => {
       const type = el.getAttribute('data-filter');
@@ -2663,6 +2868,9 @@ let discoverSourceUrl = '';
 let discoverLastCached = false;
 let discoverQueueNotice = '';
 let discoverSourceCounts = {};
+let discoverSelectedKeys = new Set();
+let discoverOpsIntentByKey = {};
+let discoverOpsLastRun = null;
 let discoverSourceFilter = '';
 let discoverScoreFilter = '';
 let discoverDecisionFilter = '';
@@ -2683,6 +2891,8 @@ const AHACKADAY_FIRST_FLOW = (() => {
 let currentIncidentContext = null;
 let currentIncidentAction = "triage";
 let currentIncidentTone = "brief";
+
+const OPS_BUCKETS = ["website_urls", "landing_page_urls", "blog_urls", "competitor_urls"];
 
 function shouldTrackInactivityNudge() {
   const wsVisible = document.getElementById('workspace')?.classList.contains('visible');
@@ -2952,6 +3162,175 @@ function escapeHtml(s) {
   })[c]);
 }
 
+function discoverItemKey(it) {
+  return String(it.url || it.issue_url || it.title || Math.random().toString(36).slice(2));
+}
+
+function guessOpsBucket(it) {
+  const group = discoverSourceGroup(it.source);
+  const score = discoverScoreForItem(it);
+  const url = String(it.url || "").toLowerCase();
+  if (group === "nvd" || group === "cisa") return "landing_page_urls";
+  if (group === "queue" && score >= 3) return "blog_urls";
+  if (group === "reddit") return "blog_urls";
+  if (group === "ahackaday") return "blog_urls";
+  if (/(competitor|vs|alternative|compare)/i.test(String(it.title || "")) || /competitor/i.test(url)) return "competitor_urls";
+  if (score >= 4) return "landing_page_urls";
+  return "website_urls";
+}
+
+function nextOpsBucket(current) {
+  const idx = OPS_BUCKETS.indexOf(current);
+  if (idx === -1) return OPS_BUCKETS[0];
+  return OPS_BUCKETS[(idx + 1) % OPS_BUCKETS.length];
+}
+
+function setOpsBucketForItem(it, bucket) {
+  const key = discoverItemKey(it);
+  discoverOpsIntentByKey[key] = bucket;
+  discoverSelectedKeys.add(key);
+}
+
+function toggleDiscoverSelection(it) {
+  const key = discoverItemKey(it);
+  if (discoverSelectedKeys.has(key)) {
+    discoverSelectedKeys.delete(key);
+    delete discoverOpsIntentByKey[key];
+  } else {
+    discoverSelectedKeys.add(key);
+    discoverOpsIntentByKey[key] = discoverOpsIntentByKey[key] || guessOpsBucket(it);
+  }
+  renderDiscoverGrid();
+}
+
+function cycleDiscoverBucket(it) {
+  const key = discoverItemKey(it);
+  if (!discoverSelectedKeys.has(key)) discoverSelectedKeys.add(key);
+  const current = discoverOpsIntentByKey[key] || guessOpsBucket(it);
+  discoverOpsIntentByKey[key] = nextOpsBucket(current);
+  renderDiscoverGrid();
+}
+
+function selectedDiscoverItems() {
+  const keyed = discoverItemsCache.map((it) => ({ ...it, __key: discoverItemKey(it) }));
+  return keyed.filter((it) => discoverSelectedKeys.has(it.__key));
+}
+
+function inferOpsDomain(items) {
+  const hosts = {};
+  for (const it of items) {
+    try {
+      const u = new URL(it.url || it.issue_url || "");
+      const host = u.hostname.replace(/^www\./, "");
+      hosts[host] = (hosts[host] || 0) + 1;
+    } catch {}
+  }
+  const sorted = Object.entries(hosts).sort((a, b) => b[1] - a[1]);
+  return sorted[0]?.[0] || "www.ahackaday.news";
+}
+
+function buildOpsPayloadFromDiscover() {
+  const selected = selectedDiscoverItems();
+  const grouped = {
+    website_urls: [],
+    landing_page_urls: [],
+    blog_urls: [],
+    competitor_urls: []
+  };
+  selected.forEach((it) => {
+    const key = it.__key;
+    const bucket = discoverOpsIntentByKey[key] || guessOpsBucket(it);
+    const rawUrl = it.url || it.issue_url || null;
+    if (!rawUrl) return;
+    try {
+      const normalized = new URL(rawUrl).toString();
+      grouped[bucket].push(normalized);
+    } catch {}
+  });
+  for (const bucket of OPS_BUCKETS) {
+    grouped[bucket] = [...new Set(grouped[bucket])].slice(0, 30);
+  }
+  const domain = inferOpsDomain(selected);
+  const highCount = selected.filter((it) => discoverScoreForItem(it) >= 3).length;
+  const payload = {
+    domain,
+    workspace_name: `Discover Ops - ${domain}`,
+    timezone: "America/New_York",
+    website_urls: grouped.website_urls,
+    landing_page_urls: grouped.landing_page_urls,
+    blog_urls: grouped.blog_urls,
+    competitor_urls: grouped.competitor_urls,
+    topic_cluster: "discover-ops-bridge",
+    location_tag: "global",
+    analytics_snapshots: [
+      { source: "discover", selected_items: selected.length, high_priority_mentions: highCount },
+      { source: "discover", source_breakdown: selected.reduce((acc, it) => { const g = discoverSourceGroup(it.source); acc[g] = (acc[g] || 0) + 1; return acc; }, {}) }
+    ],
+    metrics: {
+      favorable_answers: 0,
+      tracked_priority_queries: Math.max(20, selected.length * 3),
+      entity_coverage_score: 0,
+      citation_frequency: 0,
+      answer_inclusion_rate: 0,
+      local_profile_completeness: 0,
+      content_freshness_ratio: 0,
+      notes: "Auto-generated from Discover bridge selection"
+    },
+    bridge_meta: {
+      origin: "discover",
+      selected_count: selected.length,
+      mapping_summary: {
+        website_urls: grouped.website_urls.length,
+        landing_page_urls: grouped.landing_page_urls.length,
+        blog_urls: grouped.blog_urls.length,
+        competitor_urls: grouped.competitor_urls.length
+      },
+      selected_keys: selected.map((it) => it.__key).slice(0, 80)
+    }
+  };
+  return payload;
+}
+
+function renderDiscoverOpsBridge() {
+  const selected = selectedDiscoverItems();
+  const payload = buildOpsPayloadFromDiscover();
+  const meta = document.getElementById("opsBridgeMeta");
+  const cWebsite = document.getElementById("opsCntWebsite");
+  const cLanding = document.getElementById("opsCntLanding");
+  const cBlog = document.getElementById("opsCntBlog");
+  const cComp = document.getElementById("opsCntCompetitor");
+  const jsonEl = document.getElementById("opsBridgeJson");
+  const openBtn = document.getElementById("opsOpenBtn");
+  const warningEl = document.getElementById("opsBridgeWarning");
+  const bucketEls = document.querySelectorAll(".ops-bucket");
+  const counts = [
+    payload.website_urls.length,
+    payload.landing_page_urls.length,
+    payload.blog_urls.length,
+    payload.competitor_urls.length
+  ];
+  if (meta) {
+    meta.textContent = selected.length
+      ? `${selected.length} selected · domain ${payload.domain}`
+      : "Select mentions to build an Ops-ready payload.";
+  }
+  if (cWebsite) cWebsite.textContent = String(payload.website_urls.length);
+  if (cLanding) cLanding.textContent = String(payload.landing_page_urls.length);
+  if (cBlog) cBlog.textContent = String(payload.blog_urls.length);
+  if (cComp) cComp.textContent = String(payload.competitor_urls.length);
+  if (jsonEl) jsonEl.textContent = JSON.stringify(payload, null, 2);
+  if (openBtn) openBtn.style.display = discoverOpsLastRun?.workspace_id ? "" : "none";
+  bucketEls.forEach((el, idx) => el.classList.toggle("has-items", counts[idx] > 0));
+  if (warningEl) {
+    let warning = "";
+    if (!selected.length) warning = "No items selected yet. Pick stories from the stream to build a weekly payload.";
+    else if (!counts.some(Boolean)) warning = "Selected items did not produce valid URLs. Review the picked stories or refresh the feed.";
+    else if (!payload.blog_urls.length && !payload.landing_page_urls.length) warning = "Payload is light on owned content. Consider assigning at least one blog or landing page bucket.";
+    warningEl.textContent = warning;
+    warningEl.style.display = warning ? "block" : "none";
+  }
+}
+
 function renderDiscoverGrid() {
   const ranked = document.getElementById('discoverRanked');
   const grid = document.getElementById('discoverGrid');
@@ -2994,6 +3373,9 @@ function renderDiscoverGrid() {
   ranked.innerHTML = '';
   grid.innerHTML = '';
   items.forEach((it, idx) => {
+    const itemKey = discoverItemKey(it);
+    const selected = discoverSelectedKeys.has(itemKey);
+    const bucket = discoverOpsIntentByKey[itemKey] || guessOpsBucket(it);
     const displayTitle = cleanDisplayTitle(it.title);
     const tags = discoverTagsForItem({ ...it, title: displayTitle });
     const tagsHtml = tags.map((t) => `<span class="meta-tag ${t.cls}">${t.text}</span>`).join('');
@@ -3001,6 +3383,7 @@ function renderDiscoverGrid() {
     const hotAge = it.age_minutes <= 120 ? 'hot' : '';
     const row = document.createElement('div');
     row.className = 'ranked-item';
+    if (selected) row.classList.add('ops-selected');
     row.dataset.score = String(it.score || 0);
     row.innerHTML = `
       <div class="ranked-rank">${String(idx + 1).padStart(2, '0')}</div>
@@ -3010,6 +3393,8 @@ function renderDiscoverGrid() {
         <div class="ranked-meta">${discoverSourceLabel(it.source_group)} <span class="meta-dot">•</span> <span class="meta-age ${hotAge}">${ageLabel}</span>${tagsHtml}</div>
       </div>
       <div class="ranked-actions">
+        <button class="ranked-select ${selected ? 'active' : ''}" title="Select for Ops">${selected ? 'Selected' : 'Select'}</button>
+        <button class="ranked-select active" title="Cycle Ops bucket">${bucket.replace('_urls','')}</button>
         <button class="ranked-secondary" title="Assign">
           <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6M17 11h6"/></svg>
         </button>
@@ -3026,6 +3411,8 @@ function renderDiscoverGrid() {
       const href = it.issue_url || it.url || '#';
       if (href && href !== '#') window.open(href, '_blank');
     };
+    row.querySelectorAll('.ranked-select')[0].onclick = (e) => { e.stopPropagation(); toggleDiscoverSelection(it); };
+    row.querySelectorAll('.ranked-select')[1].onclick = (e) => { e.stopPropagation(); cycleDiscoverBucket(it); };
     row.querySelectorAll('.ranked-secondary')[0].onclick = (e) => { e.stopPropagation(); saveOperatorAction(it, 'assign'); };
     row.querySelectorAll('.ranked-secondary')[1].onclick = (e) => { e.stopPropagation(); saveOperatorAction(it, 'defer'); };
     row.querySelectorAll('.ranked-secondary')[2].onclick = (e) => { e.stopPropagation(); saveOperatorAction(it, 'ship'); };
@@ -3072,6 +3459,17 @@ function renderDiscoverGrid() {
     actions.appendChild(go);
     const decisionRow = document.createElement('div');
     decisionRow.className = 'discover-card-actions secondary';
+    const dSelect = document.createElement('button');
+    dSelect.type = 'button';
+    dSelect.className = 'decision-btn';
+    dSelect.textContent = selected ? 'Selected' : 'Select';
+    if (selected) dSelect.style.borderColor = '#2563eb';
+    dSelect.onclick = () => toggleDiscoverSelection(it);
+    const dBucket = document.createElement('button');
+    dBucket.type = 'button';
+    dBucket.className = 'decision-btn';
+    dBucket.textContent = bucket.replace('_urls', '');
+    dBucket.onclick = () => cycleDiscoverBucket(it);
     const dAssign = document.createElement('button');
     dAssign.type = 'button';
     dAssign.className = 'decision-btn';
@@ -3092,6 +3490,8 @@ function renderDiscoverGrid() {
     dDefer.className = 'decision-btn';
     dDefer.textContent = 'Defer';
     dDefer.onclick = () => saveOperatorAction(it, 'defer');
+    decisionRow.appendChild(dSelect);
+    decisionRow.appendChild(dBucket);
     decisionRow.appendChild(dAssign);
     decisionRow.appendChild(dResearch);
     decisionRow.appendChild(dShip);
@@ -3124,6 +3524,7 @@ function renderDiscoverGrid() {
     const top = items[0];
     greeting.textContent = top ? `${freshCount(items)} new since yesterday. ${cleanDisplayTitle(top.title || '', 52)}` : 'No fresh stories right now.';
   }
+  renderDiscoverOpsBridge();
 }
 
 function freshCount(items) {
@@ -3146,6 +3547,11 @@ function loadDiscoverData(forceRefresh) {
       if (!queue.ok || !queue.j.ok) throw new Error(queue.j.error || 'Failed to load queue feed');
       const queueItems = (queue.j.items || []).map((q) => ({ ...q, source: 'queue' }));
       discoverItemsCache = [...(disc.j.items || []), ...queueItems];
+      const validKeys = new Set(discoverItemsCache.map((it) => discoverItemKey(it)));
+      discoverSelectedKeys = new Set([...discoverSelectedKeys].filter((k) => validKeys.has(k)));
+      Object.keys(discoverOpsIntentByKey).forEach((k) => {
+        if (!validKeys.has(k)) delete discoverOpsIntentByKey[k];
+      });
       discoverLastCached = !!disc.j.cached || !!queue.j.cached;
       discoverSourceUrl = 'AHackaday + queue';
       discoverSourceCounts = discoverItemsCache.reduce((acc, it) => {
@@ -3173,7 +3579,51 @@ function loadDiscoverData(forceRefresh) {
       }
       if (grid) grid.innerHTML = '';
       if (ranked) ranked.innerHTML = '';
+      renderDiscoverOpsBridge();
     });
+}
+
+async function runDiscoverToOpsCycle() {
+  const runBtn = document.getElementById("opsRunBtn");
+  const primaryBtn = document.getElementById("discoverToOpsBtn");
+  const status = document.getElementById("discoverStatus");
+  const payload = buildOpsPayloadFromDiscover();
+  const selectedCount = selectedDiscoverItems().length;
+  if (!selectedCount) {
+    if (status) status.textContent = "Select at least one mention before running Ops.";
+    return;
+  }
+  runBtn.textContent = "Running...";
+  primaryBtn.textContent = "Sending...";
+  runBtn.disabled = true;
+  primaryBtn.disabled = true;
+  if (status) status.textContent = `Sending ${selectedCount} selected mentions to Grace Ops…`;
+  try {
+    const res = await fetch("/api/grace-weekly", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    const json = await res.json();
+    if (!json.ok) throw new Error(json.error || "weekly run failed");
+    discoverOpsLastRun = {
+      run_id: json.run_id,
+      workspace_id: json.workspace?.id || null
+    };
+    if (discoverOpsLastRun.workspace_id) {
+      localStorage.setItem("grace_ops_workspace_id", discoverOpsLastRun.workspace_id);
+      localStorage.setItem("grace_ops_last_run_id", discoverOpsLastRun.run_id || "");
+    }
+    renderDiscoverOpsBridge();
+    if (status) status.textContent = `Ops cycle complete · workspace ${discoverOpsLastRun.workspace_id || "n/a"} · ${json.recommendation_count} recommendations`;
+  } catch (err) {
+    if (status) status.textContent = `Ops run failed: ${err.message}`;
+  } finally {
+    runBtn.textContent = "Run weekly cycle";
+    primaryBtn.textContent = "Send selected to Ops";
+    runBtn.disabled = false;
+    primaryBtn.disabled = false;
+  }
 }
 
 let registryLoaded = false;

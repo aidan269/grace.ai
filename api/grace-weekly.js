@@ -16,6 +16,8 @@ export default async function handler(req, res) {
   const body = req.body || {};
   if (!body.domain) return res.status(400).json({ error: "domain is required" });
   const runId = body.run_id || `weekly_${Date.now().toString(36)}`;
+  const bridgeMeta = body.bridge_meta && typeof body.bridge_meta === "object" ? body.bridge_meta : null;
+  const runOrigin = bridgeMeta?.origin || body.origin || "direct";
 
   try {
     const workspace = await ensureWorkspace({
@@ -28,7 +30,16 @@ export default async function handler(req, res) {
       workspaceId: workspace.id,
       runId,
       status: "started",
-      detail: { phase: "ingest" },
+      detail: {
+        phase: "ingest",
+        origin: runOrigin,
+        bridge: bridgeMeta
+          ? {
+              selected_count: Number(bridgeMeta.selected_count || 0),
+              mapping_summary: bridgeMeta.mapping_summary || null,
+            }
+          : null,
+      },
     });
 
     const graph = await buildCanonicalGraph({
@@ -84,6 +95,7 @@ export default async function handler(req, res) {
       status: "completed",
       detail: {
         phase: "completed",
+        origin: runOrigin,
         inserted_nodes: nodes.length,
         recommendation_count: recommendations.length,
         top_actions: prioritized.map((x) => ({
@@ -92,6 +104,12 @@ export default async function handler(req, res) {
           priority_score: x.priority_score,
           confidence_score: x.confidence_score,
         })),
+        bridge: bridgeMeta
+          ? {
+              selected_count: Number(bridgeMeta.selected_count || 0),
+              mapping_summary: bridgeMeta.mapping_summary || null,
+            }
+          : null,
       },
     });
 
@@ -103,6 +121,7 @@ export default async function handler(req, res) {
       recommendation_count: recommendations.length,
       top_actions: prioritized,
       workflow_states: ["draft", "review", "approved", "executed", "measured"],
+      origin: runOrigin,
     });
   } catch (e) {
     try {
@@ -112,7 +131,16 @@ export default async function handler(req, res) {
           workspaceId: workspace.id,
           runId,
           status: "failed",
-          detail: { error: e.message || "unknown_error" },
+          detail: {
+            error: e.message || "unknown_error",
+            origin: runOrigin,
+            bridge: bridgeMeta
+              ? {
+                  selected_count: Number(bridgeMeta.selected_count || 0),
+                  mapping_summary: bridgeMeta.mapping_summary || null,
+                }
+              : null,
+          },
         });
       }
     } catch {}

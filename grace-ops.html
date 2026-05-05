@@ -320,7 +320,11 @@
       }
     ];
 
-    let currentWorkspaceId = localStorage.getItem("grace_ops_workspace_id") || "";
+    const bootParams = new URLSearchParams(window.location.search);
+    const bootWorkspaceId = (bootParams.get("workspace_id") || "").trim();
+    const bootRunId = (bootParams.get("run_id") || "").trim();
+    const bootOrigin = (bootParams.get("origin") || "").trim();
+    let currentWorkspaceId = bootWorkspaceId || localStorage.getItem("grace_ops_workspace_id") || "";
     let latestReport = null;
     let latestRun = null;
 
@@ -554,6 +558,9 @@
     });
 
     wireTabs();
+    if (bootOrigin === "discover") {
+      setFeedback(`Opened from Discover bridge${bootRunId ? ` · run ${bootRunId}` : ""}. Loading workspace report...`);
+    }
     if (currentWorkspaceId) {
       document.getElementById("workspaceId").value = currentWorkspaceId;
       loadReport(currentWorkspaceId).catch((err) => setFeedback(`Auto-load failed: ${err.message}`));
