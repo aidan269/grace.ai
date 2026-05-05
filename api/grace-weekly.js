@@ -21,6 +21,7 @@ export default async function handler(req, res) {
 const normalizedBridge = bridgeMeta
   ? {
       incident_key: bridgeMeta.incident_key || null,
+      incident_url: bridgeMeta.incident_url || null,
       source: bridgeMeta.source || null,
       extracted_indicators: Array.isArray(bridgeMeta.extracted_indicators)
         ? bridgeMeta.extracted_indicators.slice(0, 80)
@@ -29,6 +30,14 @@ const normalizedBridge = bridgeMeta
       mapping_summary: bridgeMeta.mapping_summary || null,
     }
   : null;
+
+function normalizeUrl(raw) {
+  try {
+    return new URL(String(raw || "").trim()).toString();
+  } catch {
+    return null;
+  }
+}
 
   try {
     const workspace = await ensureWorkspace({
@@ -48,11 +57,24 @@ const normalizedBridge = bridgeMeta
       },
     });
 
+    const websiteUrls = Array.isArray(body.website_urls) ? body.website_urls : [];
+    const landingPageUrls = Array.isArray(body.landing_page_urls) ? body.landing_page_urls : [];
+    const blogUrls = Array.isArray(body.blog_urls) ? body.blog_urls : [];
+    const competitorUrls = Array.isArray(body.competitor_urls) ? body.competitor_urls : [];
+    const fallbackIncidentUrl = normalizeUrl(
+      normalizedBridge?.incident_url ||
+        body.incident_url ||
+        body.source_url ||
+        body.url
+    );
+    const hasAnyUrls =
+      websiteUrls.length || landingPageUrls.length || blogUrls.length || competitorUrls.length;
+
     const graph = await buildCanonicalGraph({
-      websiteUrls: body.website_urls || [],
-      landingPageUrls: body.landing_page_urls || [],
-      blogUrls: body.blog_urls || [],
-      competitorUrls: body.competitor_urls || [],
+      websiteUrls,
+      landingPageUrls,
+      blogUrls: hasAnyUrls ? blogUrls : fallbackIncidentUrl ? [fallbackIncidentUrl] : blogUrls,
+      competitorUrls,
       analyticsSnapshots: body.analytics_snapshots || [],
       gbpSnapshot: body.gbp_snapshot || null,
       topicCluster: body.topic_cluster || null,
