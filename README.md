@@ -1,3 +1,6 @@
-This was essentially a plugins factory for turning news events into Claude skills for cyber professionals to read and install. 
+Ask Grace to create a plugin based on a link from ahackaday
 
-The goal was for every cyber hack-- we'd dev some lightweight skill for social media people. 
+Grace will take the link -> analyze the virality/ viewership -> create a tailored Claude Plugin 
+
+## Update: 09/09 
+Grace is currently under construction... 
